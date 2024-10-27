@@ -24,6 +24,16 @@ class LoginViewModel(app: Application): AndroidViewModel(app) {
         return dataStore.data.first()[intPreferencesKey("loginStatus")]
     }
 
+    suspend fun setProfileUsername(rememberedUsername: String) {
+        dataStore.edit {
+            it[stringPreferencesKey("rememberedUsername")] = rememberedUsername
+        }
+    }
+
+    suspend fun getProfileUsername(): String? {
+        return dataStore.data.first()[stringPreferencesKey("rememberedUsername")]
+    }
+
     suspend fun setRememberedUsername(rememberedUsername: String) {
         dataStore.edit {
             it[stringPreferencesKey("rememberedUsername")] = rememberedUsername

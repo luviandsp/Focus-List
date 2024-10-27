@@ -11,7 +11,6 @@ data class User(
     @PrimaryKey(autoGenerate = true)
     val userId: Int,
     val username: String,
-    val password: String
+    var password: String,
+    val profileImage: ByteArray? = null
 ) : Parcelable
-
-// TODO: Implementasi User Table

@@ -9,27 +9,26 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
 import androidx.navigation.findNavController
 import com.project.focuslist.R
 import com.project.focuslist.databinding.FragmentLoginBinding
+import com.project.focuslist.ui.activity.EditProfileActivity
 import com.project.focuslist.ui.activity.MainActivity
+import com.project.focuslist.ui.viewmodel.AuthViewModel
 import com.project.focuslist.ui.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
 
     private lateinit var binding: FragmentLoginBinding
-    private val viewModel by viewModels<LoginViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    private val loginViewModel by viewModels<LoginViewModel>()
+    private val authViewModel by viewModels<AuthViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
+    ): View {
         binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -38,10 +37,8 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         lifecycleScope.launch {
-            if (viewModel.getLoginStatus() == 1) {
-                val intent = Intent(activity, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
+            if (loginViewModel.getLoginStatus() == 1) {
+                navigateToMainActivity()
             }
         }
 
@@ -51,11 +48,11 @@ class LoginFragment : Fragment() {
     private fun initViews() {
         with(binding) {
             lifecycleScope.launch {
-                if (!viewModel.getRememberedUsername()
-                        .isNullOrEmpty() && !viewModel.getRememberedPassword().isNullOrEmpty()
+                if (!loginViewModel.getRememberedUsername()
+                        .isNullOrEmpty() && !loginViewModel.getRememberedPassword().isNullOrEmpty()
                 ) {
-                    tietUsername.setText(viewModel.getRememberedUsername())
-                    tietPassword.setText(viewModel.getRememberedPassword())
+                    tietUsername.setText(loginViewModel.getRememberedUsername())
+                    tietPassword.setText(loginViewModel.getRememberedPassword())
                     cbRemember.isChecked = true
                 }
             }
@@ -63,31 +60,30 @@ class LoginFragment : Fragment() {
             btnLogin.setOnClickListener {
                 val username = tietUsername.text.toString()
                 val password = tietPassword.text.toString()
-                if (username == "ksmandroid" && password == "androinter") {
 
-                    lifecycleScope.launch {
+                if (username.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(activity, "Username dan Password wajib diisi", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
 
-                        viewModel.setLoginStatus(1)
+                // Panggil fungsi autentikasi
+                authViewModel.authenticateUser(username, password).observe(viewLifecycleOwner) { user ->
+                    if (user != null) {
+                        // Login berhasil
+                        lifecycleScope.launch {
+                            loginViewModel.setLoginStatus(1)
 
-                        viewModel.setRememberedUsername(
-                            if (cbRemember.isChecked) username else ""
-                        )
-                        viewModel.setRememberedPassword(
-                            if (cbRemember.isChecked) password else ""
-                        )
+                            loginViewModel.setRememberedUsername(if (cbRemember.isChecked) username else "")
+                            loginViewModel.setRememberedPassword(if (cbRemember.isChecked) password else "")
 
-                        val intent = Intent(activity, MainActivity::class.java)
-                        intent.flags =
-                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
+                            loginViewModel.setProfileUsername(username)
+
+                            navigateToMainActivity()
+                        }
+                    } else {
+                        // Login gagal
+                        Toast.makeText(activity, "Username atau Password salah", Toast.LENGTH_SHORT).show()
                     }
-
-                } else {
-                    Toast.makeText(
-                        activity,
-                        "Username: ksmandroid; Password: androinter",
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
             }
 
@@ -99,5 +95,11 @@ class LoginFragment : Fragment() {
                 view?.findNavController()?.navigate(R.id.login_to_register)
             }
         }
+    }
+
+    private fun navigateToMainActivity() {
+        val intent = Intent(activity, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
     }
 }

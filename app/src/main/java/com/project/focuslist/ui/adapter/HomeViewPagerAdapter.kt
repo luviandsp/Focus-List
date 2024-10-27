@@ -8,13 +8,13 @@ import com.project.focuslist.ui.fragment.TaskInProgressFragment
 
 class HomeViewPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
 
-    private val fragments = listOf(
+    private val fragments: List<Fragment> = listOf(
         AllTaskFragment(),
         TaskInProgressFragment(),
         TaskDoneFragment()
     )
 
-    private val fragmentTitles = listOf(
+    private val fragmentTitles: List<String> = listOf(
         "All Task",
         "In Progress",
         "Done"

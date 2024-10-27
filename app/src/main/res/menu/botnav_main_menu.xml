@@ -4,11 +4,11 @@
     <item
         android:id="@+id/home_fragment"
         android:title="Task"
-        android:icon="@drawable/ic_launcher_background" />
+        android:icon="@drawable/baseline_task_24" />
 
     <item
         android:id="@+id/profile_fragment"
         android:title="Profile"
-        android:icon="@drawable/ic_launcher_background" />
+        android:icon="@drawable/baseline_account_circle_24" />
 
 </menu>

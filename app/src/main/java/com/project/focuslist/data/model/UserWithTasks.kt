@@ -11,5 +11,3 @@ data class UserWithTasks(
     )
     val tasks: List<Task>
 )
-
-// TODO: Implementasi User Table dengan Task Table

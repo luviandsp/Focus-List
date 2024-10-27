@@ -6,16 +6,20 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.project.focuslist.data.model.Task
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
     @Query("SELECT * FROM task_table")
-    fun getTaskList(): Flow<MutableList<Task>>
+    fun getTaskList(): LiveData<MutableList<Task>>
 
-//    @Query("SELECT * FROM task_table WHERE userOwnedId=:userId")
-//    suspend fun getTasksForUser(userId: Int): Task?
+    @Query("SELECT * FROM task_table WHERE isCompleted = 1")
+    fun getCompletedTasks(): LiveData<MutableList<Task>>
+
+    @Query("SELECT * FROM task_table WHERE isCompleted = 0")
+    fun getInProgressTasks(): LiveData<MutableList<Task>>
 
     @Query("SELECT * FROM task_table WHERE taskId=:taskId")
     suspend fun getTaskById(taskId: Int): Task?
@@ -25,4 +29,7 @@ interface TaskDao {
 
     @Delete
     suspend fun deleteTask(task: Task)
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateTask(task: Task)
 }

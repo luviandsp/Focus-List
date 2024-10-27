@@ -23,12 +23,8 @@ data class Task(
     val taskId: Int,
     val title: String,
     val body: String,
-    val completed: Boolean = false,
-    val dueDate: Long = 0L,
+    var isCompleted: Boolean = false,
     val priority: Int = 0,
-    val favorite: Boolean = false,
-    val labels: String? = null,
-    val color: String = "#ffffff", // Default color white
-    val createdAt: Long = System.currentTimeMillis()
+    val dueDate: String? = null
 //    val userOwnedId: Int
 ) : Parcelable
