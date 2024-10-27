@@ -2,8 +2,6 @@ package com.project.focuslist.data.room
 
 import androidx.lifecycle.LiveData
 import com.project.focuslist.data.model.User
-import com.project.focuslist.data.model.UserWithTasks
-import kotlinx.coroutines.flow.Flow
 
 class UserRepository(private val userDao: UserDao) {
 

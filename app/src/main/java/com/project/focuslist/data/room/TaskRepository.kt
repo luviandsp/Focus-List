@@ -2,7 +2,6 @@ package com.project.focuslist.data.room
 
 import androidx.lifecycle.LiveData
 import com.project.focuslist.data.model.Task
-import kotlinx.coroutines.flow.Flow
 
 class TaskRepository(private val taskDao: TaskDao) {
     fun getTaskList(): LiveData<MutableList<Task>> = taskDao.getTaskList()

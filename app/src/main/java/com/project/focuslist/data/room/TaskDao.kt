@@ -8,7 +8,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.project.focuslist.data.model.Task
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {

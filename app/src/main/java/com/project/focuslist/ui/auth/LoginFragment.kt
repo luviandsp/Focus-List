@@ -9,11 +9,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import androidx.navigation.findNavController
 import com.project.focuslist.R
 import com.project.focuslist.databinding.FragmentLoginBinding
-import com.project.focuslist.ui.activity.EditProfileActivity
 import com.project.focuslist.ui.activity.MainActivity
 import com.project.focuslist.ui.viewmodel.AuthViewModel
 import com.project.focuslist.ui.viewmodel.LoginViewModel

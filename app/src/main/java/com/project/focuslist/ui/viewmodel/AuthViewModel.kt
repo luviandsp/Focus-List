@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.project.focuslist.data.model.Task
 import com.project.focuslist.data.model.User
 import com.project.focuslist.data.room.AppDatabase
 import com.project.focuslist.data.room.UserRepository

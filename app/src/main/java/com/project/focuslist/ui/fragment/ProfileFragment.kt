@@ -13,9 +13,7 @@ import com.project.focuslist.R
 import com.project.focuslist.data.model.User
 import com.project.focuslist.databinding.FragmentProfileBinding
 import com.project.focuslist.ui.activity.AuthActivity
-import com.project.focuslist.ui.activity.DetailTaskActivity.Companion.INTENT_KEY_TASK_ID
 import com.project.focuslist.ui.activity.EditProfileActivity
-import com.project.focuslist.ui.viewmodel.AuthViewModel
 import com.project.focuslist.ui.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
 
@@ -23,7 +21,6 @@ class ProfileFragment : Fragment() {
 
     private lateinit var binding: FragmentProfileBinding
     private val loginViewModel by viewModels<LoginViewModel>()
-    private val authViewModel by viewModels<AuthViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

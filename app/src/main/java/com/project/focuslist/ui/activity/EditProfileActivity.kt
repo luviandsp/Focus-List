@@ -16,13 +16,9 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.project.focuslist.R
-import com.project.focuslist.data.model.Task
 import com.project.focuslist.data.model.User
 import com.project.focuslist.databinding.ActivityEditProfileBinding
-import com.project.focuslist.ui.activity.DetailTaskActivity.Companion
-import com.project.focuslist.ui.activity.DetailTaskActivity.Companion.INTENT_KEY_TASK_ID
 import com.project.focuslist.ui.viewmodel.AuthViewModel
-import com.project.focuslist.ui.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -33,7 +29,6 @@ class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditProfileBinding
     private val viewModel by viewModels<AuthViewModel>()
-    private val loginViewModel by viewModels<LoginViewModel>()
     private var loadedImage: ByteArray? = null
     private var isClicked = false
 

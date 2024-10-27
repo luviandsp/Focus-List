@@ -6,21 +6,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
 import com.google.android.material.tabs.TabLayoutMediator
 import com.project.focuslist.databinding.FragmentTaskBinding
 import com.project.focuslist.ui.activity.DetailTaskActivity
 import com.project.focuslist.ui.adapter.HomeViewPagerAdapter
-import com.project.focuslist.ui.viewmodel.TaskViewModel
 
 class TaskFragment : Fragment() {
 
     private lateinit var binding: FragmentTaskBinding
-    private val viewModel by viewModels<TaskViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
