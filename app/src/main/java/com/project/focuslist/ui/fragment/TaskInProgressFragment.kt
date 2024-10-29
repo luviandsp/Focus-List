@@ -7,17 +7,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.databinding.FragmentTaskInProgressBinding
 import com.project.focuslist.ui.activity.DetailTaskActivity
 import com.project.focuslist.ui.adapter.TaskAdapter
+import com.project.focuslist.ui.viewmodel.AuthViewModel
+import com.project.focuslist.ui.viewmodel.LoginViewModel
 import com.project.focuslist.ui.viewmodel.TaskViewModel
+import kotlinx.coroutines.launch
 
 class TaskInProgressFragment : Fragment(), TaskAdapter.OnItemClickListener {
 
     private lateinit var binding: FragmentTaskInProgressBinding
     private val viewModel by viewModels<TaskViewModel>()
+    private val userViewModel by viewModels<AuthViewModel>()
+    private val loginViewModel by viewModels<LoginViewModel>()
     private lateinit var taskAdapter: TaskAdapter
 
     override fun onCreateView(
@@ -52,9 +58,11 @@ class TaskInProgressFragment : Fragment(), TaskAdapter.OnItemClickListener {
     }
 
     private fun observeInProgressTasks() {
-        viewModel.getInProgressTasks().observe(viewLifecycleOwner) { taskList ->
-            taskAdapter.setTasks(taskList)
-            updateTaskListVisibility(taskList.isEmpty())
+        lifecycleScope.launch {
+            viewModel.getInProgressTasks().observe(viewLifecycleOwner) { taskList ->
+                taskAdapter.setTasks(taskList)
+                updateTaskListVisibility(taskList.isEmpty())
+            }
         }
     }
 
@@ -66,12 +74,7 @@ class TaskInProgressFragment : Fragment(), TaskAdapter.OnItemClickListener {
     }
 
     private fun updateTaskListVisibility(isEmpty: Boolean) {
-        if (isEmpty) {
-            binding.ivTaskProgressList.visibility = View.VISIBLE
-            binding.rvTaskProgress.visibility = View.GONE
-        } else {
-            binding.ivTaskProgressList.visibility = View.GONE
-            binding.rvTaskProgress.visibility = View.VISIBLE
-        }
+        binding.ivTaskProgressList.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.rvTaskProgress.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 }

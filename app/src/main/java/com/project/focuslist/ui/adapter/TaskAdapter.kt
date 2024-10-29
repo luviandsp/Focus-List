@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.project.focuslist.R
+import com.project.focuslist.data.enumData.TaskPriority
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.databinding.TaskItemBinding
 
@@ -29,9 +30,9 @@ class TaskAdapter(private var taskList: MutableList<Task>): RecyclerView.Adapter
                 }
 
                 when (task.priority) {
-                    1 -> constraintLayout.setBackgroundResource(R.drawable.background_shape_1)
-                    2 -> constraintLayout.setBackgroundResource(R.drawable.background_shape_2)
-                    3 -> constraintLayout.setBackgroundResource(R.drawable.background_shape_3)
+                    TaskPriority.LOW.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_1)
+                    TaskPriority.MEDIUM.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_2)
+                    TaskPriority.HIGH.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_3)
                 }
             }
         }

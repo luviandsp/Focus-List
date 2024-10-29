@@ -25,6 +25,7 @@ import java.io.IOException
 import java.io.InputStream
 import kotlin.jvm.Throws
 
+//TODO: Belum diimplementasikan
 class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditProfileBinding

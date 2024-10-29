@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-parcelize")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -40,8 +40,20 @@ android {
     }
 }
 
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath (libs.kotlin.gradle.plugin)
+    }
+}
+
 dependencies {
 
+    implementation (libs.kotlin.stdlib)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -65,9 +77,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.annotation)
-    annotationProcessor (libs.androidx.room.compiler)
 
-    kapt ("androidx.room:room-compiler:2.6.1")
+    ksp(libs.androidx.room.compiler)
     implementation (libs.androidx.room.ktx)
 
     testImplementation(libs.junit)

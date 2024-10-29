@@ -19,7 +19,8 @@
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Register"
+            android:fontFamily="@font/nunito_black"
+            android:text="@string/register"
             android:textSize="56sp"
             android:textColor="?attr/colorPrimary"
             android:textStyle="bold"
@@ -38,9 +39,10 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiet_username"
+                android:fontFamily="@font/nunito"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Username"/>
+                android:hint="@string/username"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -57,10 +59,11 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiet_password"
+                android:fontFamily="@font/nunito"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:hint="Password" />
+                android:hint="@string/password" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -76,10 +79,11 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiet_confirm_password"
+                android:fontFamily="@font/nunito"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:hint="Confirm Password" />
+                android:hint="@string/confirm_password" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -89,7 +93,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="60dp"
             android:paddingVertical="12dp"
-            android:text="Register"
+            android:fontFamily="@font/nunito_black"
+            android:text="@string/register"
             android:textSize="16sp"
             app:layout_constraintTop_toBottomOf="@id/til_confirm_password"
             app:layout_constraintStart_toStartOf="parent"
@@ -100,7 +105,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="64dp"
-            android:text="Have an account?"
+            android:fontFamily="@font/nunito"
+            android:text="@string/have_an_account"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -111,7 +117,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="Log in"
+            android:fontFamily="@font/nunito"
+            android:text="@string/login"
             android:textColor="#4287f5"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tv_have_account"

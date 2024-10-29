@@ -27,15 +27,13 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
         userRepo.deleteUser(user)
     }
 
-    // Dalam AuthViewModel
-    fun getUserById(userId: Int): LiveData<User> {
-        val userData = MutableLiveData<User>()
+    fun getUserById(userId: Int): LiveData<User?> {
+        val userData = MutableLiveData<User?>()
         viewModelScope.launch {
-            userData.postValue(userRepo.getUserById(userId)) // Gunakan postValue untuk mengupdate LiveData
+            userData.postValue(userRepo.getUserById(userId))
         }
         return userData
     }
-
 
     fun updateUser(user: User) = viewModelScope.launch {
         userRepo.updateUser(user)
@@ -44,7 +42,7 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
     fun getProfileImage(userId: Int): LiveData<ByteArray?> {
         val imageData = MutableLiveData<ByteArray?>()
         viewModelScope.launch {
-            imageData.value = userRepo.getProfileImage(userId)
+            imageData.postValue(userRepo.getProfileImage(userId))
         }
         return imageData
     }
@@ -62,6 +60,6 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
         userRepo.updatePassword(userId, newPassword)
     }
 
-
-    fun getUserWithTasks(userId: Int) = userRepo.getUserWithTasks(userId)
+//    fun getUserWithTasks(userId: Int): LiveData<UserWithTasks?> =
+//        userRepo.getUserWithTasks(userId)
 }

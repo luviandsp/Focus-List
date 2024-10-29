@@ -19,7 +19,8 @@
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Login"
+            android:text="@string/login"
+            android:fontFamily="@font/nunito_black"
             android:textSize="56sp"
             android:textColor="?attr/colorPrimary"
             android:textStyle="bold"
@@ -38,9 +39,10 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiet_username"
+                android:fontFamily="@font/nunito"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Username"/>
+                android:hint="@string/username"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -58,8 +60,9 @@
                 android:id="@+id/tiet_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/nunito"
                 android:inputType="textPassword"
-                android:hint="Password" />
+                android:hint="@string/password" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -75,7 +78,8 @@
             android:id="@+id/tv_remember"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Remember Me"
+            android:fontFamily="@font/nunito"
+            android:text="@string/remember_me"
             app:layout_constraintTop_toTopOf="@id/cb_remember"
             app:layout_constraintBottom_toBottomOf="@id/cb_remember"
             app:layout_constraintStart_toEndOf="@id/cb_remember"/>
@@ -86,7 +90,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="60dp"
             android:paddingVertical="12dp"
-            android:text="Login"
+            android:fontFamily="@font/nunito_black"
+            android:text="@string/login"
             android:textSize="16sp"
             app:layout_constraintTop_toBottomOf="@id/cb_remember"
             app:layout_constraintStart_toStartOf="parent"
@@ -97,7 +102,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Forgot Password?"
+            android:fontFamily="@font/nunito"
+            android:text="@string/forgot_password"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/til_password" />
@@ -107,7 +113,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="64dp"
-            android:text="Don't have an account?"
+            android:fontFamily="@font/nunito"
+            android:text="@string/don_t_have_an_account"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_login" />
@@ -118,7 +125,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:clickable="true"
-            android:text="Sign up"
+            android:fontFamily="@font/nunito"
+            android:text="@string/sign_up"
             android:textColor="#4287f5"
             app:layout_constraintStart_toEndOf="@id/tv_dont_have_account"
             app:layout_constraintTop_toBottomOf="@+id/btn_login" />

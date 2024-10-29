@@ -9,15 +9,21 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.project.focuslist.R
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.databinding.ActivityDetailTaskBinding
+import com.project.focuslist.ui.viewmodel.AuthViewModel
+import com.project.focuslist.ui.viewmodel.LoginViewModel
 import com.project.focuslist.ui.viewmodel.TaskViewModel
+import kotlinx.coroutines.launch
 
 class DetailTaskActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailTaskBinding
     private val viewModel by viewModels<TaskViewModel>()
+    private val userViewModel by viewModels<AuthViewModel>()
+    private val loginViewModel by viewModels<LoginViewModel>()
     private var selectedDueDate: String? = null
     private var taskData: Task? = null // Store task data for later use
 
@@ -47,7 +53,7 @@ class DetailTaskActivity : AppCompatActivity() {
                         taskData = it
                         tietTitle.setText(it.title)
                         tietBody.setText(it.body)
-                        spinnerPriority.setSelection(it.priority -1) // Assuming priority is an index
+                        spinnerPriority.setSelection(it.priority -1)
                         tvDate.text = it.dueDate ?: "Select Date"
                     }
                 }
@@ -68,7 +74,7 @@ class DetailTaskActivity : AppCompatActivity() {
 
             ivDelete.setOnClickListener {
                 if (isEdit) {
-                    viewModel.deleteTask(Task(taskId, "", "", false))
+                    viewModel.deleteTask(Task(taskId, "", "", false, 0, ""))
                     finish()
                 }
             }

@@ -5,7 +5,7 @@ import com.project.focuslist.data.model.User
 
 class UserRepository(private val userDao: UserDao) {
 
-    fun getUserWithTasks(userId: Int): User? = userDao.getUserWithTasks(userId)
+//    fun getUserWithTasks(userId: Int): LiveData<UserWithTasks?> = userDao.getUserWithTasks(userId)
 
     fun getUserIdByUsername(username: String): LiveData<Int> = userDao.getUserIdByUsername(username)
 
@@ -26,5 +26,3 @@ class UserRepository(private val userDao: UserDao) {
 
     suspend fun deleteUser(user: User) = userDao.deleteUser(user)
 }
-
-// TODO: Implementasi UserRepository

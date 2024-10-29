@@ -19,6 +19,12 @@ class TaskViewModel(app: Application): AndroidViewModel(app) {
         taskRepo = TaskRepository(daoTask)
     }
 
+//    fun getTaskList(userId: Int): LiveData<MutableList<Task>> = taskRepo.getTaskList(userId)
+//
+//    fun getCompletedTasks(userId: Int): LiveData<MutableList<Task>> = taskRepo.getCompletedTasks(userId)
+//
+//    fun getInProgressTasks(userId: Int): LiveData<MutableList<Task>> = taskRepo.getInProgressTasks(userId)
+
     fun getTaskList(): LiveData<MutableList<Task>> = taskRepo.getTaskList()
 
     fun getCompletedTasks(): LiveData<MutableList<Task>> = taskRepo.getCompletedTasks()

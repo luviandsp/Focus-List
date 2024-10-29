@@ -7,17 +7,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.databinding.FragmentTaskDoneBinding
 import com.project.focuslist.ui.activity.DetailTaskActivity
 import com.project.focuslist.ui.adapter.TaskAdapter
+import com.project.focuslist.ui.viewmodel.AuthViewModel
+import com.project.focuslist.ui.viewmodel.LoginViewModel
 import com.project.focuslist.ui.viewmodel.TaskViewModel
+import kotlinx.coroutines.launch
 
 class TaskDoneFragment : Fragment(), TaskAdapter.OnItemClickListener {
 
     private lateinit var binding: FragmentTaskDoneBinding
     private val viewModel by viewModels<TaskViewModel>()
+    private val userViewModel by viewModels<AuthViewModel>()
+    private val loginViewModel by viewModels<LoginViewModel>()
     private lateinit var taskAdapter: TaskAdapter
 
     override fun onCreateView(
@@ -53,9 +59,11 @@ class TaskDoneFragment : Fragment(), TaskAdapter.OnItemClickListener {
     }
 
     private fun observeCompletedTasks() {
-        viewModel.getCompletedTasks().observe(viewLifecycleOwner) { taskList ->
-            taskAdapter.setTasks(taskList)
-            updateTaskListVisibility(taskList.isEmpty())
+        lifecycleScope.launch {
+            viewModel.getCompletedTasks().observe(viewLifecycleOwner) { taskList ->
+                taskAdapter.setTasks(taskList)
+                updateTaskListVisibility(taskList.isEmpty())
+            }
         }
     }
 
@@ -67,12 +75,7 @@ class TaskDoneFragment : Fragment(), TaskAdapter.OnItemClickListener {
     }
 
     private fun updateTaskListVisibility(isEmpty: Boolean) {
-        if (isEmpty) {
-            binding.ivTaskDoneList.visibility = View.VISIBLE
-            binding.rvTaskDone.visibility = View.GONE
-        } else {
-            binding.ivTaskDoneList.visibility = View.GONE
-            binding.rvTaskDone.visibility = View.VISIBLE
-        }
+        binding.ivTaskDoneList.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.rvTaskDone.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 }

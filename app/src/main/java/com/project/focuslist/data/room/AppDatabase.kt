@@ -9,12 +9,12 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.data.model.User
 
-const val OLD_VERSION = 4
-const val NEW_VERSION = 5
+const val OLD_VERSION = 1
+const val NEW_VERSION = 1
 
 @Database(
     entities = [User::class, Task::class],
-    version = 5
+    version = 1
 )
 abstract class AppDatabase: RoomDatabase() {
 
@@ -29,7 +29,7 @@ abstract class AppDatabase: RoomDatabase() {
 
         private val MIGRATION_OLD_TO_NEW = object : Migration(OLD_VERSION, NEW_VERSION) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE task_table ADD COLUMN dueDate TEXT")
+                // Add migration code if needed
             }
         }
 

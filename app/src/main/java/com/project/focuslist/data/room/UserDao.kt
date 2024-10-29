@@ -13,26 +13,26 @@ import com.project.focuslist.data.model.User
 @Dao
 interface UserDao {
 
-    @Query("SELECT * FROM user_table WHERE userId=:userId LIMIT 1")
+    @Query("SELECT * FROM user_table WHERE user_id = :userId LIMIT 1")
     suspend fun getUserById(userId: Int): User?
 
-    @Query("SELECT userId FROM user_table WHERE username = :username LIMIT 1")
+    @Query("SELECT user_id FROM user_table WHERE user_username = :username LIMIT 1")
     fun getUserIdByUsername(username: String): LiveData<Int>
 
-    @Transaction
-    @Query("SELECT * FROM user_table WHERE userId = :userId")
-    fun getUserWithTasks(userId: Int): User?
+//    @Transaction
+//    @Query("SELECT * FROM user_table WHERE user_id = :userId")
+//    fun getUserWithTasks(userId: Int): LiveData<UserWithTasks?>
 
-    @Query("SELECT * FROM user_table WHERE username = :username AND password = :password")
+    @Query("SELECT * FROM user_table WHERE user_username = :username AND user_password = :password")
     fun getUserByUsernameAndPassword(username: String, password: String): LiveData<User?>
 
-    @Query("SELECT * FROM user_table WHERE username = :username LIMIT 1")
+    @Query("SELECT * FROM user_table WHERE user_username = :username LIMIT 1")
     fun getUserByUsername(username: String): LiveData<User?>
 
-    @Query("UPDATE user_table SET password = :newPassword WHERE userId = :userId")
+    @Query("UPDATE user_table SET user_password = :newPassword WHERE user_id = :userId")
     suspend fun updatePassword(userId: Int, newPassword: String)
 
-    @Query("SELECT profileImage FROM user_table WHERE userId = :userId LIMIT 1")
+    @Query("SELECT user_profile_image FROM user_table WHERE user_id = :userId LIMIT 1")
     suspend fun getProfileImage(userId: Int): ByteArray?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
