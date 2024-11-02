@@ -2,6 +2,7 @@ package com.project.focuslist.ui.activity
 
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import androidx.activity.enableEdgeToEdge
@@ -59,9 +60,11 @@ class DetailTaskActivity : AppCompatActivity() {
                 }
             }
 
+            val isDarkMode = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+            val itemLayout = if (isDarkMode) R.layout.spinner_item_dark else R.layout.spinner_item
             val priorities = arrayOf("Rendah", "Sedang", "Tinggi")
-            val adapter = ArrayAdapter(this@DetailTaskActivity, android.R.layout.simple_spinner_item, priorities)
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            val adapter = ArrayAdapter(this@DetailTaskActivity, itemLayout, priorities)
+            adapter.setDropDownViewResource(itemLayout)
             spinnerPriority.adapter = adapter
 
             btnDatePicker.setOnClickListener {

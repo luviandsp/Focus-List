@@ -4,8 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -13,7 +17,8 @@ import com.project.focuslist.R
 import com.project.focuslist.data.model.User
 import com.project.focuslist.databinding.FragmentProfileBinding
 import com.project.focuslist.ui.activity.AuthActivity
-import com.project.focuslist.ui.activity.EditProfileActivity
+import com.project.focuslist.ui.optionsmenu.EditProfileActivity
+import com.project.focuslist.ui.optionsmenu.ShowAllProfileActivity
 import com.project.focuslist.ui.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
 
@@ -28,6 +33,10 @@ class ProfileFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentProfileBinding.inflate(inflater, container, false)
+        setHasOptionsMenu(true)
+
+        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
+        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
         return binding.root
     }
 
@@ -54,12 +63,25 @@ class ProfileFragment : Fragment() {
                     startActivity(intent)
                 }
             }
-
-            fabEditProfile.setOnClickListener {
-                val intent = Intent(activity, EditProfileActivity::class.java)
-                intent.putExtra(EditProfileActivity.INTENT_KEY, EditProfileActivity.CREATE_KEY)
-                startActivity(intent)
-            }
         }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.option_menu_main, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val intent = Intent(
+            requireContext(),
+            when (item.itemId) {
+                R.id.activity_show_all_profile -> ShowAllProfileActivity::class.java
+                else -> EditProfileActivity::class.java
+            }
+        )
+        startActivity(intent)
+        return true
     }
 }

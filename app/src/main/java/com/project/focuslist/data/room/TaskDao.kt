@@ -23,10 +23,10 @@ interface TaskDao {
     @Query("SELECT * FROM task_table ORDER BY task_priority DESC, task_due_date ASC")
     fun getTaskList(): LiveData<MutableList<Task>>
 
-    @Query("SELECT * FROM task_table WHERE task_is_completed = 1 ORDER BY task_due_date ASC")
+    @Query("SELECT * FROM task_table WHERE task_is_completed = 1 ORDER BY task_priority DESC, task_due_date ASC")
     fun getCompletedTasks(): LiveData<MutableList<Task>>
 
-    @Query("SELECT * FROM task_table WHERE task_is_completed = 0 ORDER BY task_due_date ASC")
+    @Query("SELECT * FROM task_table WHERE task_is_completed = 0 ORDER BY task_priority DESC, task_due_date ASC")
     fun getInProgressTasks(): LiveData<MutableList<Task>>
 
     @Query("SELECT * FROM task_table WHERE task_id = :taskId")

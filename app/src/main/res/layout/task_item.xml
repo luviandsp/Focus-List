@@ -15,37 +15,61 @@
         app:layout_constraintTop_toTopOf="parent"
         android:background="@drawable/background_shape_1">
 
-        <CheckBox
-            android:id="@+id/cb_taskCheck"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:buttonTint="@color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
 
-        <TextView
-            android:id="@+id/tv_taskName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/nunito_black"
-            android:text="@string/task_name"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            app:layout_constraintBottom_toTopOf="@id/tv_taskBody"
-            app:layout_constraintStart_toEndOf="@+id/cb_taskCheck"
-            app:layout_constraintTop_toTopOf="parent" />
+            <LinearLayout
+                android:id="@+id/ll_taskCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
 
-        <TextView
-            android:id="@+id/tv_taskBody"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/nunito"
-            android:text="@string/task_body"
-            android:textColor="@color/white"
-            app:layout_constraintStart_toEndOf="@+id/cb_taskCheck"
-            app:layout_constraintTop_toBottomOf="@+id/tv_taskName"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+                <ImageView
+                    android:id="@+id/iv_taskCheck"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:src="@drawable/baseline_check_box_outline_blank_24" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_taskName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/nunito_black"
+                android:text="@string/task_name"
+                android:maxEms="9"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toTopOf="@id/tv_taskBody"
+                app:layout_constraintStart_toEndOf="@+id/ll_taskCheck"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_taskBody"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/nunito"
+                android:text="@string/task_body"
+                android:maxEms="8"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toEndOf="@+id/ll_taskCheck"
+                app:layout_constraintTop_toBottomOf="@+id/tv_taskName"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
             android:id="@+id/tv_dueDate"

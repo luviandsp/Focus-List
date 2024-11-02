@@ -27,6 +27,8 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
         userRepo.deleteUser(user)
     }
 
+    fun getAllUsers(): LiveData<MutableList<User>> = userRepo.getAllUsers()
+
     fun getUserById(userId: Int): LiveData<User?> {
         val userData = MutableLiveData<User?>()
         viewModelScope.launch {

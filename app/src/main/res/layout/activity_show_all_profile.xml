@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.optionsmenu.EditProfileActivity">
+    tools:context=".ui.optionsmenu.ShowAllProfileActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_top"
@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:fontFamily="@font/nunito_black"
-            android:text="@string/edit_profile"
+            android:text="@string/all_profiles"
             android:textColor="?attr/colorPrimary"
             android:textSize="32sp"
             android:textStyle="bold"
@@ -39,48 +39,14 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
-        android:id="@+id/iv_imageEdit"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginTop="32dp"
-        android:src="@drawable/baseline_account_circle_24"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_profile"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        tools:listitem="@layout/profile_item"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cl_top" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/til_usernameEdit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iv_imageEdit">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/tiet_usernameEdit"
-            android:fontFamily="@font/nunito"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/username" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <Button
-        android:id="@+id/btn_edit"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
-        android:paddingVertical="12dp"
-        android:fontFamily="@font/nunito_black"
-        android:text="@string/edit"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

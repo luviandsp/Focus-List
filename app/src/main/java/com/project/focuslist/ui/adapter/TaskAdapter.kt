@@ -4,6 +4,7 @@ package com.project.focuslist.ui.adapter
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.project.focuslist.R
 import com.project.focuslist.data.enumData.TaskPriority
@@ -17,23 +18,34 @@ class TaskAdapter(private var taskList: MutableList<Task>): RecyclerView.Adapter
 
     inner class TaskViewHolder(private val binding: TaskItemBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(task: Task) {
-            with (binding) {
+            with(binding) {
+
+                var isChecked = task.isCompleted
+                ivTaskCheck.setImageResource(
+                    if (isChecked) R.drawable.baseline_check_box_24
+                    else R.drawable.baseline_check_box_outline_blank_24
+                )
+
+                llTaskCheck.setOnClickListener {
+                    isChecked = !isChecked
+                    ivTaskCheck.setImageResource(
+                        if (isChecked) R.drawable.baseline_check_box_24
+                        else R.drawable.baseline_check_box_outline_blank_24
+                    )
+                    onCheckBoxClickListener(task, isChecked)
+                }
+
                 tvTaskName.text = task.title
                 tvTaskBody.text = task.body
                 tvDueDate.text = task.dueDate
-                cbTaskCheck.isChecked = task.isCompleted
-
-                itemView.setOnClickListener { onItemClickListener.onItemClick(task) }
-
-                cbTaskCheck.setOnCheckedChangeListener { _, isChecked ->
-                    onCheckBoxClickListener(task, isChecked)
-                }
 
                 when (task.priority) {
                     TaskPriority.LOW.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_1)
                     TaskPriority.MEDIUM.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_2)
                     TaskPriority.HIGH.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_3)
                 }
+
+                itemView.setOnClickListener { onItemClickListener.onItemClick(task) }
             }
         }
     }

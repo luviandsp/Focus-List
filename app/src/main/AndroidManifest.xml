@@ -13,7 +13,13 @@
         android:theme="@style/Theme.FocusList"
         tools:targetApi="31">
         <activity
-            android:name=".ui.activity.EditProfileActivity"
+            android:name=".ui.activity.DeleteProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.optionsmenu.ShowAllProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.optionsmenu.EditProfileActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.DetailTaskActivity"

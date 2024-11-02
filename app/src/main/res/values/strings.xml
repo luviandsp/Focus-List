@@ -37,4 +37,7 @@
     <string name="task_name">Task Name</string>
     <string name="task_body">Task Body</string>
     <string name="due_date">Due Date</string>
+    <string name="all_profiles">All Profiles</string>
+    <string name="delete_profile">Delete Profile</string>
+    <string name="delete">Delete</string>
 </resources>

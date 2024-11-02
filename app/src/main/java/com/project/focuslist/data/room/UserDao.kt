@@ -13,6 +13,9 @@ import com.project.focuslist.data.model.User
 @Dao
 interface UserDao {
 
+    @Query("SELECT * FROM user_table")
+    fun getAllUsers(): LiveData<MutableList<User>>
+
     @Query("SELECT * FROM user_table WHERE user_id = :userId LIMIT 1")
     suspend fun getUserById(userId: Int): User?
 

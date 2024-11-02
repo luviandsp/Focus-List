@@ -1,4 +1,4 @@
-package com.project.focuslist.ui.activity
+package com.project.focuslist.ui.optionsmenu
 
 import android.content.Intent
 import android.graphics.Bitmap
@@ -18,6 +18,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.project.focuslist.R
 import com.project.focuslist.data.model.User
 import com.project.focuslist.databinding.ActivityEditProfileBinding
+import com.project.focuslist.ui.activity.MainActivity
 import com.project.focuslist.ui.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
