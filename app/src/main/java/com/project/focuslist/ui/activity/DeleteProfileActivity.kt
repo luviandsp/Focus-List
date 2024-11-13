@@ -1,5 +1,6 @@
 package com.project.focuslist.ui.activity
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -15,6 +16,7 @@ import com.project.focuslist.databinding.ActivityDeleteProfileBinding
 import com.project.focuslist.ui.optionsmenu.ShowAllProfileActivity
 import com.project.focuslist.ui.viewmodel.AuthViewModel
 import com.project.focuslist.ui.viewmodel.LoginViewModel
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class DeleteProfileActivity : AppCompatActivity() {
@@ -34,7 +36,10 @@ class DeleteProfileActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+    }
 
+    override fun onStart() {
+        super.onStart()
         initViews()
     }
 
@@ -56,8 +61,30 @@ class DeleteProfileActivity : AppCompatActivity() {
             }
 
             btnDelete.setOnClickListener {
-                viewModel.deleteUser(User(profileId, "", ""))
-                finish()
+                val builder: AlertDialog.Builder = AlertDialog.Builder(this@DeleteProfileActivity)
+                builder
+                    .setTitle(R.string.delete_profile)
+                    .setMessage(R.string.delete_message)
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        viewModel.deleteUser(User(profileId, "", ""))
+                        finish()
+
+                        lifecycleScope.launch {
+                            loginViewModel.setLoginStatus(0)
+                            loginViewModel.setProfileUsername("")
+                            loginViewModel.setRememberedUsername("")
+                            loginViewModel.setRememberedPassword("")
+                            val intent = Intent(this@DeleteProfileActivity, AuthActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            startActivity(intent)
+                        }
+                    }
+                    .setNegativeButton(R.string.no) { dialog, _ ->
+                        dialog.cancel()
+                    }
+
+                val dialog: AlertDialog = builder.create()
+                dialog.show()
             }
         }
     }

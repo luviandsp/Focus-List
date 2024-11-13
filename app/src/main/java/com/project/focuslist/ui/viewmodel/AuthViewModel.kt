@@ -49,9 +49,6 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
         return imageData
     }
 
-    fun getUserIdByUsername(username: String): LiveData<Int> =
-        userRepo.getUserIdByUsername(username)
-
     fun authenticateUser(username: String, password: String): LiveData<User?> =
         userRepo.getUserByUsernameAndPassword(username, password)
 

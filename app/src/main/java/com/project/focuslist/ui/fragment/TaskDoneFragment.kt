@@ -35,8 +35,8 @@ class TaskDoneFragment : Fragment(), TaskAdapter.OnItemClickListener {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onStart() {
+        super.onStart()
         initViews()
         observeCompletedTasks()
     }

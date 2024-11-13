@@ -2,7 +2,6 @@ package com.project.focuslist.ui.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -10,6 +9,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -17,8 +17,10 @@ import com.project.focuslist.R
 import com.project.focuslist.data.model.User
 import com.project.focuslist.databinding.FragmentProfileBinding
 import com.project.focuslist.ui.activity.AuthActivity
+import com.project.focuslist.ui.activity.MainActivity
 import com.project.focuslist.ui.optionsmenu.EditProfileActivity
 import com.project.focuslist.ui.optionsmenu.ShowAllProfileActivity
+import com.project.focuslist.ui.viewmodel.AuthViewModel
 import com.project.focuslist.ui.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
 
@@ -26,6 +28,7 @@ class ProfileFragment : Fragment() {
 
     private lateinit var binding: FragmentProfileBinding
     private val loginViewModel by viewModels<LoginViewModel>()
+    private val userVidewModel by viewModels<AuthViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,13 +38,16 @@ class ProfileFragment : Fragment() {
         binding = FragmentProfileBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
 
-        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
-        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
+        (requireActivity() as AppCompatActivity).apply {
+            setSupportActionBar(binding.toolbar)
+            supportActionBar?.setDisplayShowTitleEnabled(false)
+        }
+
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onStart() {
+        super.onStart()
         initViews()
     }
 
@@ -56,7 +62,6 @@ class ProfileFragment : Fragment() {
 
             btnLogout.setOnClickListener {
                 lifecycleScope.launch {
-
                     loginViewModel.setLoginStatus(0)
                     val intent = Intent(activity, AuthActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -78,9 +83,11 @@ class ProfileFragment : Fragment() {
             requireContext(),
             when (item.itemId) {
                 R.id.activity_show_all_profile -> ShowAllProfileActivity::class.java
-                else -> EditProfileActivity::class.java
+                R.id.activity_edit_profile -> EditProfileActivity::class.java
+                else -> null
             }
         )
+
         startActivity(intent)
         return true
     }

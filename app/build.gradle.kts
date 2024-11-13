@@ -60,6 +60,10 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
 
+    // Paging
+    implementation(libs.androidx.paging.runtime)
+    implementation (libs.androidx.room.paging)
+
     // Glide
     implementation (libs.glide)
 
@@ -77,7 +81,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.annotation)
-
+    implementation(libs.androidx.paging.runtime.ktx)
     ksp(libs.androidx.room.compiler)
     implementation (libs.androidx.room.ktx)
 

@@ -39,7 +39,10 @@ class LoginFragment : Fragment() {
                 navigateToMainActivity()
             }
         }
+    }
 
+    override fun onStart() {
+        super.onStart()
         initViews()
     }
 

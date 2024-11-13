@@ -1,10 +1,8 @@
 package com.project.focuslist.ui.activity
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -12,12 +10,12 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.project.focuslist.R
 import com.project.focuslist.databinding.ActivityMainBinding
-import com.project.focuslist.ui.optionsmenu.EditProfileActivity
-import com.project.focuslist.ui.optionsmenu.ShowAllProfileActivity
+import com.project.focuslist.ui.viewmodel.AuthViewModel
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private val viewModel by viewModels<AuthViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +27,10 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
             insets
         }
+    }
 
+    override fun onStart() {
+        super.onStart()
         initViews()
     }
 

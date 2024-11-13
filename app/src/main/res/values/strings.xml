@@ -40,4 +40,7 @@
     <string name="all_profiles">All Profiles</string>
     <string name="delete_profile">Delete Profile</string>
     <string name="delete">Delete</string>
+    <string name="delete_message">Apa anda yakin untuk menghapus profile ini?</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
 </resources>

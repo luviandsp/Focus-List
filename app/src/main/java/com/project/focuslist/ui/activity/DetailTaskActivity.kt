@@ -38,7 +38,10 @@ class DetailTaskActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+    }
 
+    override fun onStart() {
+        super.onStart()
         initViews()
     }
 
@@ -55,7 +58,7 @@ class DetailTaskActivity : AppCompatActivity() {
                         tietTitle.setText(it.title)
                         tietBody.setText(it.body)
                         spinnerPriority.setSelection(it.priority -1)
-                        tvDate.text = it.dueDate ?: "Select Date"
+                        tvSelectDate.text = it.dueDate
                     }
                 }
             }
@@ -77,7 +80,7 @@ class DetailTaskActivity : AppCompatActivity() {
 
             ivDelete.setOnClickListener {
                 if (isEdit) {
-                    viewModel.deleteTask(Task(taskId, "", "", false, 0, ""))
+                    viewModel.deleteTask(Task(taskId, "", "", false, 0, null))
                     finish()
                 }
             }
@@ -94,7 +97,7 @@ class DetailTaskActivity : AppCompatActivity() {
     private fun showDatePicker() {
         val datePickerDialog = DatePickerDialog(this, { _, year, month, dayOfMonth ->
             selectedDueDate = "$dayOfMonth/${month + 1}/$year"
-            binding.tvDate.text = selectedDueDate // Tampilkan tanggal yang dipilih
+            binding.tvSelectDate.text = selectedDueDate // Tampilkan tanggal yang dipilih
         }, 2024, 0, 1) // Set default date (tahun, bulan, hari)
 
         datePickerDialog.show()
@@ -103,7 +106,7 @@ class DetailTaskActivity : AppCompatActivity() {
     private fun saveTask(isEdit: Boolean, taskId: Int) {
         val title = binding.tietTitle.text.toString().ifEmpty { "Tanpa Judul" }
         val body = binding.tietBody.text.toString().ifEmpty { "Tanpa Isi" }
-        val dueDate = selectedDueDate ?: binding.tvDate.text.toString().ifEmpty { "" }
+        val dueDate = selectedDueDate
         val selectedPriority = binding.spinnerPriority.selectedItem.toString()
 
         val priorityMap = mapOf(

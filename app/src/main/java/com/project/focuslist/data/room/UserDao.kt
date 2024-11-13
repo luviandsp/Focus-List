@@ -6,7 +6,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
 import androidx.room.Update
 import com.project.focuslist.data.model.User
 
@@ -18,9 +17,6 @@ interface UserDao {
 
     @Query("SELECT * FROM user_table WHERE user_id = :userId LIMIT 1")
     suspend fun getUserById(userId: Int): User?
-
-    @Query("SELECT user_id FROM user_table WHERE user_username = :username LIMIT 1")
-    fun getUserIdByUsername(username: String): LiveData<Int>
 
 //    @Transaction
 //    @Query("SELECT * FROM user_table WHERE user_id = :userId")

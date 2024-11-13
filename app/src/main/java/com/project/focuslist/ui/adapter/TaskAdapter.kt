@@ -2,24 +2,34 @@ package com.project.focuslist.ui.adapter
 
 
 import android.annotation.SuppressLint
+import android.media.SoundPool
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.project.focuslist.R
 import com.project.focuslist.data.enumData.TaskPriority
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.databinding.TaskItemBinding
 
-class TaskAdapter(private var taskList: MutableList<Task>): RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
+class TaskAdapter(private var taskList: MutableList<Task>) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     lateinit var onItemClickListener: OnItemClickListener
     lateinit var onCheckBoxClickListener: (Task, Boolean) -> Unit
+    private var sp: SoundPool = SoundPool.Builder().setMaxStreams(10).build()
+    private var soundIdBell: Int = 0
+    private var spLoaded = false
 
-    inner class TaskViewHolder(private val binding: TaskItemBinding): RecyclerView.ViewHolder(binding.root) {
+    init {
+        sp.setOnLoadCompleteListener { _, _, status ->
+            spLoaded = (status == 0)
+        }
+    }
+
+    inner class TaskViewHolder(private val binding: TaskItemBinding) : RecyclerView.ViewHolder(binding.root) {
+
         fun bind(task: Task) {
             with(binding) {
-
                 var isChecked = task.isCompleted
                 ivTaskCheck.setImageResource(
                     if (isChecked) R.drawable.baseline_check_box_24
@@ -29,7 +39,11 @@ class TaskAdapter(private var taskList: MutableList<Task>): RecyclerView.Adapter
                 llTaskCheck.setOnClickListener {
                     isChecked = !isChecked
                     ivTaskCheck.setImageResource(
-                        if (isChecked) R.drawable.baseline_check_box_24
+                        if (isChecked) {
+                            playSoundBell()
+                            Toast.makeText(itemView.context, "Task Completed", Toast.LENGTH_SHORT).show()
+                            R.drawable.baseline_check_box_24
+                        }
                         else R.drawable.baseline_check_box_outline_blank_24
                     )
                     onCheckBoxClickListener(task, isChecked)
@@ -50,6 +64,10 @@ class TaskAdapter(private var taskList: MutableList<Task>): RecyclerView.Adapter
         }
     }
 
+    fun playSoundBell() {
+        if (spLoaded) sp.play(soundIdBell, 1f, 1f, 0, 0, 1f)
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     fun setTasks(newTaskList: MutableList<Task>) {
         this.taskList = newTaskList
@@ -62,13 +80,14 @@ class TaskAdapter(private var taskList: MutableList<Task>): RecyclerView.Adapter
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         val binding = TaskItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        soundIdBell = sp.load(parent.context, R.raw.bell_sound, 1)
         return TaskViewHolder(binding)
     }
 
-    override fun getItemCount(): Int { return taskList.size }
+    override fun getItemCount(): Int = taskList.size
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         holder.bind(taskList[position])
-        holder.itemView.setOnClickListener { onItemClickListener.onItemClick(taskList[position]) }
     }
 }
+

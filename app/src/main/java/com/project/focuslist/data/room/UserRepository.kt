@@ -9,8 +9,6 @@ class UserRepository(private val userDao: UserDao) {
 
 //    fun getUserWithTasks(userId: Int): LiveData<UserWithTasks?> = userDao.getUserWithTasks(userId)
 
-    fun getUserIdByUsername(username: String): LiveData<Int> = userDao.getUserIdByUsername(username)
-
     fun getUserByUsernameAndPassword(username: String, password: String): LiveData<User?> =
         userDao.getUserByUsernameAndPassword(username, password)
 
