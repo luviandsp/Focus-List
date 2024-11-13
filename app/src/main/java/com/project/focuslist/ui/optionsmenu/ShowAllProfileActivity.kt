@@ -56,8 +56,7 @@ class ShowAllProfileActivity : AppCompatActivity(), ProfileAdapter.OnItemClickLi
             }
 
             ivBack.setOnClickListener {
-                val intent = Intent(this@ShowAllProfileActivity, MainActivity::class.java)
-                startActivity(intent)
+                finish()
             }
         }
     }

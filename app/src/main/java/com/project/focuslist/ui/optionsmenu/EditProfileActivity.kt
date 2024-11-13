@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.exifinterface.media.ExifInterface
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
@@ -20,6 +21,8 @@ import com.project.focuslist.data.model.User
 import com.project.focuslist.databinding.ActivityEditProfileBinding
 import com.project.focuslist.ui.activity.MainActivity
 import com.project.focuslist.ui.viewmodel.AuthViewModel
+import com.project.focuslist.ui.viewmodel.LoginViewModel
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -30,6 +33,7 @@ class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditProfileBinding
     private val viewModel by viewModels<AuthViewModel>()
+    private val loginViewModel by viewModels<LoginViewModel>()
     private var loadedImage: ByteArray? = null
     private var isClicked = false
 
@@ -43,62 +47,66 @@ class EditProfileActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+    }
 
+    override fun onStart() {
+        super.onStart()
         initViews()
     }
 
     private fun initViews() {
-        with (binding) {
-            val isEdit = intent.getStringExtra(INTENT_KEY) == EDIT_KEY
-            val userId = intent.getIntExtra(INTENT_KEY_USER_ID, -1)
+        with(binding) {
+            lifecycleScope.launch {
+                val username = loginViewModel.getProfileUsername()
 
-            if (isEdit) {
-                lifecycleScope.launch {
-                    viewModel.getUserById(userId).observe(this@EditProfileActivity) { userData ->
+                // Observasi data pengguna
+                viewModel.getUserByUsername(username.toString()).observe(this@EditProfileActivity) { userData ->
+                    userData?.let {
+                        tietUsernameEdit.setText(it.username)
+                        Glide.with(this@EditProfileActivity).load(it.profileImage?: R.drawable.baseline_account_circle_24).into(ivImageEdit)
+                        loadedImage = it.profileImage
+                    }
+                }
+
+                btnEdit.setOnClickListener {
+                    lifecycleScope.launch {
+                        val userData = viewModel.getUserByUsername(username.toString()).asFlow().firstOrNull()
                         userData?.let {
-                            binding.tietUsernameEdit.setText(it.username)
-                            Glide.with(this@EditProfileActivity).load(it.profileImage).into(binding.ivImageEdit)
-                            loadedImage = it.profileImage
+                            // Validasi input
+                            val updatedUsername = tietUsernameEdit.text.toString()
+                            if (updatedUsername.isBlank()) {
+                                Snackbar.make(root, "Username tidak boleh kosong.", Snackbar.LENGTH_SHORT).show()
+                                return@let
+                            }
+
+                            // Perbarui data pengguna
+                            val updatedUser = User(
+                                userId = it.userId,
+                                username = updatedUsername,
+                                password = it.password,
+                                profileImage = loadedImage
+                            )
+
+                            viewModel.updateUser(updatedUser)
+                            loginViewModel.setProfileUsername(updatedUsername)
+                            Snackbar.make(root, "Profil berhasil diperbarui.", Snackbar.LENGTH_SHORT).show()
+
+                            // Kembali ke MainActivity
+                            val intent = Intent(this@EditProfileActivity, MainActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        } ?: run {
+                            Snackbar.make(root, "User tidak ditemukan.", Snackbar.LENGTH_SHORT).show()
                         }
                     }
                 }
             }
 
-            btnEdit.setOnClickListener {
-                lifecycleScope.launch {
-                    val username = tietUsernameEdit.text.toString()
-
-                    // Ambil data pengguna
-                    val userData = viewModel.getUserById(userId).value
-                    userData?.let {
-                        // Perbarui objek User dengan data terbaru
-                        val updatedUser = User(
-                            userId,
-                            username,
-                            password = it.password,
-                            loadedImage // Sertakan gambar profil jika ada
-                        )
-
-                        // Perbarui pengguna di database
-                        viewModel.updateUser(updatedUser)
-
-                        // Tutup aktivitas setelah pembaruan
-                        finish()
-                    } ?: run {
-                        // Tindakan jika userData tidak ditemukan, jika perlu
-                        Snackbar.make(binding.root, "User tidak ditemukan.", Snackbar.LENGTH_SHORT).show()
-                    }
-                }
-            }
-
-            ivBack.setOnClickListener {
-                val intent = Intent(this@EditProfileActivity, MainActivity::class.java)
-                startActivity(intent)
-            }
-
+            ivBack.setOnClickListener { finish() }
             ivImageEdit.setOnClickListener { openGallery() }
         }
     }
+
 
     private fun openGallery() {
         if (!isClicked) {

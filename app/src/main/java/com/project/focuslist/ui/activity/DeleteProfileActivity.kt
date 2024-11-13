@@ -53,40 +53,54 @@ class DeleteProfileActivity : AppCompatActivity() {
                     Glide.with(this@DeleteProfileActivity).load(it.profileImage ?: R.drawable.baseline_account_circle_24).into(ivProfileImage)
                     loadedImage = it.profileImage
                 }
+
+                btnDelete.setOnClickListener {
+                    lifecycleScope.launch {
+                        val username = loginViewModel.getProfileUsername()
+
+                        val builder: AlertDialog.Builder = AlertDialog.Builder(this@DeleteProfileActivity)
+                        builder
+                            .setTitle(R.string.delete_profile)
+                            .setMessage(R.string.delete_message)
+                            .setPositiveButton(R.string.yes) { _, _ ->
+                                if (user != null) {
+                                    viewModel.deleteUser(user)
+                                }
+
+                                finish()
+
+                                if (user?.username == username) {
+                                    logoutProfile()
+                                }
+                            }
+                            .setNegativeButton(R.string.no) { dialog, _ ->
+                                dialog.cancel()
+                            }
+
+                        val dialog: AlertDialog = builder.create()
+                        dialog.show()
+                    }
+                }
             }
 
             ivBack.setOnClickListener {
                 val intent = Intent(this@DeleteProfileActivity, ShowAllProfileActivity::class.java)
                 startActivity(intent)
             }
-
-            btnDelete.setOnClickListener {
-                val builder: AlertDialog.Builder = AlertDialog.Builder(this@DeleteProfileActivity)
-                builder
-                    .setTitle(R.string.delete_profile)
-                    .setMessage(R.string.delete_message)
-                    .setPositiveButton(R.string.yes) { _, _ ->
-                        viewModel.deleteUser(User(profileId, "", ""))
-                        finish()
-
-                        lifecycleScope.launch {
-                            loginViewModel.setLoginStatus(0)
-                            loginViewModel.setProfileUsername("")
-                            loginViewModel.setRememberedUsername("")
-                            loginViewModel.setRememberedPassword("")
-                            val intent = Intent(this@DeleteProfileActivity, AuthActivity::class.java)
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            startActivity(intent)
-                        }
-                    }
-                    .setNegativeButton(R.string.no) { dialog, _ ->
-                        dialog.cancel()
-                    }
-
-                val dialog: AlertDialog = builder.create()
-                dialog.show()
-            }
         }
+    }
+
+    private fun logoutProfile() {
+        lifecycleScope.launch {
+            loginViewModel.setLoginStatus(0)
+            loginViewModel.setProfileUsername("")
+            loginViewModel.setRememberedUsername("")
+            loginViewModel.setRememberedPassword("")
+        }
+
+        val intent = Intent(this@DeleteProfileActivity, AuthActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
     }
 
     companion object {

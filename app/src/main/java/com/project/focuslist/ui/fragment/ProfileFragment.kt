@@ -28,7 +28,7 @@ class ProfileFragment : Fragment() {
 
     private lateinit var binding: FragmentProfileBinding
     private val loginViewModel by viewModels<LoginViewModel>()
-    private val userVidewModel by viewModels<AuthViewModel>()
+    private val userViewModel by viewModels<AuthViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,11 +53,14 @@ class ProfileFragment : Fragment() {
 
     private fun initViews() {
         with(binding) {
-            var userData: User? = null
 
             lifecycleScope.launch {
-                Glide.with(this@ProfileFragment).load(userData?.profileImage?: R.drawable.baseline_account_circle_24).into(ivProfileImage)
-                tvUsername.text = loginViewModel.getProfileUsername()
+                val username = loginViewModel.getProfileUsername()
+
+                userViewModel.getUserByUsername(username.toString()).observe(viewLifecycleOwner) { user ->
+                    Glide.with(this@ProfileFragment).load(user?.profileImage?: R.drawable.baseline_account_circle_24).into(ivProfileImage)
+                    tvUsername.text = user?.username
+                }
             }
 
             btnLogout.setOnClickListener {
