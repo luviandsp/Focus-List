@@ -38,6 +38,8 @@ class TaskViewModel(app: Application): AndroidViewModel(app) {
     // Fungsi untuk mendapatkan tugas yang sedang berjalan
     fun getInProgressTasks(): LiveData<MutableList<Task>> = taskRepo.getInProgressTasks()
 
+    fun getTaskListByDate(date: String): LiveData<MutableList<Task>> = taskRepo.getTaskListByDate(date)
+
     // Fungsi untuk membuat tugas baru
     fun createTask(task: Task) = viewModelScope.launch {
         taskRepo.createTask(task)

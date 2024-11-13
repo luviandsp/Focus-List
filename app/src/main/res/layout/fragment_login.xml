@@ -14,7 +14,7 @@
         android:text="@string/login"
         android:layout_marginTop="20dp"
         android:textColor="?attr/colorPrimary"
-        android:textSize="56sp"
+        android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

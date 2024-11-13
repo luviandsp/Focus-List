@@ -15,6 +15,7 @@ import com.project.focuslist.databinding.TaskItemBinding
 class TaskAdapter(private var taskList: MutableList<Task>) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     lateinit var onItemClickListener: OnItemClickListener
+    lateinit var onLongClickListener: OnItemLongClickListener
     lateinit var onCheckBoxClickListener: (Task, Boolean) -> Unit
     private var sp: SoundPool = SoundPool.Builder().setMaxStreams(10).build()
     private var soundIdBell: Int = 0
@@ -60,6 +61,7 @@ class TaskAdapter(private var taskList: MutableList<Task>) : RecyclerView.Adapte
                 }
 
                 itemView.setOnClickListener { onItemClickListener.onItemClick(task) }
+                itemView.setOnLongClickListener { onLongClickListener.onItemLongClick(task) }
             }
         }
     }
@@ -76,6 +78,10 @@ class TaskAdapter(private var taskList: MutableList<Task>) : RecyclerView.Adapte
 
     interface OnItemClickListener {
         fun onItemClick(task: Task)
+    }
+
+    interface OnItemLongClickListener {
+        fun onItemLongClick(task: Task): Boolean
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {

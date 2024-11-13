@@ -14,10 +14,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.project.focuslist.R
-import com.project.focuslist.data.model.User
 import com.project.focuslist.databinding.FragmentProfileBinding
 import com.project.focuslist.ui.activity.AuthActivity
-import com.project.focuslist.ui.activity.MainActivity
 import com.project.focuslist.ui.optionsmenu.EditProfileActivity
 import com.project.focuslist.ui.optionsmenu.ShowAllProfileActivity
 import com.project.focuslist.ui.viewmodel.AuthViewModel

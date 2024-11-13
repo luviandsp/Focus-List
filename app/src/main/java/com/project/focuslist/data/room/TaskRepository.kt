@@ -17,6 +17,8 @@ class TaskRepository(private val taskDao: TaskDao) {
 
     fun getInProgressTasks(): LiveData<MutableList<Task>> = taskDao.getInProgressTasks()
 
+    fun getTaskListByDate(date: String): LiveData<MutableList<Task>> = taskDao.getTaskListByDate(date)
+
     suspend fun getTaskById(taskId: Int): Task? = taskDao.getTaskById(taskId)
 
     suspend fun createTask(task: Task) = taskDao.createTask(task)

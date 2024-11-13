@@ -7,6 +7,11 @@
         android:icon="@drawable/baseline_task_24" />
 
     <item
+        android:id="@+id/calender_fragment"
+        android:title="Calender"
+        android:icon="@drawable/baseline_calendar_month_24" />
+
+    <item
         android:id="@+id/profile_fragment"
         android:title="Profile"
         android:icon="@drawable/baseline_account_circle_24" />

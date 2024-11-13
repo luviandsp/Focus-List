@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.project.focuslist.R
-import com.project.focuslist.data.model.Task
 import com.project.focuslist.data.model.User
 import com.project.focuslist.databinding.ProfileItemBinding
 import com.project.focuslist.ui.adapter.TaskAdapter.OnItemClickListener

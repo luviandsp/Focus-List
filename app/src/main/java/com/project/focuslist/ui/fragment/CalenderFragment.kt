@@ -1,73 +1,84 @@
 package com.project.focuslist.ui.fragment
 
 import android.content.Intent
-import android.media.SoundPool
+import android.icu.text.SimpleDateFormat
+import android.icu.util.Calendar
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.focuslist.data.model.Task
-import com.project.focuslist.data.model.User
-import com.project.focuslist.databinding.FragmentAllTaskBinding
+import com.project.focuslist.databinding.FragmentCalenderBinding
 import com.project.focuslist.ui.activity.DetailTaskActivity
 import com.project.focuslist.ui.activity.ReadTaskActivity
 import com.project.focuslist.ui.adapter.TaskAdapter
-import com.project.focuslist.ui.viewmodel.AuthViewModel
-import com.project.focuslist.ui.viewmodel.LoginViewModel
 import com.project.focuslist.ui.viewmodel.TaskViewModel
-import kotlinx.coroutines.launch
+import java.util.Locale
 
-class AllTaskFragment : Fragment(), TaskAdapter.OnItemClickListener,
+
+class CalenderFragment : Fragment(), TaskAdapter.OnItemClickListener,
     TaskAdapter.OnItemLongClickListener {
 
-    private lateinit var binding: FragmentAllTaskBinding
+    private lateinit var binding: FragmentCalenderBinding
     private val viewModel by viewModels<TaskViewModel>()
-    private val userViewModel by viewModels<AuthViewModel>()
-    private val loginViewModel by viewModels<LoginViewModel>()
     private lateinit var taskAdapter: TaskAdapter
+    private var calendar: Calendar = Calendar.getInstance()
+    private var dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    private var formattedDate: String = dateFormat.format(calendar.time)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
-        binding = FragmentAllTaskBinding.inflate(inflater, container, false)
+        binding = FragmentCalenderBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onStart() {
         super.onStart()
-
         initViews()
         observeTaskList()
     }
 
     private fun initViews() {
         with (binding) {
+
             taskAdapter = TaskAdapter(mutableListOf()).apply {
-                onItemClickListener = this@AllTaskFragment
-                onLongClickListener = this@AllTaskFragment
+                onItemClickListener = this@CalenderFragment
+                onLongClickListener = this@CalenderFragment
                 onCheckBoxClickListener = { task, isChecked ->
                     viewModel.toggleTaskCompletion(task, isChecked)
                 }
             }
 
-            rvAllTask.apply {
+            rvTask.apply {
                 layoutManager = LinearLayoutManager(context)
                 setHasFixedSize(true)
                 adapter = taskAdapter
+            }
+
+            viewModel.getTaskListByDate(formattedDate).observe(viewLifecycleOwner) { taskList ->
+                taskAdapter.setTasks(taskList)
+                updateTaskListVisibility(taskList.isEmpty())
             }
         }
     }
 
     private fun observeTaskList() {
-        viewModel.getTaskList().observe(viewLifecycleOwner) { taskList ->
-            taskAdapter.setTasks(taskList)
-            updateTaskListVisibility(taskList.isEmpty())
+        binding.calenderView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            calendar = Calendar.getInstance().apply {
+                set(year, month, dayOfMonth)
+            }
+            dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            formattedDate = dateFormat.format(calendar.time)
+
+            viewModel.getTaskListByDate(formattedDate).observe(viewLifecycleOwner) { taskList ->
+                taskAdapter.setTasks(taskList)
+                updateTaskListVisibility(taskList.isEmpty())
+            }
         }
     }
 
@@ -87,7 +98,7 @@ class AllTaskFragment : Fragment(), TaskAdapter.OnItemClickListener,
     }
 
     private fun updateTaskListVisibility(isEmpty: Boolean) {
-        binding.ivAllTaskList.visibility = if (isEmpty) View.VISIBLE else View.GONE
-        binding.rvAllTask.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        binding.ivTaskList.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.rvTask.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 }

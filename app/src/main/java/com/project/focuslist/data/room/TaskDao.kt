@@ -20,6 +20,9 @@ interface TaskDao {
 //    @Query("SELECT * FROM task_table WHERE task_user_id = :userId AND task_is_completed = 0 ORDER BY task_due_date ASC")
 //    fun getInProgressTasks(userId: Int): LiveData<MutableList<Task>>
 
+    @Query("SELECT * FROM task_table WHERE task_due_date = :date ORDER BY task_priority DESC")
+    fun getTaskListByDate(date: String): LiveData<MutableList<Task>>
+
     @Query("SELECT * FROM task_table ORDER BY task_priority DESC, task_due_date ASC")
     fun getTaskList(): LiveData<MutableList<Task>>
 

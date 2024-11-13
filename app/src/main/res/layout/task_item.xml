@@ -51,6 +51,7 @@
                 android:maxLines="1"
                 android:textStyle="bold"
                 android:textColor="@color/white"
+                android:textSize="14sp"
                 app:layout_constraintBottom_toTopOf="@id/tv_taskBody"
                 app:layout_constraintStart_toEndOf="@+id/ll_taskCheck"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -64,6 +65,7 @@
                 android:maxEms="8"
                 android:ellipsize="end"
                 android:maxLines="1"
+                android:textSize="12sp"
                 android:textColor="@color/white"
                 app:layout_constraintStart_toEndOf="@+id/ll_taskCheck"
                 app:layout_constraintTop_toBottomOf="@+id/tv_taskName"
@@ -75,10 +77,11 @@
             android:id="@+id/tv_dueDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
+            android:layout_marginEnd="16dp"
             android:fontFamily="@font/nunito_black"
             android:text="@string/due_date"
             android:textColor="@color/white"
+            android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

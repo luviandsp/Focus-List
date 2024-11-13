@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.fragment.CalenderFragment">
+
+    <!-- Title TextView -->
+    <TextView
+        android:id="@+id/title_app"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="24dp"
+        android:text="@string/app_name"
+        android:textSize="28sp"
+        android:fontFamily="@font/nunito_black"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Calendar View -->
+    <CalendarView
+        android:id="@+id/calenderView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title_app" />
+
+    <TextView
+        android:id="@+id/tv_task"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/nunito"
+        android:layout_marginStart="24dp"
+        android:text="Your Task:"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" 
+        app:layout_constraintTop_toBottomOf="@id/calenderView"/>
+
+    <!-- ImageView (Task List) -->
+    <ImageView
+        android:id="@+id/iv_task_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:padding="24dp"
+        android:src="@drawable/task_list"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/tv_task"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- RecyclerView for tasks -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_task"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        tools:listitem="@layout/task_item"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_task"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

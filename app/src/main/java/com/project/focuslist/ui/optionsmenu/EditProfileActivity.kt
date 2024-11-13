@@ -200,11 +200,4 @@ class EditProfileActivity : AppCompatActivity() {
         matrix.postRotate(degree.toFloat())
         return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
     }
-
-    companion object {
-        const val EDIT_KEY = "EDIT"
-        const val CREATE_KEY = "CREATE"
-        const val INTENT_KEY = "EDIT_OR_CREATE"
-        const val INTENT_KEY_USER_ID = "USER_ID"
-    }
 }

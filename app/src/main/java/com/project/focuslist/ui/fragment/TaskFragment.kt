@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayoutMediator
 import com.project.focuslist.databinding.FragmentTaskBinding
 import com.project.focuslist.ui.activity.DetailTaskActivity
@@ -44,6 +46,22 @@ class TaskFragment : Fragment() {
                 startActivity(intent)
             }
 
+            ivHelp.setOnClickListener {
+                val builder: AlertDialog.Builder = AlertDialog.Builder(this@TaskFragment.requireContext())
+                builder
+                    .setTitle("Help")
+                    .setMessage("This is the main screen where you can see all your tasks. \n\n" +
+                            "1. You can add a new task by clicking the floating action button. \n\n" +
+                            "2. Click on a task to read its contents. \n\n" +
+                            "3. Long click on a task to open the detail screen where you can edit or delete the task. \n\n" +
+                            "4. Click the checkbox to complete the task.")
+                    .setPositiveButton("OK") { dialog, _ ->
+                        dialog.cancel()
+                    }
+
+                val dialog: AlertDialog = builder.create()
+                dialog.show()
+            }
         }
     }
 }

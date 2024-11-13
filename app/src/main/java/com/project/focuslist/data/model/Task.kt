@@ -33,6 +33,8 @@ data class Task(
     val priority: Int = 0,
     @ColumnInfo(name = "task_due_date")
     val dueDate: String? = null,
+    @ColumnInfo(name = "task_image")
+    val taskImage: ByteArray? = null,
 //    @ColumnInfo(name = "task_user_id", index = true)
 //    val taskUserId: Int // Foreign key referencing "user_id" in the User table
 ) : Parcelable

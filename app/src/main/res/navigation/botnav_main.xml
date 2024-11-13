@@ -11,6 +11,11 @@
         tools:layout="@layout/fragment_task"/>
 
     <fragment
+        android:id="@+id/calender_fragment"
+        android:name="com.project.focuslist.ui.fragment.CalenderFragment"
+        tools:layout="@layout/fragment_calender"/>
+
+    <fragment
         android:id="@+id/profile_fragment"
         android:name="com.project.focuslist.ui.fragment.ProfileFragment"
         tools:layout="@layout/fragment_profile"/>

@@ -11,12 +11,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.project.focuslist.R
-import com.project.focuslist.data.model.User
 import com.project.focuslist.databinding.ActivityDeleteProfileBinding
 import com.project.focuslist.ui.optionsmenu.ShowAllProfileActivity
 import com.project.focuslist.ui.viewmodel.AuthViewModel
 import com.project.focuslist.ui.viewmodel.LoginViewModel
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class DeleteProfileActivity : AppCompatActivity() {
