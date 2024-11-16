@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.project.focuslist"
-        minSdk = 28
+        minSdk = 29
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -66,6 +66,9 @@ dependencies {
 
     // Glide
     implementation (libs.glide)
+
+    // Splash Screen
+    implementation(libs.androidx.core.splashscreen)
 
     // View Model
     implementation (libs.androidx.navigation.fragment.ktx)
