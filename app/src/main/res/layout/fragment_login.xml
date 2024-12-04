@@ -12,37 +12,49 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/nunito_black"
         android:text="@string/login"
+        android:textSize="36sp"
         android:layout_marginTop="20dp"
         android:textColor="?attr/colorPrimary"
-        android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/logo_app"
+        android:layout_width="240dp"
+        android:layout_height="240dp"
+        android:src="@drawable/logo_app"
+        android:layout_marginTop="68dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="164dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/tv_title">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiet_username"
-                android:fontFamily="@font/nunito"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/username"/>
+                android:fontFamily="@font/nunito"
+                android:hint="@string/username" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -51,18 +63,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:passwordToggleEnabled="true"
-            app:layout_constraintTop_toBottomOf="@id/til_username"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/til_username"
+            app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiet_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/nunito"
-                android:inputType="textPassword"
-                android:hint="@string/password" />
+                android:hint="@string/password"
+                android:inputType="textPassword" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -80,22 +92,22 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/nunito"
             android:text="@string/remember_me"
-            app:layout_constraintTop_toTopOf="@id/cb_remember"
             app:layout_constraintBottom_toBottomOf="@id/cb_remember"
-            app:layout_constraintStart_toEndOf="@id/cb_remember"/>
+            app:layout_constraintStart_toEndOf="@id/cb_remember"
+            app:layout_constraintTop_toTopOf="@id/cb_remember" />
 
         <Button
             android:id="@+id/btn_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="60dp"
-            android:paddingVertical="12dp"
             android:fontFamily="@font/nunito_black"
+            android:paddingVertical="12dp"
             android:text="@string/login"
             android:textSize="16sp"
-            app:layout_constraintTop_toBottomOf="@id/cb_remember"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/cb_remember" />
 
         <TextView
             android:id="@+id/tv_forgot"
@@ -126,7 +138,7 @@
             android:layout_marginStart="8dp"
             android:clickable="true"
             android:fontFamily="@font/nunito"
-            android:text="@string/sign_up"
+            android:text="@string/register"
             android:textColor="#4287f5"
             app:layout_constraintStart_toEndOf="@id/tv_dont_have_account"
             app:layout_constraintTop_toBottomOf="@+id/btn_login" />

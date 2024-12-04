@@ -3,10 +3,8 @@ package com.project.focuslist.data.model
 import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
-import org.jetbrains.annotations.NotNull
 
 @Parcelize
 @Entity(tableName = "user_table")

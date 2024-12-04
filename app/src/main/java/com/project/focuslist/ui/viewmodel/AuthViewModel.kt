@@ -41,14 +41,6 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
         userRepo.updateUser(user)
     }
 
-    fun getProfileImage(userId: Int): LiveData<ByteArray?> {
-        val imageData = MutableLiveData<ByteArray?>()
-        viewModelScope.launch {
-            imageData.postValue(userRepo.getProfileImage(userId))
-        }
-        return imageData
-    }
-
     fun authenticateUser(username: String, password: String): LiveData<User?> =
         userRepo.getUserByUsernameAndPassword(username, password)
 

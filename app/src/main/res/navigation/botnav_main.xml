@@ -12,7 +12,7 @@
 
     <fragment
         android:id="@+id/calender_fragment"
-        android:name="com.project.focuslist.ui.fragment.CalenderFragment"
+        android:name="com.project.focuslist.ui.fragment.CalendarFragment"
         tools:layout="@layout/fragment_calender"/>
 
     <fragment

@@ -59,7 +59,6 @@ class EditProfileActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 val username = loginViewModel.getProfileUsername()
 
-                // Observasi data pengguna
                 viewModel.getUserByUsername(username.toString()).observe(this@EditProfileActivity) { userData ->
                     userData?.let {
                         tietUsernameEdit.setText(it.username)
@@ -72,14 +71,12 @@ class EditProfileActivity : AppCompatActivity() {
                     lifecycleScope.launch {
                         val userData = viewModel.getUserByUsername(username.toString()).asFlow().firstOrNull()
                         userData?.let {
-                            // Validasi input
                             val updatedUsername = tietUsernameEdit.text.toString()
                             if (updatedUsername.isBlank()) {
                                 Snackbar.make(root, "Username tidak boleh kosong.", Snackbar.LENGTH_SHORT).show()
                                 return@let
                             }
 
-                            // Perbarui data pengguna
                             val updatedUser = User(
                                 userId = it.userId,
                                 username = updatedUsername,
@@ -91,7 +88,6 @@ class EditProfileActivity : AppCompatActivity() {
                             loginViewModel.setProfileUsername(updatedUsername)
                             Snackbar.make(root, "Profil berhasil diperbarui.", Snackbar.LENGTH_SHORT).show()
 
-                            // Kembali ke MainActivity
                             val intent = Intent(this@EditProfileActivity, MainActivity::class.java)
                             startActivity(intent)
                             finish()

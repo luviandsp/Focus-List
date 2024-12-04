@@ -8,7 +8,6 @@ import com.bumptech.glide.Glide
 import com.project.focuslist.R
 import com.project.focuslist.data.model.User
 import com.project.focuslist.databinding.ProfileItemBinding
-import com.project.focuslist.ui.adapter.TaskAdapter.OnItemClickListener
 
 class ProfileAdapter(private var profileList: MutableList<User>): RecyclerView.Adapter<ProfileAdapter.ProfileViewHolder>() {
 

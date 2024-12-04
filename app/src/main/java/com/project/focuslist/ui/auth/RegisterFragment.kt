@@ -47,7 +47,6 @@ class RegisterFragment : Fragment() {
                 val password = tietPassword.text.toString()
                 val confirmPassword = tietConfirmPassword.text.toString()
 
-                // Validate input fields
                 if (username.isEmpty()) {
                     tietUsername.error = "Masukkan Username"
                     return@setOnClickListener
@@ -65,13 +64,11 @@ class RegisterFragment : Fragment() {
                     return@setOnClickListener
                 }
 
-                // Register user
                 val newUser = User(userId = 0, username = username, password = password)
                 viewModel.createUser(newUser)
 
                 Toast.makeText(activity, "Registrasi berhasil", Toast.LENGTH_SHORT).show()
 
-                // Navigate to login
                 view?.findNavController()?.navigate(R.id.register_to_login)
             }
 

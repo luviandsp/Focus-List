@@ -30,7 +30,6 @@ class ForgotPasswordFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         binding = FragmentForgotPasswordBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -66,7 +65,6 @@ class ForgotPasswordFragment : Fragment() {
 
                 viewModel.getUserByUsername(username).observe(viewLifecycleOwner) { user ->
                     if (user != null) {
-                        // Update kata sandi jika user ditemukan
                         lifecycleScope.launch {
                             viewModel.updatePassword(user.userId, newPassword)
                             Toast.makeText(activity, "Kata sandi berhasil diubah", Toast.LENGTH_SHORT).show()

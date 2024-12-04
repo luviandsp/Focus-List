@@ -7,7 +7,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.focuslist.R
 import com.project.focuslist.data.model.User
@@ -15,7 +14,6 @@ import com.project.focuslist.databinding.ActivityShowAllProfileBinding
 import com.project.focuslist.ui.activity.DeleteProfileActivity
 import com.project.focuslist.ui.adapter.ProfileAdapter
 import com.project.focuslist.ui.viewmodel.AuthViewModel
-import kotlinx.coroutines.launch
 
 class ShowAllProfileActivity : AppCompatActivity(), ProfileAdapter.OnItemClickListener {
 

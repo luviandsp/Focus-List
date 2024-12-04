@@ -8,7 +8,7 @@
 
     <item
         android:id="@+id/calender_fragment"
-        android:title="Calender"
+        android:title="Calendar"
         android:icon="@drawable/baseline_calendar_month_24" />
 
     <item

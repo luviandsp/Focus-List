@@ -1,6 +1,8 @@
 package com.project.focuslist.ui.fragment
 
 import android.content.Intent
+import android.icu.text.SimpleDateFormat
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,60 +11,74 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.focuslist.data.model.Task
-import com.project.focuslist.databinding.FragmentTaskDoneBinding
+import com.project.focuslist.databinding.FragmentCalenderBinding
 import com.project.focuslist.ui.activity.DetailTaskActivity
 import com.project.focuslist.ui.activity.ReadTaskActivity
 import com.project.focuslist.ui.adapter.TaskAdapter
-import com.project.focuslist.ui.viewmodel.AuthViewModel
-import com.project.focuslist.ui.viewmodel.LoginViewModel
 import com.project.focuslist.ui.viewmodel.TaskViewModel
+import java.util.Locale
 
-class TaskDoneFragment : Fragment(), TaskAdapter.OnItemClickListener,
+
+class CalendarFragment : Fragment(), TaskAdapter.OnItemClickListener,
     TaskAdapter.OnItemLongClickListener {
 
-    private lateinit var binding: FragmentTaskDoneBinding
+    private lateinit var binding: FragmentCalenderBinding
     private val viewModel by viewModels<TaskViewModel>()
-    private val userViewModel by viewModels<AuthViewModel>()
-    private val loginViewModel by viewModels<LoginViewModel>()
     private lateinit var taskAdapter: TaskAdapter
+    private var calendar: Calendar = Calendar.getInstance()
+    private var dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    private var formattedDate: String = dateFormat.format(calendar.time)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
-        binding = FragmentTaskDoneBinding.inflate(inflater, container, false)
+        binding = FragmentCalenderBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onStart() {
         super.onStart()
         initViews()
-        observeCompletedTasks()
+        observeTaskList()
     }
 
     private fun initViews() {
         with (binding) {
+
             taskAdapter = TaskAdapter(mutableListOf()).apply {
-                onItemClickListener = this@TaskDoneFragment
-                onLongClickListener = this@TaskDoneFragment
+                onItemClickListener = this@CalendarFragment
+                onLongClickListener = this@CalendarFragment
                 onCheckBoxClickListener = { task, isChecked ->
                     viewModel.toggleTaskCompletion(task, isChecked)
                 }
             }
 
-            rvTaskDone.apply {
+            rvTask.apply {
                 layoutManager = LinearLayoutManager(context)
                 setHasFixedSize(true)
                 adapter = taskAdapter
             }
+
+            viewModel.getTaskListByDate(formattedDate).observe(viewLifecycleOwner) { taskList ->
+                taskAdapter.setTasks(taskList)
+                updateTaskListVisibility(taskList.isEmpty())
+            }
         }
     }
 
-    private fun observeCompletedTasks() {
-        viewModel.getCompletedTasks().observe(viewLifecycleOwner) { taskList ->
-            taskAdapter.setTasks(taskList)
-            updateTaskListVisibility(taskList.isEmpty())
+    private fun observeTaskList() {
+        binding.calenderView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            calendar = Calendar.getInstance().apply {
+                set(year, month, dayOfMonth)
+            }
+            dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            formattedDate = dateFormat.format(calendar.time)
+
+            viewModel.getTaskListByDate(formattedDate).observe(viewLifecycleOwner) { taskList ->
+                taskAdapter.setTasks(taskList)
+                updateTaskListVisibility(taskList.isEmpty())
+            }
         }
     }
 
@@ -72,7 +88,6 @@ class TaskDoneFragment : Fragment(), TaskAdapter.OnItemClickListener,
         startActivity(intent)
     }
 
-    // Mengimplementasikan method dari OnItemLongClickListener
     override fun onItemLongClick(task: Task): Boolean {
         val intent = Intent(activity, DetailTaskActivity::class.java)
         intent.putExtra(DetailTaskActivity.INTENT_KEY_TASK_ID, task.taskId)
@@ -82,7 +97,7 @@ class TaskDoneFragment : Fragment(), TaskAdapter.OnItemClickListener,
     }
 
     private fun updateTaskListVisibility(isEmpty: Boolean) {
-        binding.ivTaskDoneList.visibility = if (isEmpty) View.VISIBLE else View.GONE
-        binding.rvTaskDone.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        binding.ivTaskList.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.rvTask.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 }

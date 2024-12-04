@@ -85,6 +85,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:paddingBottom="50dp"
                 android:src="@drawable/baseline_add_photo_alternate_24"
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"

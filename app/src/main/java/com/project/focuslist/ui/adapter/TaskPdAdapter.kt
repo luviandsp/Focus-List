@@ -1,22 +1,22 @@
 package com.project.focuslist.ui.adapter
 
-
-import android.annotation.SuppressLint
 import android.media.SoundPool
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.project.focuslist.R
 import com.project.focuslist.data.enumData.TaskPriority
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.databinding.TaskItemBinding
 
-class TaskAdapter(private var taskList: MutableList<Task>) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
+class TaskPdAdapter : PagingDataAdapter<Task, TaskPdAdapter.TaskViewHolder>(DIFF_CALLBACK) {
 
-    lateinit var onItemClickListener: OnItemClickListener
-    lateinit var onLongClickListener: OnItemLongClickListener
-    lateinit var onCheckBoxClickListener: (Task, Boolean) -> Unit
+    var onItemClickListener: ((Task) -> Unit)? = null
+    var onLongClickListener: ((Task) -> Boolean)? = null
+    var onCheckBoxClickListener: ((Task, Boolean) -> Unit)? = null
 
     private var sp: SoundPool = SoundPool.Builder().setMaxStreams(10).build()
     private var soundIdBell: Int = 0
@@ -30,7 +30,9 @@ class TaskAdapter(private var taskList: MutableList<Task>) : RecyclerView.Adapte
 
     inner class TaskViewHolder(private val binding: TaskItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(task: Task) {
+        fun bind(task: Task?) {
+            if (task == null) return
+
             with(binding) {
                 var isChecked = task.isCompleted
                 ivTaskCheck.setImageResource(
@@ -48,7 +50,7 @@ class TaskAdapter(private var taskList: MutableList<Task>) : RecyclerView.Adapte
                         }
                         else R.drawable.baseline_check_box_outline_blank_24
                     )
-                    onCheckBoxClickListener(task, isChecked)
+                    onCheckBoxClickListener?.invoke(task, isChecked)
                 }
 
                 tvTaskName.text = task.title
@@ -61,28 +63,21 @@ class TaskAdapter(private var taskList: MutableList<Task>) : RecyclerView.Adapte
                     TaskPriority.HIGH.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_3)
                 }
 
-                itemView.setOnClickListener { onItemClickListener.onItemClick(task) }
-                itemView.setOnLongClickListener { onLongClickListener.onItemLongClick(task) }
+                itemView.setOnClickListener { onItemClickListener?.invoke(task) }
+                itemView.setOnLongClickListener { onLongClickListener?.invoke(task) ?: false }
             }
         }
     }
 
-    fun playSoundBell() {
+    private fun playSoundBell() {
         if (spLoaded) sp.play(soundIdBell, 1f, 1f, 0, 0, 1f)
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    fun setTasks(newTaskList: MutableList<Task>) {
-        this.taskList = newTaskList
-        notifyDataSetChanged()
-    }
-
-    interface OnItemClickListener {
-        fun onItemClick(task: Task)
-    }
-
-    interface OnItemLongClickListener {
-        fun onItemLongClick(task: Task): Boolean
+    override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
+        val task = getItem(position)
+        if (task != null) {
+            holder.bind(task)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
@@ -91,10 +86,15 @@ class TaskAdapter(private var taskList: MutableList<Task>) : RecyclerView.Adapte
         return TaskViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = taskList.size
+    companion object {
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Task>() {
+            override fun areItemsTheSame(oldItem: Task, newItem: Task): Boolean {
+                return oldItem.taskId == newItem.taskId
+            }
 
-    override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
-        holder.bind(taskList[position])
+            override fun areContentsTheSame(oldItem: Task, newItem: Task): Boolean {
+                return oldItem == newItem
+            }
+        }
     }
 }
-

@@ -12,7 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.focuslist.data.model.Task
-import com.project.focuslist.databinding.FragmentTaskInProgressBinding
+import com.project.focuslist.databinding.FragmentTaskDoneBinding
 import com.project.focuslist.ui.activity.DetailTaskActivity
 import com.project.focuslist.ui.activity.ReadTaskActivity
 import com.project.focuslist.ui.adapter.LoadingStateAdapter
@@ -22,18 +22,19 @@ import com.project.focuslist.ui.viewmodel.TaskViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class TaskInProgressFragment : Fragment(), TaskAdapter.OnItemClickListener,
+class TaskCompletedFragment : Fragment(), TaskAdapter.OnItemClickListener,
     TaskAdapter.OnItemLongClickListener {
 
-    private lateinit var binding: FragmentTaskInProgressBinding
+    private lateinit var binding: FragmentTaskDoneBinding
     private val viewModel by viewModels<TaskViewModel>()
     private lateinit var taskAdapter: TaskPdAdapter
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentTaskInProgressBinding.inflate(inflater, container, false)
+        binding = FragmentTaskDoneBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -56,6 +57,7 @@ class TaskInProgressFragment : Fragment(), TaskAdapter.OnItemClickListener,
                 val intent = Intent(requireContext(), DetailTaskActivity::class.java)
                 intent.putExtra(DetailTaskActivity.INTENT_KEY_TASK_ID, task.taskId)
                 intent.putExtra(DetailTaskActivity.INTENT_KEY, DetailTaskActivity.EDIT_KEY)
+
                 startActivity(intent)
                 true
             }
@@ -65,7 +67,7 @@ class TaskInProgressFragment : Fragment(), TaskAdapter.OnItemClickListener,
             }
         }
 
-        binding.rvTaskProgress.apply {
+        binding.rvTaskDone.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(requireContext())
             adapter = taskAdapter.withLoadStateFooter(
@@ -76,7 +78,7 @@ class TaskInProgressFragment : Fragment(), TaskAdapter.OnItemClickListener,
 
     private fun observePagingData() {
         lifecycleScope.launch {
-            viewModel.pagedTasksInProgress.collectLatest { pagingData ->
+            viewModel.pagedTasksCompleted.collectLatest { pagingData ->
                 taskAdapter.submitData(lifecycle, pagingData)
                 observeLoadState()
             }
@@ -104,19 +106,20 @@ class TaskInProgressFragment : Fragment(), TaskAdapter.OnItemClickListener,
 //    override fun onStart() {
 //        super.onStart()
 //        initViews()
-//        observeInProgressTasks()
+//        observeCompletedTasks()
 //    }
 //
 //    private fun initViews() {
 //        with (binding) {
 //            taskAdapter = TaskAdapter(mutableListOf()).apply {
-//                onItemClickListener = this@TaskInProgressFragment
-//                onLongClickListener = this@TaskInProgressFragment
+//                onItemClickListener = this@TaskCompletedFragment
+//                onLongClickListener = this@TaskCompletedFragment
 //                onCheckBoxClickListener = { task, isChecked ->
 //                    viewModel.toggleTaskCompletion(task, isChecked)
 //                }
 //            }
-//            rvTaskProgress.apply {
+//
+//            rvTaskDone.apply {
 //                layoutManager = LinearLayoutManager(context)
 //                setHasFixedSize(true)
 //                adapter = taskAdapter
@@ -124,8 +127,8 @@ class TaskInProgressFragment : Fragment(), TaskAdapter.OnItemClickListener,
 //        }
 //    }
 //
-//    private fun observeInProgressTasks() {
-//        viewModel.getInProgressTasks().observe(viewLifecycleOwner) { taskList ->
+//    private fun observeCompletedTasks() {
+//        viewModel.getCompletedTasks().observe(viewLifecycleOwner) { taskList ->
 //            taskAdapter.setTasks(taskList)
 //            updateTaskListVisibility(taskList.isEmpty())
 //        }
@@ -146,7 +149,7 @@ class TaskInProgressFragment : Fragment(), TaskAdapter.OnItemClickListener,
     }
 
     private fun updateTaskListVisibility(isEmpty: Boolean) {
-        binding.ivTaskProgressList.visibility = if (isEmpty) View.VISIBLE else View.GONE
-        binding.rvTaskProgress.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        binding.ivTaskDoneList.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.rvTaskDone.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 }

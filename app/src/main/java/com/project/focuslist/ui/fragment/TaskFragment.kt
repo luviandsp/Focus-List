@@ -2,12 +2,11 @@ package com.project.focuslist.ui.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
 import com.project.focuslist.databinding.FragmentTaskBinding
 import com.project.focuslist.ui.activity.DetailTaskActivity

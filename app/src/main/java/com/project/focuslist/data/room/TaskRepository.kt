@@ -1,6 +1,7 @@
 package com.project.focuslist.data.room
 
 import androidx.lifecycle.LiveData
+import androidx.paging.PagingSource
 import com.project.focuslist.data.model.Task
 
 class TaskRepository(private val taskDao: TaskDao) {
@@ -11,11 +12,17 @@ class TaskRepository(private val taskDao: TaskDao) {
 //
 //    fun getInProgressTasks(userId: Int): LiveData<MutableList<Task>> = taskDao.getInProgressTasks(userId)
 
-    fun getTaskList(): LiveData<MutableList<Task>> = taskDao.getTaskList()
+    fun getTaskListPaged(): PagingSource<Int, Task> = taskDao.getTaskListPaged()
 
-    fun getCompletedTasks(): LiveData<MutableList<Task>> = taskDao.getCompletedTasks()
+    fun getCompletedTasksPaged(): PagingSource<Int, Task> = taskDao.getCompletedTasksPaged()
 
-    fun getInProgressTasks(): LiveData<MutableList<Task>> = taskDao.getInProgressTasks()
+    fun getInProgressTasksPaged(): PagingSource<Int, Task> = taskDao.getInProgressTasksPaged()
+
+//    fun getTaskList(): LiveData<MutableList<Task>> = taskDao.getTaskList()
+//
+//    fun getCompletedTasks(): LiveData<MutableList<Task>> = taskDao.getCompletedTasks()
+//
+//    fun getInProgressTasks(): LiveData<MutableList<Task>> = taskDao.getInProgressTasks()
 
     fun getTaskListByDate(date: String): LiveData<MutableList<Task>> = taskDao.getTaskListByDate(date)
 

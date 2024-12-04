@@ -67,10 +67,8 @@ class LoginFragment : Fragment() {
                     return@setOnClickListener
                 }
 
-                // Panggil fungsi autentikasi
                 authViewModel.authenticateUser(username, password).observe(viewLifecycleOwner) { user ->
                     if (user != null) {
-                        // Login berhasil
                         lifecycleScope.launch {
                             loginViewModel.setLoginStatus(1)
 
@@ -82,7 +80,6 @@ class LoginFragment : Fragment() {
                             navigateToMainActivity()
                         }
                     } else {
-                        // Login gagal
                         Toast.makeText(activity, "Username atau Password salah", Toast.LENGTH_SHORT).show()
                     }
                 }

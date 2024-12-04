@@ -1,6 +1,7 @@
 package com.project.focuslist.data.room
 
 import androidx.lifecycle.LiveData
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -24,13 +25,22 @@ interface TaskDao {
     fun getTaskListByDate(date: String): LiveData<MutableList<Task>>
 
     @Query("SELECT * FROM task_table ORDER BY task_priority DESC, task_due_date ASC")
-    fun getTaskList(): LiveData<MutableList<Task>>
+    fun getTaskListPaged(): PagingSource<Int, Task>
 
     @Query("SELECT * FROM task_table WHERE task_is_completed = 1 ORDER BY task_priority DESC, task_due_date ASC")
-    fun getCompletedTasks(): LiveData<MutableList<Task>>
+    fun getCompletedTasksPaged(): PagingSource<Int, Task>
 
     @Query("SELECT * FROM task_table WHERE task_is_completed = 0 ORDER BY task_priority DESC, task_due_date ASC")
-    fun getInProgressTasks(): LiveData<MutableList<Task>>
+    fun getInProgressTasksPaged(): PagingSource<Int, Task>
+
+//    @Query("SELECT * FROM task_table ORDER BY task_priority DESC, task_due_date ASC")
+//    fun getTaskList(): LiveData<MutableList<Task>>
+//
+//    @Query("SELECT * FROM task_table WHERE task_is_completed = 1 ORDER BY task_priority DESC, task_due_date ASC")
+//    fun getCompletedTasks(): LiveData<MutableList<Task>>
+//
+//    @Query("SELECT * FROM task_table WHERE task_is_completed = 0 ORDER BY task_priority DESC, task_due_date ASC")
+//    fun getInProgressTasks(): LiveData<MutableList<Task>>
 
     @Query("SELECT * FROM task_table WHERE task_id = :taskId")
     suspend fun getTaskById(taskId: Int): Task?

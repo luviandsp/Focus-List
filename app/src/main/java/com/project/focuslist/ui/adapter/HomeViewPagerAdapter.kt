@@ -3,7 +3,7 @@ package com.project.focuslist.ui.adapter
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.project.focuslist.ui.fragment.AllTaskFragment
-import com.project.focuslist.ui.fragment.TaskDoneFragment
+import com.project.focuslist.ui.fragment.TaskCompletedFragment
 import com.project.focuslist.ui.fragment.TaskInProgressFragment
 
 class HomeViewPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
@@ -11,13 +11,13 @@ class HomeViewPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) 
     private val fragments: List<Fragment> = listOf(
         AllTaskFragment(),
         TaskInProgressFragment(),
-        TaskDoneFragment()
+        TaskCompletedFragment()
     )
 
     private val fragmentTitles: List<String> = listOf(
         "All Task",
         "In Progress",
-        "Done"
+        "Completed"
     )
     
     override fun getItemCount(): Int = fragments.size

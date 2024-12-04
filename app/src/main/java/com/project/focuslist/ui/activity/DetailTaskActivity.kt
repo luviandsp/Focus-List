@@ -22,13 +22,10 @@ import com.google.android.material.snackbar.Snackbar
 import com.project.focuslist.R
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.databinding.ActivityDetailTaskBinding
-import com.project.focuslist.ui.viewmodel.AuthViewModel
-import com.project.focuslist.ui.viewmodel.LoginViewModel
 import com.project.focuslist.ui.viewmodel.TaskViewModel
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
-import kotlin.jvm.Throws
 
 class DetailTaskActivity : AppCompatActivity() {
 
@@ -36,8 +33,6 @@ class DetailTaskActivity : AppCompatActivity() {
     private val viewModel by viewModels<TaskViewModel>()
     private var loadedImage: ByteArray? = null
     private var isClicked = false
-    private val userViewModel by viewModels<AuthViewModel>()
-    private val loginViewModel by viewModels<LoginViewModel>()
     private var selectedDueDate: String? = null
     private var taskData: Task? = null
 
@@ -65,7 +60,6 @@ class DetailTaskActivity : AppCompatActivity() {
             val isDarkMode = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
             if (isEdit) {
-                // Observe the LiveData for task details
                 viewModel.getTaskById(taskId).observe(this@DetailTaskActivity) { task ->
                     task?.let {
                         taskData = it
@@ -115,14 +109,15 @@ class DetailTaskActivity : AppCompatActivity() {
     }
 
     private fun showDatePicker() {
-        // Mendapatkan tanggal hari ini
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
         val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
 
         val datePickerDialog = DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDayOfMonth ->
-            selectedDueDate = "$selectedDayOfMonth/${selectedMonth + 1}/$selectedYear"
+            val day = String.format("%02d", selectedDayOfMonth)
+            val month = String.format("%02d", selectedMonth + 1)
+            selectedDueDate = "$day/$month/$selectedYear"
             binding.tvSelectDate.text = selectedDueDate
         }, year, month, dayOfMonth)
 
@@ -167,7 +162,7 @@ class DetailTaskActivity : AppCompatActivity() {
         if (!isClicked) {
             isClicked = true
             val intent = Intent()
-            intent.setType("image/*") // */
+            intent.setType("image/*")
             intent.setAction(Intent.ACTION_GET_CONTENT)
             startActivityForResult(Intent.createChooser(intent, "Select Image"), 1)
         }
