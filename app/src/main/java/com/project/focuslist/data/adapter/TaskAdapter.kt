@@ -1,22 +1,24 @@
-package com.project.focuslist.ui.adapter
+package com.project.focuslist.data.adapter
+
 
 import android.media.SoundPool
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.project.focuslist.R
 import com.project.focuslist.data.enumData.TaskPriority
 import com.project.focuslist.data.model.Task
+import com.project.focuslist.data.model.TaskWithUser
 import com.project.focuslist.databinding.TaskItemBinding
 
-class TaskPdAdapter : PagingDataAdapter<Task, TaskPdAdapter.TaskViewHolder>(DIFF_CALLBACK) {
-
-    var onItemClickListener: ((Task) -> Unit)? = null
-    var onLongClickListener: ((Task) -> Boolean)? = null
-    var onCheckBoxClickListener: ((Task, Boolean) -> Unit)? = null
+class TaskAdapter(
+    private val onItemClickListener: (Task) -> Unit,
+    private val onLongClickListener: (Task) -> Boolean,
+    private val onCheckBoxClickListener: (Task, Boolean) -> Unit
+) : ListAdapter<TaskWithUser, TaskAdapter.TaskViewHolder>(DIFF_CALLBACK) {
 
     private var sp: SoundPool = SoundPool.Builder().setMaxStreams(10).build()
     private var soundIdBell: Int = 0
@@ -30,11 +32,9 @@ class TaskPdAdapter : PagingDataAdapter<Task, TaskPdAdapter.TaskViewHolder>(DIFF
 
     inner class TaskViewHolder(private val binding: TaskItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(task: Task?) {
-            if (task == null) return
-
+        fun bind(taskWithUser: TaskWithUser) {
             with(binding) {
-                var isChecked = task.isCompleted
+                var isChecked = taskWithUser.task.isCompleted
                 ivTaskCheck.setImageResource(
                     if (isChecked) R.drawable.baseline_check_box_24
                     else R.drawable.baseline_check_box_outline_blank_24
@@ -50,27 +50,33 @@ class TaskPdAdapter : PagingDataAdapter<Task, TaskPdAdapter.TaskViewHolder>(DIFF
                         }
                         else R.drawable.baseline_check_box_outline_blank_24
                     )
-                    onCheckBoxClickListener?.invoke(task, isChecked)
+                    onCheckBoxClickListener(taskWithUser.task, isChecked)
                 }
 
-                tvTaskName.text = task.title
-                tvTaskBody.text = task.body
-                tvDueDate.text = task.dueDate
+                tvTaskName.text = taskWithUser.task.taskTitle
+                tvTaskBody.text = taskWithUser.task.taskBody
+                tvDueDate.text = taskWithUser.task.taskDueDate
 
-                when (task.priority) {
+                when (taskWithUser.task.taskPriority) {
                     TaskPriority.LOW.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_1)
                     TaskPriority.MEDIUM.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_2)
                     TaskPriority.HIGH.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_3)
                 }
 
-                itemView.setOnClickListener { onItemClickListener?.invoke(task) }
-                itemView.setOnLongClickListener { onLongClickListener?.invoke(task) ?: false }
+                itemView.setOnClickListener { onItemClickListener(taskWithUser.task) }
+                itemView.setOnLongClickListener { onLongClickListener(taskWithUser.task) }
             }
         }
     }
 
-    private fun playSoundBell() {
+    fun playSoundBell() {
         if (spLoaded) sp.play(soundIdBell, 1f, 1f, 0, 0, 1f)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
+        val binding = TaskItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        soundIdBell = sp.load(parent.context, R.raw.bell_sound, 1)
+        return TaskViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
@@ -80,21 +86,16 @@ class TaskPdAdapter : PagingDataAdapter<Task, TaskPdAdapter.TaskViewHolder>(DIFF
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
-        val binding = TaskItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        soundIdBell = sp.load(parent.context, R.raw.bell_sound, 1)
-        return TaskViewHolder(binding)
-    }
-
     companion object {
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Task>() {
-            override fun areItemsTheSame(oldItem: Task, newItem: Task): Boolean {
-                return oldItem.taskId == newItem.taskId
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<TaskWithUser>() {
+            override fun areItemsTheSame(oldItem: TaskWithUser, newItem: TaskWithUser): Boolean {
+                return oldItem.task.taskId == newItem.task.taskId
             }
 
-            override fun areContentsTheSame(oldItem: Task, newItem: Task): Boolean {
+            override fun areContentsTheSame(oldItem: TaskWithUser, newItem: TaskWithUser): Boolean {
                 return oldItem == newItem
             }
         }
     }
 }
+

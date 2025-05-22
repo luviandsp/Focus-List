@@ -1,4 +1,4 @@
-package com.project.focuslist.ui.adapter
+package com.project.focuslist.data.adapter
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter

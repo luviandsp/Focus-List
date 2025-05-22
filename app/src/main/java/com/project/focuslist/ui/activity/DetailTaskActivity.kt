@@ -1,80 +1,93 @@
 package com.project.focuslist.ui.activity
 
 import android.app.DatePickerDialog
-import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.Bitmap
-import android.graphics.Matrix
 import android.icu.util.Calendar
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.exifinterface.media.ExifInterface
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
-import com.google.android.material.snackbar.Snackbar
+import com.github.drjacky.imagepicker.ImagePicker
 import com.project.focuslist.R
-import com.project.focuslist.data.model.Task
+import com.project.focuslist.data.viewmodel.StorageViewModel
+import com.project.focuslist.data.viewmodel.TaskViewModel
 import com.project.focuslist.databinding.ActivityDetailTaskBinding
-import com.project.focuslist.ui.viewmodel.TaskViewModel
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.io.InputStream
 
 class DetailTaskActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailTaskBinding
-    private val viewModel by viewModels<TaskViewModel>()
-    private var loadedImage: ByteArray? = null
-    private var isClicked = false
+    private val taskViewModel by viewModels<TaskViewModel>()
+    private val storageViewModel by viewModels<StorageViewModel>()
+
     private var selectedDueDate: String? = null
-    private var taskData: Task? = null
+
+    private var imageUri: Uri? = null
+    private var taskId: String? = null
+
+    companion object {
+        private const val TAG = "DetailTaskActivity"
+        const val TASK_ID = "task_id"
+        const val EDIT_KEY = "EDIT"
+        const val CREATE_KEY = "CREATE"
+        const val INTENT_KEY = "EDIT_OR_CREATE"
+    }
+
+    private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            result.data?.data?.let { uri ->
+                Glide.with(this@DetailTaskActivity).load(uri).into(binding.ivImage)
+
+                imageUri = uri
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding = ActivityDetailTaskBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-    }
 
-    override fun onStart() {
-        super.onStart()
+        taskId = intent.getStringExtra(TASK_ID)
+        Log.d(TAG, "Task ID: $taskId")
+
+        if (taskId != null) {
+            taskViewModel.getTaskById(taskId!!)
+        } else {
+            Log.d(TAG, "Task ID is null")
+        }
+
         initViews()
+        observeViewModels()
     }
 
     private fun initViews() {
         with(binding) {
             val isEdit = intent.getStringExtra(INTENT_KEY) == EDIT_KEY
-            val taskId = intent.getIntExtra(INTENT_KEY_TASK_ID, -1)
             val isDarkMode = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
+            tvTitle.text = if (isEdit) "Edit Task" else "Create Task"
             if (isEdit) {
-                viewModel.getTaskById(taskId).observe(this@DetailTaskActivity) { task ->
-                    task?.let {
-                        taskData = it
-                        tietTitle.setText(it.title)
-                        tietBody.setText(it.body)
-                        spinnerPriority.setSelection(it.priority -1)
-                        tvSelectDate.text = it.dueDate
-                        if (task.taskImage != null) {
-                            Glide.with(this@DetailTaskActivity).load(task.taskImage).into(ivImage)
-                        } else {
-                            ivImage.visibility = View.GONE
-                        }
-                        loadedImage = it.taskImage
-                    }
-                }
+                ivDelete.visibility = View.VISIBLE
+            } else {
+                ivDelete.visibility = View.GONE
             }
 
             val itemLayout = if (isDarkMode) R.layout.spinner_item_dark else R.layout.spinner_item
@@ -88,23 +101,76 @@ class DetailTaskActivity : AppCompatActivity() {
             }
 
             btnSave.setOnClickListener {
-                saveTask(isEdit, taskId)
+                saveTask()
             }
 
             ivDelete.setOnClickListener {
-                if (isEdit) {
-                    viewModel.deleteTask(Task(taskId, "", "", false, 0, null, null))
+                val oldTaskImageUrl = taskViewModel.taskImageUrl.value ?: ""
+
+                if (taskId != null) {
+                    taskViewModel.deleteTask(taskId!!)
+                    deleteOldTaskImage(oldTaskImageUrl)
+                    setResult(RESULT_OK)
                     finish()
                 }
             }
 
             ivBack.setOnClickListener {
-                val intent = Intent(this@DetailTaskActivity, MainActivity::class.java)
-                startActivity(intent)
+                finish()
             }
 
-            tvTitle.text = if (isEdit) "Edit Task" else "Create Task"
-            ivImageInsert.setOnClickListener { openGallery() }
+            ivImageInsert.setOnClickListener {
+                launcher.launch(
+                    ImagePicker.with(this@DetailTaskActivity)
+                        .crop()
+                        .galleryOnly()
+                        .createIntent()
+                )
+            }
+
+            ivCamera.setOnClickListener {
+                launcher.launch(
+                    ImagePicker.with(this@DetailTaskActivity)
+                        .crop()
+                        .cameraOnly()
+                        .createIntent()
+                )
+            }
+        }
+    }
+
+    private fun observeViewModels() {
+        taskViewModel.apply {
+            operationResult.observe(this@DetailTaskActivity) { (success, message) ->
+                binding.progressBar.visibility = View.GONE
+                if (success) {
+                    setResult(RESULT_OK)
+                    finish()
+                } else {
+                    showToast(message ?: "Terjadi kesalahan")
+                }
+            }
+
+            taskTitle.observe(this@DetailTaskActivity) { binding.tietTitle.setText(it) }
+            taskBody.observe(this@DetailTaskActivity) { binding.tietBody.setText(it) }
+
+            taskImageUrl.observe(this@DetailTaskActivity) { imageUrl ->
+                if (imageUrl != null) {
+                    Glide.with(this@DetailTaskActivity).load(imageUrl).into(binding.ivImage)
+                }
+            }
+
+            taskDueDate.observe(this@DetailTaskActivity) { dueDate ->
+                binding.tvSelectDate.text = dueDate
+            }
+
+            taskPriority.observe(this@DetailTaskActivity) { priority ->
+                binding.spinnerPriority.setSelection(priority - 1)
+            }
+        }
+
+        storageViewModel.uploadStatus.observe(this@DetailTaskActivity) { success ->
+            if (success) showToast("Foto berhasil diunggah") else showToast("Gagal mengunggah foto")
         }
     }
 
@@ -124,11 +190,12 @@ class DetailTaskActivity : AppCompatActivity() {
         datePickerDialog.show()
     }
 
-    private fun saveTask(isEdit: Boolean, taskId: Int) {
-        val title = binding.tietTitle.text.toString().ifEmpty { "Tanpa Judul" }
-        val body = binding.tietBody.text.toString().ifEmpty { "Tanpa Isi" }
+    private fun saveTask() {
+        val title = binding.tietTitle.text.toString().trim().ifEmpty { "Tanpa Judul" }
+        val body = binding.tietBody.text.toString().trim().ifEmpty { "Tanpa Isi" }
         val dueDate = binding.tvSelectDate.text.toString()
         val selectedPriority = binding.spinnerPriority.selectedItem.toString()
+        val oldTaskImageUrl = taskViewModel.taskImageUrl.value ?: ""
 
         val priorityMap = mapOf(
             "Rendah" to 1,
@@ -138,123 +205,88 @@ class DetailTaskActivity : AppCompatActivity() {
 
         val priorityValue = priorityMap[selectedPriority] ?: 0
 
-        if (isEdit) {
-            taskData?.let {
-                viewModel.updateTask(
-                    Task(
-                        taskId,
-                        title,
-                        body,
-                        it.isCompleted,
-                        priorityValue,
-                        dueDate,
-                        loadedImage
+        if (imageUri != null) {
+            uploadImageToSupabase(imageUri!!) { imageUrl ->
+                if (taskId != null) {
+                    taskViewModel.updateTask(
+                        taskId = taskId!!,
+                        taskTitle = title,
+                        taskBody = body,
+                        taskPriority = priorityValue,
+                        taskDueDate = dueDate,
+                        taskImageUrl = imageUrl
                     )
-                )
+                    deleteOldTaskImage(oldImageUrl = oldTaskImageUrl)
+                } else {
+                    taskViewModel.createTask(
+                        taskTitle = title,
+                        taskBody = body,
+                        taskPriority = priorityValue,
+                        taskDueDate = dueDate,
+                        taskImageUrl = imageUrl
+                    )
+                }
+                setResult(RESULT_OK)
+                finish()
             }
         } else {
-            viewModel.createTask(Task(0, title, body, false, priorityValue, dueDate, loadedImage))
-        }
-        finish()
-    }
-
-    private fun openGallery() {
-        if (!isClicked) {
-            isClicked = true
-            val intent = Intent()
-            intent.setType("image/*")
-            intent.setAction(Intent.ACTION_GET_CONTENT)
-            startActivityForResult(Intent.createChooser(intent, "Select Image"), 1)
-        }
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == 1 && resultCode == RESULT_OK && data != null && data.data != null) {
-            val imageUri = data.data
-            try {
-
-                // Ambil ukuran file dalam satuan byte
-                val inputStream: InputStream = imageUri?.let { contentResolver.openInputStream(it) }!!
-                val fileSizeInBytes = inputStream.available()
-                inputStream.close()
-
-                // Konversikan ke MegaBytes
-                val fileSizeInMB = fileSizeInBytes / (1024.0 * 1024.0)
-
-                // Ambil bitmap serta periksa apakah perlu dirotasi
-                var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
-                bitmap = rotateImageIfRequired(bitmap, imageUri)
-
-                // Periksa ukuran file
-                if (fileSizeInMB > 2.0) {
-
-                    // Jika masih terlalu besar, lakukan kompresi
-                    val outputStream = ByteArrayOutputStream()
-                    var quality = 90 // Initial quality
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
-
-                    // Turunkan kualitas hingga di bawah 2 MB
-                    while (outputStream.toByteArray().size > 2 * 1024 * 1024) {
-                        outputStream.reset()
-                        quality -= 10
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
-                    }
-
-                    // Konversikan dalam bentuk ByteArray lalu tampilkan gambar hasil kompresi
-                    loadedImage = outputStream.toByteArray()
-                    binding.apply {
-                        Glide.with(this@DetailTaskActivity).load(loadedImage).into(ivImage)
-                    }
-                } else {
-
-                    // Gunakan gambar asli, ubah jadi ByteArray, lalu tampilkan
-                    val stream = ByteArrayOutputStream()
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-                    loadedImage = stream.toByteArray()
-                    binding.apply {
-                        Glide.with(this@DetailTaskActivity).load(loadedImage).into(ivImage)
-                    }
-                }
-                isClicked = false
-            } catch (e: IOException) {
-                val snackbar = Snackbar.make(
-                    binding.root,
-                    "Gagal Mengambil Foto.",
-                    Snackbar.LENGTH_SHORT
+            if (taskId != null) {
+                taskViewModel.updateTask(
+                    taskId = taskId!!,
+                    taskTitle = title,
+                    taskBody = body,
+                    taskPriority = priorityValue,
+                    taskDueDate = dueDate,
+                    taskImageUrl = oldTaskImageUrl
                 )
-                snackbar.show()
-                isClicked = false
+            } else {
+                taskViewModel.createTask(
+                    taskTitle = title,
+                    taskBody = body,
+                    taskPriority = priorityValue,
+                    taskDueDate = dueDate,
+                    taskImageUrl = oldTaskImageUrl
+                )
+            }
+            setResult(RESULT_OK)
+            finish()
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun uploadImageToSupabase(uri: Uri, onSuccess: (String) -> Unit) {
+        val inputStream = contentResolver.openInputStream(uri) ?: return showToast("Gagal membaca file")
+        val fileName = "task_${System.currentTimeMillis()}.jpg"
+        val byteArray = inputStream.use { it.readBytes() }
+
+        storageViewModel.uploadFile(byteArray, "task_images", fileName)
+
+        storageViewModel.imageUrl.observeOnce(this) { imageUrl ->
+            binding.progressBar.visibility = View.GONE
+            if (!imageUrl.isNullOrEmpty()) {
+                onSuccess(imageUrl)
+            } else {
+                showToast("Gagal mengunggah gambar")
             }
         }
-        isClicked = false
     }
 
-    @Throws(IOException::class)
-    private fun rotateImageIfRequired(img: Bitmap, selectedImage: Uri): Bitmap {
-        val input: InputStream? = contentResolver.openInputStream(selectedImage)
-        val ei = ExifInterface(input!!)
-        val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
-        return when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(img, 90)
-            ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(img, 180)
-            ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(img, 270)
-            else -> img
+    private fun deleteOldTaskImage(oldImageUrl: String) {
+        if (oldImageUrl.isNotEmpty()) {
+            val fileName = oldImageUrl.substringAfterLast("/")
+            storageViewModel.deleteFile(fileName, "service_banner")
         }
     }
 
-    private fun rotateImage(img: Bitmap, degree: Int): Bitmap {
-        val matrix = Matrix()
-        matrix.postRotate(degree.toFloat())
-        return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
-    }
-
-    companion object {
-        const val EDIT_KEY = "EDIT"
-        const val CREATE_KEY = "CREATE"
-        const val INTENT_KEY = "EDIT_OR_CREATE"
-        const val INTENT_KEY_TASK_ID = "TASK_ID"
+    private fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: (T) -> Unit) {
+        observe(lifecycleOwner, object : Observer<T> {
+            override fun onChanged(value: T) {
+                observer(value)
+                removeObserver(this)
+            }
+        })
     }
 }

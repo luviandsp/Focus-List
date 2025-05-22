@@ -6,23 +6,21 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.project.focuslist.data.model.Task
-import com.project.focuslist.data.model.User
+import com.project.focuslist.data.model.TaskDraft
 
 const val OLD_VERSION = 1
 const val NEW_VERSION = 1
 
 @Database(
-    entities = [User::class, Task::class],
+    entities = [TaskDraft::class],
     version = 1
 )
 abstract class AppDatabase: RoomDatabase() {
 
-    abstract val taskDao: TaskDao
-    abstract val userDao: UserDao
+    abstract val taskDraftDao: TaskDraftDao
 
     companion object {
-        private const val databaseName = "focuslist_database"
+        private const val DATABASE_NAME = "focuslist_database"
 
         @Volatile
         private var databaseInstance: AppDatabase? = null
@@ -38,11 +36,11 @@ abstract class AppDatabase: RoomDatabase() {
                 return databaseInstance ?: Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    databaseName
+                    DATABASE_NAME
                 )
                     .addMigrations(MIGRATION_OLD_TO_NEW)
-                    .build().also {
-                        databaseInstance = it
+                    .build().also { instance ->
+                        databaseInstance = instance
                     }
             }
         }

@@ -12,13 +12,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.project.focuslist.R
 import com.project.focuslist.databinding.FragmentForgotPasswordBinding
-import com.project.focuslist.ui.viewmodel.AuthViewModel
+import com.project.focuslist.data.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
 class ForgotPasswordFragment : Fragment() {
 
-    private lateinit var binding: FragmentForgotPasswordBinding
-    private val viewModel by viewModels<AuthViewModel>()
+    private var _binding: FragmentForgotPasswordBinding? = null
+    private val binding get() = _binding!!
+    private val userViewModel by viewModels<UserViewModel>()
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
@@ -30,13 +31,15 @@ class ForgotPasswordFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentForgotPasswordBinding.inflate(inflater, container, false)
+        _binding = FragmentForgotPasswordBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         initViews()
+        observeViewModel()
     }
 
     private fun initViews() {
@@ -44,37 +47,28 @@ class ForgotPasswordFragment : Fragment() {
 
         with (binding) {
             btnChangePassword.setOnClickListener {
-                val username = tietUsername.text.toString()
-                val newPassword = tietNewPassword.text.toString()
-                val confirmPassword = tietConfirmPassword.text.toString()
+                val email = tietEmail.text.toString().trim()
 
-                if (username.isEmpty()) {
-                    tietUsername.error = "Masukkan username"
+                if (email.isEmpty()) {
+                    Toast.makeText(activity, "Email tidak boleh kosong", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
-                if (newPassword.isEmpty()) {
-                    tietNewPassword.error = "Masukkan kata sandi baru"
-                    return@setOnClickListener
-                }
-
-                if (newPassword != confirmPassword) {
-                    tietConfirmPassword.error = "Kata sandi tidak sama"
-                    return@setOnClickListener
-                }
-
-                viewModel.getUserByUsername(username).observe(viewLifecycleOwner) { user ->
-                    if (user != null) {
-                        lifecycleScope.launch {
-                            viewModel.updatePassword(user.userId, newPassword)
-                            Toast.makeText(activity, "Kata sandi berhasil diubah", Toast.LENGTH_SHORT).show()
-                            view?.findNavController()?.navigate(R.id.forgot_to_login)
-                        }
-                    } else {
-                        Toast.makeText(activity, "Username tidak ditemukan", Toast.LENGTH_SHORT).show()
-                    }
+                lifecycleScope.launch {
+                    userViewModel.forgotPassword(email)
                 }
             }
         }
+    }
+
+    private fun observeViewModel() {
+        userViewModel.authStatus.observe(viewLifecycleOwner) { result ->
+            Toast.makeText(activity, result.second, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

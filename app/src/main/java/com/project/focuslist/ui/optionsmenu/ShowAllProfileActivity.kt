@@ -12,13 +12,13 @@ import com.project.focuslist.R
 import com.project.focuslist.data.model.User
 import com.project.focuslist.databinding.ActivityShowAllProfileBinding
 import com.project.focuslist.ui.activity.DeleteProfileActivity
-import com.project.focuslist.ui.adapter.ProfileAdapter
-import com.project.focuslist.ui.viewmodel.AuthViewModel
+import com.project.focuslist.data.adapter.ProfileAdapter
+import com.project.focuslist.data.viewmodel.UserViewModel
 
 class ShowAllProfileActivity : AppCompatActivity(), ProfileAdapter.OnItemClickListener {
 
     private lateinit var binding: ActivityShowAllProfileBinding
-    private val viewModel by viewModels<AuthViewModel>()
+    private val viewModel by viewModels<UserViewModel>()
     private lateinit var profileAdapter: ProfileAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,9 +56,9 @@ class ShowAllProfileActivity : AppCompatActivity(), ProfileAdapter.OnItemClickLi
     }
 
     private fun observeProfileList() {
-        viewModel.getAllUsers().observe(this@ShowAllProfileActivity) {
-            profileAdapter.setProfiles(it)
-        }
+//        viewModel.getAllUsers().observe(this@ShowAllProfileActivity) {
+//            profileAdapter.setProfiles(it)
+//        }
     }
 
     override fun onItemClick(user: User) {

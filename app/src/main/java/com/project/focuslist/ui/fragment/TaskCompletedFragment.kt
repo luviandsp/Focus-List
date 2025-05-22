@@ -1,155 +1,142 @@
 package com.project.focuslist.ui.fragment
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.project.focuslist.data.adapter.TaskAdapter
 import com.project.focuslist.data.model.Task
+import com.project.focuslist.data.viewmodel.TaskViewModel
 import com.project.focuslist.databinding.FragmentTaskDoneBinding
 import com.project.focuslist.ui.activity.DetailTaskActivity
 import com.project.focuslist.ui.activity.ReadTaskActivity
-import com.project.focuslist.ui.adapter.LoadingStateAdapter
-import com.project.focuslist.ui.adapter.TaskAdapter
-import com.project.focuslist.ui.adapter.TaskPdAdapter
-import com.project.focuslist.ui.viewmodel.TaskViewModel
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
-class TaskCompletedFragment : Fragment(), TaskAdapter.OnItemClickListener,
-    TaskAdapter.OnItemLongClickListener {
+class TaskCompletedFragment : Fragment() {
 
-    private lateinit var binding: FragmentTaskDoneBinding
-    private val viewModel by viewModels<TaskViewModel>()
-    private lateinit var taskAdapter: TaskPdAdapter
+    private var _binding: FragmentTaskDoneBinding? = null
+    private val binding get() = _binding!!
 
+    private val taskViewModel by viewModels<TaskViewModel>()
+    private lateinit var taskAdapter: TaskAdapter
+
+    companion object {
+        private const val TAG = "TaskCompletedFragment"
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentTaskDoneBinding.inflate(inflater, container, false)
+        _binding = FragmentTaskDoneBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        observeViewModels()
         setupRecyclerView()
-        observePagingData()
     }
 
     private fun setupRecyclerView() {
-        taskAdapter = TaskPdAdapter().apply {
-            onItemClickListener = { task ->
-                val intent = Intent(requireContext(), ReadTaskActivity::class.java)
-                intent.putExtra(ReadTaskActivity.INTENT_KEY_TASK_ID, task.taskId)
-                startActivity(intent)
-            }
+        with(binding) {
+            taskAdapter = TaskAdapter(
+                onItemClickListener = { task -> readTask(task) },
+                onLongClickListener = { task -> detailTask(task); true },
+                onCheckBoxClickListener = { task, isChecked ->
+                    taskViewModel.updateCompletionStatus(
+                        taskId = task.taskId,
+                        isCompleted = isChecked
+                    )
 
-            onLongClickListener = { task ->
-                val intent = Intent(requireContext(), DetailTaskActivity::class.java)
-                intent.putExtra(DetailTaskActivity.INTENT_KEY_TASK_ID, task.taskId)
-                intent.putExtra(DetailTaskActivity.INTENT_KEY, DetailTaskActivity.EDIT_KEY)
-
-                startActivity(intent)
-                true
-            }
-
-            onCheckBoxClickListener = { task, isChecked ->
-                viewModel.toggleTaskCompletion(task, isChecked)
-            }
-        }
-
-        binding.rvTaskDone.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = taskAdapter.withLoadStateFooter(
-                footer = LoadingStateAdapter { taskAdapter.retry() }
+                    taskViewModel.getUserCompletedTask(resetPaging = true)
+                }
             )
+
+            rvTaskDone.apply {
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(requireContext())
+                adapter = taskAdapter
+            }
+
+            rvTaskDone.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                    val totalItemCount = layoutManager.itemCount
+                    val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+
+                    // Cek apakah masih ada data sebelum request lagi
+                    if (lastVisibleItem >= totalItemCount - 3 && taskViewModel.hasMoreData()) {
+                        taskViewModel.getUserCompletedTask()
+                    }
+                }
+            })
         }
     }
 
-    private fun observePagingData() {
-        lifecycleScope.launch {
-            viewModel.pagedTasksCompleted.collectLatest { pagingData ->
-                taskAdapter.submitData(lifecycle, pagingData)
-                observeLoadState()
+    private fun observeViewModels() {
+        taskViewModel.taskCompleted.observe(viewLifecycleOwner) { tasks ->
+            Log.d(TAG, "Fetched Tasks: $tasks")
+            taskAdapter.submitList(tasks)
+            taskAdapter.notifyDataSetChanged()
+
+            if (tasks.isNullOrEmpty()) {
+                updateTaskListVisibility(true)
+            } else {
+                updateTaskListVisibility(false)
             }
         }
     }
 
-    private fun observeLoadState() {
-        taskAdapter.addLoadStateListener { loadState ->
-            val isEmptyList = loadState.refresh is LoadState.NotLoading &&
-                    taskAdapter.itemCount == 0
-
-            updateTaskListVisibility(isEmptyList)
-
-            if (loadState.refresh is LoadState.Error) {
-                val errorState = loadState.refresh as LoadState.Error
-                showError(errorState.error.localizedMessage ?: "Error occurred")
-            }
-        }
-    }
-
-    private fun showError(message: String) {
+    private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
-//    override fun onStart() {
-//        super.onStart()
-//        initViews()
-//        observeCompletedTasks()
-//    }
-//
-//    private fun initViews() {
-//        with (binding) {
-//            taskAdapter = TaskAdapter(mutableListOf()).apply {
-//                onItemClickListener = this@TaskCompletedFragment
-//                onLongClickListener = this@TaskCompletedFragment
-//                onCheckBoxClickListener = { task, isChecked ->
-//                    viewModel.toggleTaskCompletion(task, isChecked)
-//                }
-//            }
-//
-//            rvTaskDone.apply {
-//                layoutManager = LinearLayoutManager(context)
-//                setHasFixedSize(true)
-//                adapter = taskAdapter
-//            }
-//        }
-//    }
-//
-//    private fun observeCompletedTasks() {
-//        viewModel.getCompletedTasks().observe(viewLifecycleOwner) { taskList ->
-//            taskAdapter.setTasks(taskList)
-//            updateTaskListVisibility(taskList.isEmpty())
-//        }
-//    }
-
-    override fun onItemClick(task: Task) {
-        val intent = Intent(activity, ReadTaskActivity::class.java)
-        intent.putExtra(ReadTaskActivity.INTENT_KEY_TASK_ID, task.taskId)
-        startActivity(intent)
+    private fun readTask(task: Task) {
+        Intent(requireContext(), ReadTaskActivity::class.java).apply {
+            putExtra(ReadTaskActivity.TASK_ID, task.taskId)
+            startActivity(this)
+        }
     }
 
-    override fun onItemLongClick(task: Task): Boolean {
-        val intent = Intent(activity, DetailTaskActivity::class.java)
-        intent.putExtra(DetailTaskActivity.INTENT_KEY_TASK_ID, task.taskId)
-        intent.putExtra(DetailTaskActivity.INTENT_KEY, DetailTaskActivity.EDIT_KEY)
-        startActivity(intent)
-        return true
+    private fun detailTask(task: Task) {
+        Intent(requireContext(), DetailTaskActivity::class.java).apply {
+            putExtra(DetailTaskActivity.TASK_ID, task.taskId)
+            startActivity(this)
+        }
     }
 
     private fun updateTaskListVisibility(isEmpty: Boolean) {
         binding.ivTaskDoneList.visibility = if (isEmpty) View.VISIBLE else View.GONE
         binding.rvTaskDone.visibility = if (isEmpty) View.GONE else View.VISIBLE
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Log.d(TAG, "onAttach: Fragment attached")
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate: Fragment created")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        taskViewModel.getUserCompletedTask(resetPaging = true)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

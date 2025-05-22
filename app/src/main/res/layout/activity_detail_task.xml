@@ -21,7 +21,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/nunito_black"
             android:text="@string/create_task"
             android:textColor="?attr/colorPrimary"
             android:textSize="32sp"
@@ -52,7 +51,6 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/tiet_title"
-            android:fontFamily="@font/nunito"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="visible"
@@ -84,7 +82,6 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/tiet_body"
-            android:fontFamily="@font/nunito"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/description"
@@ -108,7 +105,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
-            android:fontFamily="@font/nunito"
             android:text="Priority: "
             android:textSize="14sp" />
 
@@ -134,7 +130,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
-            android:fontFamily="@font/nunito"
             android:text="Date: "
             android:textSize="14sp" />
 
@@ -144,7 +139,6 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
             android:layout_marginEnd="8dp"
-            android:fontFamily="@font/nunito"
             android:text="Date Selected"
             android:layout_marginStart="20dp"
             android:textSize="12sp" />
@@ -157,11 +151,23 @@
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="16dp"
-        android:fontFamily="@font/nunito"
         android:text="@string/pick_a_date"
         app:layout_constraintBottom_toTopOf="@+id/ll_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:visibility="gone"
+        android:max="100"
+        android:progress="50"
+        app:layout_constraintTop_toBottomOf="@+id/btn_date_picker"
+        app:layout_constraintBottom_toTopOf="@id/ll_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/ll_button"
@@ -177,7 +183,6 @@
             android:id="@+id/btn_save"
             android:layout_width="180dp"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/nunito_black"
             android:paddingVertical="12dp"
             android:text="@string/save"
             android:textSize="16sp"
@@ -210,6 +215,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/baseline_delete_24"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

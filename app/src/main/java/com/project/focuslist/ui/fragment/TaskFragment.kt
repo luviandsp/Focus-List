@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
 import com.project.focuslist.databinding.FragmentTaskBinding
 import com.project.focuslist.ui.activity.DetailTaskActivity
-import com.project.focuslist.ui.adapter.HomeViewPagerAdapter
+import com.project.focuslist.data.adapter.HomeViewPagerAdapter
 
 class TaskFragment : Fragment() {
 

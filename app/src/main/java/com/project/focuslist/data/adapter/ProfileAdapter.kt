@@ -1,4 +1,4 @@
-package com.project.focuslist.ui.adapter
+package com.project.focuslist.data.adapter
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -17,7 +17,7 @@ class ProfileAdapter(private var profileList: MutableList<User>): RecyclerView.A
         fun bind(user: User) {
             with(binding) {
                 tvUsername.text = user.username
-                Glide.with(binding.root).load(user.profileImage?: R.drawable.baseline_account_circle_24).into(ivProfileImage)
+                Glide.with(binding.root).load(user.profileImageUrl?: R.drawable.baseline_account_circle_24).into(ivProfileImage)
 
                 itemView.setOnClickListener { onItemClickListener.onItemClick(user) }
             }

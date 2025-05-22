@@ -1,21 +1,17 @@
 package com.project.focuslist.data.model
 
-import android.os.Parcelable
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import kotlinx.parcelize.Parcelize
+import androidx.annotation.Keep
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.IgnoreExtraProperties
+import com.google.firebase.firestore.PropertyName
 
-@Parcelize
-@Entity(tableName = "user_table")
+@Keep
+@IgnoreExtraProperties
 data class User(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "user_id")
-    val userId: Int = 0,
-    @ColumnInfo(name = "user_username")
-    val username: String,
-    @ColumnInfo(name = "user_password")
-    var password: String,
-    @ColumnInfo(name = "user_profile_image")
-    val profileImage: ByteArray? = null
-) : Parcelable
+    @PropertyName("userId") val userId: String = "",
+    @PropertyName("email") val email: String = "",
+    @PropertyName("username") val username: String = "",
+    @PropertyName("profileImageUrl") val profileImageUrl: String? = null,
+    @PropertyName("createdAt") val createdAt: Timestamp = Timestamp.now(),
+    @PropertyName("updatedAt") val updatedAt: Timestamp = Timestamp.now()
+)
