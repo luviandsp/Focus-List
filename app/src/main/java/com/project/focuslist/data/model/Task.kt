@@ -14,6 +14,8 @@ data class Task(
     @PropertyName("taskBody") val taskBody: String = "",
     @PropertyName("taskPriority") val taskPriority: Int = 0,
     @PropertyName("taskDueDate") val taskDueDate: String? = null,
+    @PropertyName("taskDueHours") val taskDueHours: String? = null,
+    @PropertyName("taskDueTime") val taskDueTime: String? = null,
     @PropertyName("taskImageUrl") val taskImageUrl: String? = null,
     @PropertyName("isCompleted") val isCompleted: Boolean = false,
     @PropertyName("createdAt") val createdAt: Timestamp = Timestamp.now(),

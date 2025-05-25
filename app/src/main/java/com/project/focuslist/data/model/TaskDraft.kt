@@ -24,6 +24,10 @@ data class TaskDraft(
     val taskPriority: Int = 0,
     @ColumnInfo(name = "task_due_date")
     val taskDueDate: String? = null,
+    @ColumnInfo(name = "task_due_hours")
+    val taskDueHours: String? = null,
+    @ColumnInfo(name = "task_due_time")
+    val taskDueTime: String? = null,
     @ColumnInfo(name = "task_image_url")
     val taskImageUrl: String? = null,
     @ColumnInfo(name = "created_at")

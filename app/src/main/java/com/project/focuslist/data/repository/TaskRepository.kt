@@ -36,6 +36,8 @@ class TaskRepository() {
             "taskBody" to taskBody,
             "taskPriority" to taskPriority,
             "taskDueDate" to taskDueDate,
+            "taskDueHours" to taskDueHours,
+            "taskDueTime" to taskDueTime,
             "taskImageUrl" to taskImageUrl,
             "isCompleted" to isCompleted,
             "createdAt" to createdAt,
@@ -51,6 +53,8 @@ class TaskRepository() {
             taskBody = this["taskBody"] as? String ?: "",
             taskPriority = (this["taskPriority"] as? Number)?.toInt() ?: 0,
             taskDueDate = this["taskDueDate"] as? String,
+            taskDueHours = this["taskDueHours"] as? String,
+            taskDueTime = this["taskDueTime"] as? String,
             taskImageUrl = this["taskImageUrl"] as? String,
             isCompleted = this["isCompleted"] as? Boolean == true,
             createdAt = this["createdAt"] as Timestamp,
@@ -63,6 +67,8 @@ class TaskRepository() {
         taskBody: String,
         taskPriority: Int,
         taskDueDate: String?,
+        taskDueHours: String?,
+        taskDueTime: String?,
         taskImageUrl: String?
     ): Pair<Boolean, String?> {
         return try {
@@ -76,6 +82,8 @@ class TaskRepository() {
                 taskBody = taskBody,
                 taskPriority = taskPriority,
                 taskDueDate = taskDueDate,
+                taskDueHours = taskDueHours,
+                taskDueTime = taskDueTime,
                 taskImageUrl = taskImageUrl,
                 isCompleted = false,
                 createdAt = Timestamp.now(),
@@ -98,6 +106,8 @@ class TaskRepository() {
         taskBody: String,
         taskPriority: Int,
         taskDueDate: String?,
+        taskDueHours: String?,
+        taskDueTime: String?,
         taskImageUrl: String?
     ) : Pair<Boolean, String?> {
         return try {
@@ -112,6 +122,8 @@ class TaskRepository() {
                         "taskBody" to taskBody,
                         "taskPriority" to taskPriority,
                         "taskDueDate" to taskDueDate,
+                        "taskDueHours" to taskDueHours,
+                        "taskDueTime" to taskDueTime,
                         "taskImageUrl" to taskImageUrl,
                         "updateAt" to Timestamp.now()
                     )

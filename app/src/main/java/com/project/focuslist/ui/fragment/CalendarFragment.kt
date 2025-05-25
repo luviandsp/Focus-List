@@ -59,8 +59,9 @@ class CalendarFragment : Fragment() {
                 calendar = Calendar.getInstance().apply {
                     set(year, month, dayOfMonth)
                 }
-                dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
                 formattedDate = dateFormat.format(calendar.time)
+                Log.d(TAG, "Formatted Date: $formattedDate")
 
                 taskViewModel.getUserTaskByDate(date = formattedDate, resetPaging = true)
             }

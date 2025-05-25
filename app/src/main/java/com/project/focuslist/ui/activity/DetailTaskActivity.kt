@@ -1,6 +1,7 @@
 package com.project.focuslist.ui.activity
 
 import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.res.Configuration
 import android.icu.util.Calendar
 import android.net.Uri
@@ -24,6 +25,9 @@ import com.project.focuslist.R
 import com.project.focuslist.data.viewmodel.StorageViewModel
 import com.project.focuslist.data.viewmodel.TaskViewModel
 import com.project.focuslist.databinding.ActivityDetailTaskBinding
+import com.project.focuslist.databinding.DialogReminderBinding
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class DetailTaskActivity : AppCompatActivity() {
 
@@ -32,6 +36,12 @@ class DetailTaskActivity : AppCompatActivity() {
     private val storageViewModel by viewModels<StorageViewModel>()
 
     private var selectedDueDate: String? = null
+    private var selectedDueHours: String? = null
+    private var selectedDueTime: String? = null
+
+    private var reminderDays: Int = 0
+    private var reminderHours: Int = 0
+    private var reminderMinutes: Int = 0
 
     private var imageUri: Uri? = null
     private var taskId: String? = null
@@ -80,7 +90,7 @@ class DetailTaskActivity : AppCompatActivity() {
 
     private fun initViews() {
         with(binding) {
-            val isEdit = intent.getStringExtra(INTENT_KEY) == EDIT_KEY
+            val isEdit = (taskId != null)
             val isDarkMode = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
             tvTitle.text = if (isEdit) "Edit Task" else "Create Task"
@@ -98,6 +108,10 @@ class DetailTaskActivity : AppCompatActivity() {
 
             btnDatePicker.setOnClickListener {
                 showDatePicker()
+            }
+
+            btnReminder.setOnClickListener {
+                showReminder()
             }
 
             btnSave.setOnClickListener {
@@ -174,28 +188,100 @@ class DetailTaskActivity : AppCompatActivity() {
         }
     }
 
+    private fun showReminder() {
+        val reminderBinding = DialogReminderBinding.inflate(layoutInflater)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(reminderBinding.root)
+            .create()
+
+        with(reminderBinding) {
+            npDays.minValue = 0
+            npDays.maxValue = 60
+            npHours.minValue = 0
+            npHours.maxValue = 23
+            npMinutes.minValue = 0
+            npMinutes.maxValue = 59
+
+            npDays.wrapSelectorWheel = true
+            npHours.wrapSelectorWheel = true
+            npMinutes.wrapSelectorWheel = true
+
+            btnDone.setOnClickListener {
+                reminderDays = npDays.value
+                reminderHours = npHours.value
+                reminderMinutes = npMinutes.value
+
+                showToast("Reminder set for $reminderDays days, $reminderHours hours, and $reminderMinutes minutes earlier")
+                dialog.dismiss()
+            }
+
+            btnCancel.setOnClickListener {
+                dialog.dismiss()
+            }
+        }
+
+        dialog.show()
+    }
+
     private fun showDatePicker() {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
-        val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
+
+        val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
 
         val datePickerDialog = DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDayOfMonth ->
-            val day = String.format("%02d", selectedDayOfMonth)
-            val month = String.format("%02d", selectedMonth + 1)
-            selectedDueDate = "$day/$month/$selectedYear"
-            binding.tvSelectDate.text = selectedDueDate
-        }, year, month, dayOfMonth)
+            val dayFormatted = String.format("%02d", selectedDayOfMonth)
+            val monthFormatted = String.format("%02d", selectedMonth + 1)
 
+            TimePickerDialog(this, { _, selectedHour, selectedMinute ->
+                val hourFormatted = String.format("%02d", selectedHour)
+                val minuteFormatted = String.format("%02d", selectedMinute)
+
+                val finalTime = "$dayFormatted/$monthFormatted/$selectedYear $hourFormatted:$minuteFormatted"
+                val finalDate = "$dayFormatted/$monthFormatted/$selectedYear"
+                val finalHour = "$hourFormatted:$minuteFormatted"
+
+                selectedDueTime = finalTime
+                selectedDueDate = finalDate
+                selectedDueHours = finalHour
+
+                try {
+                    val parsedTime = formatter.parse(finalTime)
+                    binding.tvSelectDate.text = formatter.format(parsedTime!!)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Date parse error: $e")
+                    binding.tvSelectDate.text = finalTime
+                }
+
+                Log.d(TAG, "Selected due date: $selectedDueDate")
+                Log.d(TAG, "Selected due hours: $selectedDueHours")
+                Log.d(TAG, "Selected due time: $selectedDueTime")
+
+            }, hour, minute, true).show()
+
+        }, year, month, day)
+
+        datePickerDialog.datePicker.minDate = System.currentTimeMillis()
         datePickerDialog.show()
     }
+
 
     private fun saveTask() {
         val title = binding.tietTitle.text.toString().trim().ifEmpty { "Tanpa Judul" }
         val body = binding.tietBody.text.toString().trim().ifEmpty { "Tanpa Isi" }
-        val dueDate = binding.tvSelectDate.text.toString()
         val selectedPriority = binding.spinnerPriority.selectedItem.toString()
         val oldTaskImageUrl = taskViewModel.taskImageUrl.value ?: ""
+
+        val reminderDaysLong = reminderDays * 24 * 60 * 60 * 1000L
+        val reminderHoursLong = reminderHours * 60 * 60 * 1000L
+        val reminderMinutesLong = reminderMinutes * 60 * 1000L
+
+        val reminderOffsetMillis: Long = reminderDaysLong + reminderHoursLong + reminderMinutesLong
+
 
         val priorityMap = mapOf(
             "Rendah" to 1,
@@ -209,21 +295,29 @@ class DetailTaskActivity : AppCompatActivity() {
             uploadImageToSupabase(imageUri!!) { imageUrl ->
                 if (taskId != null) {
                     taskViewModel.updateTask(
+                        context = this,
                         taskId = taskId!!,
                         taskTitle = title,
                         taskBody = body,
                         taskPriority = priorityValue,
-                        taskDueDate = dueDate,
-                        taskImageUrl = imageUrl
+                        taskDueDate = selectedDueDate,
+                        taskDueHours = selectedDueHours,
+                        taskDueTime = selectedDueTime,
+                        taskImageUrl = imageUrl,
+                        reminderOffsetMillis = reminderOffsetMillis
                     )
                     deleteOldTaskImage(oldImageUrl = oldTaskImageUrl)
                 } else {
                     taskViewModel.createTask(
+                        context = this,
                         taskTitle = title,
                         taskBody = body,
                         taskPriority = priorityValue,
-                        taskDueDate = dueDate,
-                        taskImageUrl = imageUrl
+                        taskDueDate = selectedDueDate,
+                        taskDueHours = selectedDueHours,
+                        taskDueTime = selectedDueTime,
+                        taskImageUrl = imageUrl,
+                        reminderOffsetMillis = reminderOffsetMillis
                     )
                 }
                 setResult(RESULT_OK)
@@ -232,20 +326,28 @@ class DetailTaskActivity : AppCompatActivity() {
         } else {
             if (taskId != null) {
                 taskViewModel.updateTask(
+                    context = this,
                     taskId = taskId!!,
                     taskTitle = title,
                     taskBody = body,
                     taskPriority = priorityValue,
-                    taskDueDate = dueDate,
-                    taskImageUrl = oldTaskImageUrl
+                    taskDueDate = selectedDueDate,
+                    taskDueHours = selectedDueHours,
+                    taskDueTime = selectedDueTime,
+                    taskImageUrl = oldTaskImageUrl,
+                    reminderOffsetMillis = reminderOffsetMillis
                 )
             } else {
                 taskViewModel.createTask(
+                    context = this,
                     taskTitle = title,
                     taskBody = body,
                     taskPriority = priorityValue,
-                    taskDueDate = dueDate,
-                    taskImageUrl = oldTaskImageUrl
+                    taskDueDate = selectedDueDate,
+                    taskDueHours = selectedDueHours,
+                    taskDueTime = selectedDueTime,
+                    taskImageUrl = oldTaskImageUrl,
+                    reminderOffsetMillis = reminderOffsetMillis
                 )
             }
             setResult(RESULT_OK)

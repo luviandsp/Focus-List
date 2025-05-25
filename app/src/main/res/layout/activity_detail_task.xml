@@ -86,7 +86,9 @@
             android:layout_height="wrap_content"
             android:hint="@string/description"
             android:textSize="12sp"
-            android:textAlignment="viewStart"
+            android:gravity="start|top"
+            android:textAlignment="textStart"
+            android:minHeight="250dp"
             android:visibility="visible" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -150,8 +152,20 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
         android:text="@string/pick_a_date"
+        app:layout_constraintBottom_toTopOf="@+id/btn_reminder"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btn_reminder"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/set_reminder"
         app:layout_constraintBottom_toTopOf="@+id/ll_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

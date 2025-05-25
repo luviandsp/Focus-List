@@ -44,4 +44,5 @@
     <string name="yes">Yes</string>
     <string name="resend_verification">Kirim ulang email verifikasi</string>
     <string name="user">User</string>
+    <string name="set_reminder">Set Reminder</string>
 </resources>

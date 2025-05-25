@@ -55,7 +55,7 @@ class TaskAdapter(
 
                 tvTaskName.text = taskWithUser.task.taskTitle
                 tvTaskBody.text = taskWithUser.task.taskBody
-                tvDueDate.text = taskWithUser.task.taskDueDate
+                tvDueDate.text = taskWithUser.task.taskDueTime
 
                 when (taskWithUser.task.taskPriority) {
                     TaskPriority.LOW.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_1)

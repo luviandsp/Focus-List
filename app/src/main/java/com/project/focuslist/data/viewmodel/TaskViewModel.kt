@@ -1,13 +1,21 @@
 package com.project.focuslist.data.viewmodel
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.project.focuslist.data.model.TaskWithUser
+import com.project.focuslist.data.notification.NotificationWorker
 import com.project.focuslist.data.repository.TaskRepository
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class TaskViewModel: ViewModel() {
 
@@ -41,6 +49,12 @@ class TaskViewModel: ViewModel() {
     private val _taskDueDate = MutableLiveData<String?>()
     val taskDueDate: LiveData<String?> = _taskDueDate
 
+    private val _taskDueHours = MutableLiveData<String?>()
+    val taskDueHours: LiveData<String?> = _taskDueHours
+
+    private val _taskDueTime = MutableLiveData<String?>()
+    val taskDueTime: LiveData<String?> = _taskDueTime
+
     private val _taskImageUrl = MutableLiveData<String?>()
     val taskImageUrl: LiveData<String?> = _taskImageUrl
 
@@ -57,11 +71,15 @@ class TaskViewModel: ViewModel() {
     }
 
     fun createTask(
+        context: Context,
         taskTitle: String,
         taskBody: String,
         taskPriority: Int,
         taskDueDate: String?,
-        taskImageUrl: String?
+        taskDueHours: String?,
+        taskDueTime: String?,
+        taskImageUrl: String?,
+        reminderOffsetMillis: Long?
         ) {
         viewModelScope.launch {
             val result = taskRepository.createTask(
@@ -69,6 +87,8 @@ class TaskViewModel: ViewModel() {
                 taskBody = taskBody,
                 taskPriority = taskPriority,
                 taskDueDate = taskDueDate,
+                taskDueHours = taskDueHours,
+                taskDueTime = taskDueTime,
                 taskImageUrl = taskImageUrl
             )
 
@@ -79,8 +99,19 @@ class TaskViewModel: ViewModel() {
                 _taskBody.postValue(taskBody)
                 _taskPriority.postValue(taskPriority)
                 _taskDueDate.postValue(taskDueDate)
+                _taskDueHours.postValue(taskDueHours)
+                _taskDueTime.postValue(taskDueTime)
                 _taskImageUrl.postValue(taskImageUrl)
                 _isCompleted.postValue(false)
+
+                scheduleNotification(
+                    context = context,
+                    taskTitle = taskTitle,
+                    taskDueDate = taskDueTime,
+                    reminderOffsetMillis = reminderOffsetMillis
+                )
+
+                Log.d(TAG, "createTask: Task $taskTitle created")
             }
         }
     }
@@ -157,18 +188,24 @@ class TaskViewModel: ViewModel() {
                 _taskBody.postValue(tasks.task.taskBody)
                 _taskPriority.postValue(tasks.task.taskPriority)
                 _taskDueDate.postValue(tasks.task.taskDueDate)
+                _taskDueHours.postValue(tasks.task.taskDueHours)
+                _taskDueTime.postValue(tasks.task.taskDueTime)
                 _taskImageUrl.postValue(tasks.task.taskImageUrl)
             }
         }
     }
 
     fun updateTask(
+        context: Context,
         taskId: String,
         taskTitle: String,
         taskBody: String,
         taskPriority: Int,
         taskDueDate: String?,
-        taskImageUrl: String?
+        taskDueHours: String?,
+        taskDueTime: String?,
+        taskImageUrl: String?,
+        reminderOffsetMillis: Long?
     ) {
         viewModelScope.launch {
             val result = taskRepository.updateTask(
@@ -177,6 +214,8 @@ class TaskViewModel: ViewModel() {
                 taskBody = taskBody,
                 taskPriority = taskPriority,
                 taskDueDate = taskDueDate,
+                taskDueHours = taskDueHours,
+                taskDueTime = taskDueTime,
                 taskImageUrl = taskImageUrl
             )
 
@@ -187,8 +226,19 @@ class TaskViewModel: ViewModel() {
                 _taskBody.postValue(taskBody)
                 _taskPriority.postValue(taskPriority)
                 _taskDueDate.postValue(taskDueDate)
+                _taskDueHours.postValue(taskDueHours)
+                _taskDueTime.postValue(taskDueTime)
                 _taskImageUrl.postValue(taskImageUrl)
                 _isCompleted.postValue(false)
+
+                scheduleNotification(
+                    context = context,
+                    taskTitle = taskTitle,
+                    taskDueDate = taskDueTime,
+                    reminderOffsetMillis = reminderOffsetMillis
+                )
+
+                Log.d(TAG, "updateTask: Task $taskTitle updated")
             }
         }
     }
@@ -222,4 +272,46 @@ class TaskViewModel: ViewModel() {
             _operationResult.postValue(result)
         }
     }
+
+    private fun scheduleNotification(context: Context, taskTitle: String, taskDueDate: String?, reminderOffsetMillis: Long?) {
+        taskDueDate?.matches(Regex("\\d{2}/\\d{2}/\\d{4} \\d{2}:\\d{2}"))?.let {
+            if (!it) {
+                Log.e(TAG, "Invalid taskDueDate format: $taskDueDate")
+                return
+            }
+        }
+
+        if (taskDueDate == null) return
+
+        Log.d(TAG, "Scheduling notification for task: $taskTitle")
+
+        val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+
+        val dueDate = try {
+            formatter.parse(taskDueDate)?.time ?: return
+        } catch (e: Exception) {
+            return
+        }
+
+        Log.d(TAG, "Task due date: $dueDate")
+
+        val reminderTime = reminderOffsetMillis ?: 0
+
+        val delay = dueDate - System.currentTimeMillis() - reminderTime
+        Log.d(TAG, "Delay: $delay")
+        if (delay <= 0) return
+
+        val data = workDataOf(
+            "title" to "Reminder",
+            "message" to "Task: $taskTitle is due soon!"
+        )
+
+        val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+            .setInputData(data)
+            .build()
+
+        WorkManager.getInstance(context).enqueue(workRequest)
+    }
+
 }

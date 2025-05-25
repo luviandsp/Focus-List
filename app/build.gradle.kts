@@ -67,6 +67,9 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.fragment.ktx)
 
+    // WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
+
     // Navigation Fragment
     implementation (libs.androidx.navigation.fragment.ktx)
     implementation (libs.androidx.navigation.ui.ktx)
