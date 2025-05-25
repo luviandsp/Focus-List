@@ -45,4 +45,6 @@
     <string name="resend_verification">Kirim ulang email verifikasi</string>
     <string name="user">User</string>
     <string name="set_reminder">Set Reminder</string>
+    <string name="save_draft">Save Draft</string>
+    <string name="draft_list">Daftar Draft</string>
 </resources>

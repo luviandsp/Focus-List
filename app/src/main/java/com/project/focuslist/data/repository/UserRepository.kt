@@ -150,6 +150,17 @@ class UserRepository {
         }
     }
 
+    fun getUserId(): String? {
+        return try {
+            val userId = firebaseAuth.currentUser?.uid ?: return null
+            userId
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Log.e(TAG, "Error getting user ID: ${e.message}")
+            null
+        }
+    }
+
     // Fungsi untuk mengubah informasi pengguna
     suspend fun updateProfile(username: String, profileImageUrl: String): Pair<Boolean, String?> {
         return try {

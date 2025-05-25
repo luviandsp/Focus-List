@@ -19,13 +19,19 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.github.drjacky.imagepicker.ImagePicker
+import com.google.firebase.Timestamp
 import com.project.focuslist.R
+import com.project.focuslist.data.model.TaskDraft
 import com.project.focuslist.data.viewmodel.StorageViewModel
+import com.project.focuslist.data.viewmodel.TaskDraftViewModel
 import com.project.focuslist.data.viewmodel.TaskViewModel
+import com.project.focuslist.data.viewmodel.UserViewModel
 import com.project.focuslist.databinding.ActivityDetailTaskBinding
 import com.project.focuslist.databinding.DialogReminderBinding
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -33,7 +39,9 @@ class DetailTaskActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailTaskBinding
     private val taskViewModel by viewModels<TaskViewModel>()
+    private val userViewModel by viewModels<UserViewModel>()
     private val storageViewModel by viewModels<StorageViewModel>()
+    private val taskDraftViewModel by viewModels<TaskDraftViewModel>()
 
     private var selectedDueDate: String? = null
     private var selectedDueHours: String? = null
@@ -45,6 +53,7 @@ class DetailTaskActivity : AppCompatActivity() {
 
     private var imageUri: Uri? = null
     private var taskId: String? = null
+    private var taskDraftId: Int? = null
 
     companion object {
         private const val TAG = "DetailTaskActivity"
@@ -52,6 +61,8 @@ class DetailTaskActivity : AppCompatActivity() {
         const val EDIT_KEY = "EDIT"
         const val CREATE_KEY = "CREATE"
         const val INTENT_KEY = "EDIT_OR_CREATE"
+        const val TASK_DRAFT_ID = "task_draft_id"
+        const val DEFAULT_INT = -1
     }
 
     private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -78,19 +89,41 @@ class DetailTaskActivity : AppCompatActivity() {
         taskId = intent.getStringExtra(TASK_ID)
         Log.d(TAG, "Task ID: $taskId")
 
+        taskDraftId = intent.getIntExtra(TASK_DRAFT_ID, DEFAULT_INT)
+        Log.d(TAG, "Task Draft ID: $taskDraftId")
+
+        userViewModel.getUserId()
+
         if (taskId != null) {
             taskViewModel.getTaskById(taskId!!)
-        } else {
-            Log.d(TAG, "Task ID is null")
+        } else if (taskDraftId != -1) {
+            lifecycleScope.launch {
+                taskDraftViewModel.getTaskById(taskDraftId!!).observe(this@DetailTaskActivity) { task ->
+                    with(binding) {
+                        tietTitle.setText(task.taskTitle)
+                        tietBody.setText(task.taskBody)
+                        spinnerPriority.setSelection(task.taskPriority - 1)
+                        tvSelectDate.text = task.taskDueDate
+                        Glide.with(this@DetailTaskActivity).load(task.taskImageUrl).into(ivImage)
+
+                        selectedDueDate = task.taskDueDate
+                        selectedDueHours = task.taskDueHours
+                        selectedDueTime = task.taskDueTime
+                    }
+                }
+            }
         }
 
         initViews()
-        observeViewModels()
+
+        if (taskId != null) {
+            observeViewModels()
+        }
     }
 
     private fun initViews() {
         with(binding) {
-            val isEdit = (taskId != null)
+            val isEdit = (intent.getStringExtra(INTENT_KEY) == EDIT_KEY)
             val isDarkMode = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
             tvTitle.text = if (isEdit) "Edit Task" else "Create Task"
@@ -118,11 +151,20 @@ class DetailTaskActivity : AppCompatActivity() {
                 saveTask()
             }
 
+            btnSaveDraft.setOnClickListener {
+                saveToDraft()
+            }
+
             ivDelete.setOnClickListener {
                 val oldTaskImageUrl = taskViewModel.taskImageUrl.value ?: ""
 
                 if (taskId != null) {
                     taskViewModel.deleteTask(taskId!!)
+                    deleteOldTaskImage(oldTaskImageUrl)
+                    setResult(RESULT_OK)
+                    finish()
+                } else if (taskDraftId != DEFAULT_INT) {
+                    taskDraftViewModel.deleteTask(TaskDraft(taskId = taskDraftId!!))
                     deleteOldTaskImage(oldTaskImageUrl)
                     setResult(RESULT_OK)
                     finish()
@@ -176,6 +218,15 @@ class DetailTaskActivity : AppCompatActivity() {
 
             taskDueDate.observe(this@DetailTaskActivity) { dueDate ->
                 binding.tvSelectDate.text = dueDate
+                selectedDueDate = dueDate
+            }
+
+            taskDueHours.observe(this@DetailTaskActivity) { dueHours ->
+                selectedDueHours = dueHours
+            }
+
+            taskDueTime.observe(this@DetailTaskActivity) { dueTime ->
+                selectedDueTime = dueTime
             }
 
             taskPriority.observe(this@DetailTaskActivity) { priority ->
@@ -282,7 +333,6 @@ class DetailTaskActivity : AppCompatActivity() {
 
         val reminderOffsetMillis: Long = reminderDaysLong + reminderHoursLong + reminderMinutesLong
 
-
         val priorityMap = mapOf(
             "Rendah" to 1,
             "Sedang" to 2,
@@ -321,6 +371,9 @@ class DetailTaskActivity : AppCompatActivity() {
                     )
                 }
                 setResult(RESULT_OK)
+
+                deleteTaskFromDraft()
+
                 finish()
             }
         } else {
@@ -351,7 +404,124 @@ class DetailTaskActivity : AppCompatActivity() {
                 )
             }
             setResult(RESULT_OK)
+
+            deleteTaskFromDraft()
+
             finish()
+        }
+    }
+
+    private fun saveToDraft() {
+        val title = binding.tietTitle.text.toString().trim().ifEmpty { "Tanpa Judul" }
+        val body = binding.tietBody.text.toString().trim().ifEmpty { "Tanpa Isi" }
+        val selectedPriority = binding.spinnerPriority.selectedItem.toString()
+        val oldTaskImageUrl = taskViewModel.taskImageUrl.value ?: ""
+
+        val userId = userViewModel.userId.value ?: ""
+
+        val priorityMap = mapOf(
+            "Rendah" to 1,
+            "Sedang" to 2,
+            "Tinggi" to 3
+        )
+
+        val priorityValue = priorityMap[selectedPriority] ?: 0
+
+        if (imageUri != null) {
+            uploadImageToSupabase(imageUri!!) { imageUrl ->
+                if (taskDraftId != DEFAULT_INT) {
+                    taskDraftViewModel.updateTask(
+                        TaskDraft(
+                            taskId = taskDraftId ?: 0,
+                            userId = userId,
+                            taskTitle = title,
+                            taskBody = body,
+                            taskPriority = priorityValue,
+                            taskDueDate = selectedDueDate,
+                            taskDueHours = selectedDueHours,
+                            taskDueTime = selectedDueTime,
+                            taskImageUrl = imageUrl,
+                            updatedAt = Timestamp.now().toString()
+                        )
+                    )
+                    deleteOldTaskImage(oldImageUrl = oldTaskImageUrl)
+                } else {
+                    taskDraftViewModel.createTask(
+                        TaskDraft(
+                            userId = userId,
+                            taskTitle = title,
+                            taskBody = body,
+                            taskPriority = priorityValue,
+                            taskDueDate = selectedDueDate,
+                            taskDueHours = selectedDueHours,
+                            taskDueTime = selectedDueTime,
+                            taskImageUrl = imageUrl,
+                            createdAt = Timestamp.now().toString(),
+                            updatedAt = Timestamp.now().toString()
+                        )
+                    )
+                }
+                setResult(RESULT_OK)
+                showToast("Task draft berhasil disimpan")
+                Log.d(TAG, "$selectedDueDate $selectedDueHours $selectedDueTime")
+                deleteTaskFromDB()
+
+                finish()
+            }
+        } else {
+            if (taskDraftId != DEFAULT_INT) {
+                taskDraftViewModel.updateTask(
+                    TaskDraft(
+                        taskId = taskDraftId ?: 0,
+                        userId = userId,
+                        taskTitle = title,
+                        taskBody = body,
+                        taskPriority = priorityValue,
+                        taskDueDate = selectedDueDate,
+                        taskDueHours = selectedDueHours,
+                        taskDueTime = selectedDueTime,
+                        taskImageUrl = oldTaskImageUrl,
+                        updatedAt = Timestamp.now().toString()
+                    )
+                )
+            } else {
+                taskDraftViewModel.createTask(
+                    TaskDraft(
+                        userId = userId,
+                        taskTitle = title,
+                        taskBody = body,
+                        taskPriority = priorityValue,
+                        taskDueDate = selectedDueDate,
+                        taskDueHours = selectedDueHours,
+                        taskDueTime = selectedDueTime,
+                        taskImageUrl = oldTaskImageUrl,
+                        createdAt = Timestamp.now().toString(),
+                        updatedAt = Timestamp.now().toString()
+                    )
+                )
+            }
+            setResult(RESULT_OK)
+            Log.d(TAG, "$selectedDueDate $selectedDueHours $selectedDueTime")
+            showToast("Task draft berhasil disimpan")
+
+            deleteTaskFromDB()
+
+            finish()
+        }
+
+    }
+
+    private fun deleteTaskFromDraft() {
+        if (taskDraftId != DEFAULT_INT) {
+            taskDraftViewModel.deleteTask(TaskDraft(taskId = taskDraftId!!))
+            Log.d(TAG, "Task draft deleted")
+        }
+    }
+
+    private fun deleteTaskFromDB() {
+        if (taskId != null) {
+            taskViewModel.deleteTask(taskId!!)
+            Log.d(TAG, "Task deleted")
         }
     }
 

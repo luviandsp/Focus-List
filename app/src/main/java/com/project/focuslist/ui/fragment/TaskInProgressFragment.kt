@@ -61,7 +61,6 @@ class TaskInProgressFragment : Fragment() {
             )
 
             rvTaskProgress.apply {
-                setHasFixedSize(true)
                 layoutManager = LinearLayoutManager(requireContext())
                 adapter = taskAdapter
             }
@@ -110,6 +109,7 @@ class TaskInProgressFragment : Fragment() {
     private fun detailTask(task: Task) {
         Intent(requireContext(), DetailTaskActivity::class.java).apply {
             putExtra(DetailTaskActivity.TASK_ID, task.taskId)
+            putExtra(DetailTaskActivity.INTENT_KEY, DetailTaskActivity.EDIT_KEY)
             startActivity(this)
         }
     }

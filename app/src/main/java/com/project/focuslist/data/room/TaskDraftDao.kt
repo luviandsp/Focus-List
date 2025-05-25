@@ -16,7 +16,7 @@ interface TaskDraftDao {
     fun getTaskList(userId: String): PagingSource<Int, TaskDraft>
 
     @Query("SELECT * FROM task_draft_table WHERE task_id = :taskId")
-    suspend fun getTaskById(taskId: String): TaskDraft?
+    suspend fun getTaskById(taskId: Int): TaskDraft?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun createTask(task: TaskDraft)

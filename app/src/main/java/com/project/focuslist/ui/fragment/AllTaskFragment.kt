@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.project.focuslist.data.adapter.TaskAdapter
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.data.viewmodel.TaskViewModel
@@ -60,24 +61,23 @@ class AllTaskFragment : Fragment() {
             )
 
             rvAllTask.apply {
-                setHasFixedSize(true)
                 layoutManager = LinearLayoutManager(requireContext())
                 adapter = taskAdapter
             }
 
-//            rvAllTask.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-//                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-//                    super.onScrolled(recyclerView, dx, dy)
-//                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-//                    val totalItemCount = layoutManager.itemCount
-//                    val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-//
-//                    // Cek apakah masih ada data sebelum request lagi
-//                    if (lastVisibleItem >= totalItemCount - 3 && taskViewModel.hasMoreData()) {
-//                        taskViewModel.getUserTask()
-//                    }
-//                }
-//            })
+            rvAllTask.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                    val totalItemCount = layoutManager.itemCount
+                    val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+
+                    // Cek apakah masih ada data sebelum request lagi
+                    if (lastVisibleItem >= totalItemCount - 3 && taskViewModel.hasMoreData()) {
+                        taskViewModel.getUserTask()
+                    }
+                }
+            })
         }
     }
 
@@ -109,6 +109,7 @@ class AllTaskFragment : Fragment() {
     private fun detailTask(task: Task) {
         Intent(requireContext(), DetailTaskActivity::class.java).apply {
             putExtra(DetailTaskActivity.TASK_ID, task.taskId)
+            putExtra(DetailTaskActivity.INTENT_KEY, DetailTaskActivity.EDIT_KEY)
             startActivity(this)
         }
     }

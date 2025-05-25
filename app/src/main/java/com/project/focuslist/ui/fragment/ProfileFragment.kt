@@ -19,6 +19,7 @@ import com.project.focuslist.data.preferences.AuthPreferences
 import com.project.focuslist.data.viewmodel.UserViewModel
 import com.project.focuslist.databinding.FragmentProfileBinding
 import com.project.focuslist.ui.activity.DeleteProfileActivity
+import com.project.focuslist.ui.activity.DraftTaskActivity
 import com.project.focuslist.ui.auth.AuthActivity
 import com.project.focuslist.ui.optionsmenu.EditProfileActivity
 import kotlinx.coroutines.launch
@@ -63,6 +64,12 @@ class ProfileFragment : Fragment() {
         with(binding) {
             btnLogout.setOnClickListener {
                 logoutUser()
+            }
+
+            btnDraft.setOnClickListener {
+                Intent(requireContext(), DraftTaskActivity::class.java).apply {
+                    startActivity(this)
+                }
             }
         }
     }

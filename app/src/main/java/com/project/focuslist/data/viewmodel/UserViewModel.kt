@@ -83,6 +83,13 @@ class UserViewModel : ViewModel() {
         }
     }
 
+    fun getUserId() {
+        viewModelScope.launch {
+            val userId = userRepository.getUserId()
+            _userId.postValue(userId)
+        }
+    }
+
     fun updateProfile(username: String, profileImageUrl: String) {
         viewModelScope.launch {
             val result = userRepository.updateProfile(

@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.project.focuslist.data.adapter.TaskAdapter
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.data.viewmodel.TaskViewModel
@@ -81,23 +82,22 @@ class CalendarFragment : Fragment() {
 
             rvTask.apply {
                 layoutManager = LinearLayoutManager(context)
-                setHasFixedSize(true)
                 adapter = taskAdapter
             }
 
-//            rvTask.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-//                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-//                    super.onScrolled(recyclerView, dx, dy)
-//                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-//                    val totalItemCount = layoutManager.itemCount
-//                    val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-//
-//                    // Cek apakah masih ada data sebelum request lagi
-//                    if (lastVisibleItem >= totalItemCount - 3 && taskViewModel.hasMoreData()) {
-//                        taskViewModel.getUserTaskByDate(date = formattedDate)
-//                    }
-//                }
-//            })
+            rvTask.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                    val totalItemCount = layoutManager.itemCount
+                    val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+
+                    // Cek apakah masih ada data sebelum request lagi
+                    if (lastVisibleItem >= totalItemCount - 3 && taskViewModel.hasMoreData()) {
+                        taskViewModel.getUserTaskByDate(date = formattedDate)
+                    }
+                }
+            })
         }
     }
 
@@ -129,6 +129,7 @@ class CalendarFragment : Fragment() {
     private fun detailTask(task: Task) {
         Intent(requireContext(), DetailTaskActivity::class.java).apply {
             putExtra(DetailTaskActivity.TASK_ID, task.taskId)
+            putExtra(DetailTaskActivity.INTENT_KEY, DetailTaskActivity.EDIT_KEY)
             startActivity(this)
         }
     }

@@ -17,6 +17,10 @@ class TaskDraftViewModel(app: Application): AndroidViewModel(app) {
 
     private val taskRepo: TaskDraftRepository
 
+    companion object {
+        private const val TAG = "TaskDraftViewModel"
+    }
+
     init {
         val daoTask = AppDatabase.getDatabase(app).taskDraftDao
         taskRepo = TaskDraftRepository(daoTask)
@@ -37,12 +41,13 @@ class TaskDraftViewModel(app: Application): AndroidViewModel(app) {
         taskRepo.deleteTask(task)
     }
 
-    fun getTaskById(taskId: String): LiveData<TaskDraft> {
+    fun getTaskById(taskId: Int): LiveData<TaskDraft> {
         val taskData = MutableLiveData<TaskDraft>()
 
         viewModelScope.launch {
             taskData.value = taskRepo.getTaskById(taskId)
         }
+
         return taskData
     }
 

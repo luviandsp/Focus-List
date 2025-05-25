@@ -16,6 +16,9 @@
         android:theme="@style/Base.Theme.FocusList"
         tools:targetApi="31">
         <activity
+            android:name=".ui.activity.DraftTaskActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activity.ReadTaskActivity"
             android:exported="false" />
         <activity
@@ -31,9 +34,9 @@
             android:name=".ui.activity.DetailTaskActivity"
             android:exported="false" />
         <activity
-            android:theme="@style/Theme.FocusList.SplashScreen"
             android:name=".ui.auth.AuthActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.FocusList.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
