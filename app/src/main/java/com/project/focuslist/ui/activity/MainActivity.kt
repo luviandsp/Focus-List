@@ -1,5 +1,6 @@
 package com.project.focuslist.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -33,6 +34,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun initViews() {
         with(binding) {
+
+            fabAdd.setOnClickListener {
+                val intent = Intent(this@MainActivity, DetailTaskActivity::class.java).apply {
+                    putExtra(DetailTaskActivity.INTENT_KEY, DetailTaskActivity.CREATE_KEY)
+                }
+
+                startActivity(intent)
+            }
+
             val navHostFragment = supportFragmentManager.findFragmentById(fcvMain.id) as NavHostFragment
             bnvMain.setupWithNavController(navHostFragment.navController)
         }

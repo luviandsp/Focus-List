@@ -25,10 +25,7 @@
             android:name=".ui.activity.DeleteProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.optionsmenu.ShowAllProfileActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.optionsmenu.EditProfileActivity"
+            android:name=".ui.activity.EditProfileActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.DetailTaskActivity"

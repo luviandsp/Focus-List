@@ -19,11 +19,26 @@
         app:layout_constraintBottom_toTopOf="@id/bnv_main"
         app:layout_constraintStart_toStartOf="parent"/>
 
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_add"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        app:icon="@drawable/baseline_add_24"
+        app:iconTint="@color/white"
+        app:backgroundTint="@color/blue"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toBottomOf="@id/bnv_main"
+        app:layout_constraintTop_toTopOf="@+id/bnv_main"
+        app:layout_constraintStart_toStartOf="@id/bnv_main"
+        app:layout_constraintEnd_toEndOf="@id/bnv_main" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bnv_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:menu="@menu/botnav_main_menu"
+        app:labelVisibilityMode="unlabeled"
+        app:itemActiveIndicatorStyle="@style/App.Custom.Indicator"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

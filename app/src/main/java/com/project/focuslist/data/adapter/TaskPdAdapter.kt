@@ -8,28 +8,37 @@ import androidx.recyclerview.widget.RecyclerView
 import com.project.focuslist.R
 import com.project.focuslist.data.enumData.TaskPriority
 import com.project.focuslist.data.model.TaskDraft
-import com.project.focuslist.databinding.TaskDraftItemBinding
+import com.project.focuslist.databinding.ItemDraftTaskBinding
 
 class TaskPdAdapter(
     private val onItemClickListener: (TaskDraft) -> Unit,
     private val onLongClickListener: (TaskDraft) -> Boolean,
 ) : PagingDataAdapter<TaskDraft, TaskPdAdapter.TaskViewHolder>(DIFF_CALLBACK) {
 
-    inner class TaskViewHolder(private val binding: TaskDraftItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class TaskViewHolder(private val binding: ItemDraftTaskBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(task: TaskDraft?) {
             if (task == null) return
 
             with(binding) {
 
-                tvTaskName.text = task.taskTitle
-                tvTaskBody.text = task.taskBody
-                tvDueDate.text = task.taskDueTime
+                tvTitle.text = task.taskTitle
+                tvDesc.text = task.taskBody
+
+                if (task.taskPriority == TaskPriority.MID.value) {
+                    tvTitle.setTextColor(itemView.context.getColor(R.color.dark_yellow))
+                    tvDesc.setTextColor(itemView.context.getColor(R.color.dark_yellow))
+                    ivArrow.setColorFilter(itemView.context.getColor(R.color.dark_yellow))
+                } else {
+                    tvTitle.setTextColor(itemView.context.getColor(R.color.white))
+                    tvDesc.setTextColor(itemView.context.getColor(R.color.white))
+                    ivArrow.setColorFilter(itemView.context.getColor(R.color.white))
+                }
 
                 when (task.taskPriority) {
-                    TaskPriority.LOW.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_1)
-                    TaskPriority.MEDIUM.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_2)
-                    TaskPriority.HIGH.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_3)
+                    TaskPriority.LOW.value -> cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.blue))
+                    TaskPriority.MID.value -> cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.yellow))
+                    TaskPriority.HIGH.value -> cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.red))
                 }
 
                 itemView.setOnClickListener { onItemClickListener(task) }
@@ -46,7 +55,7 @@ class TaskPdAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
-        val binding = TaskDraftItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemDraftTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return TaskViewHolder(binding)
     }
 

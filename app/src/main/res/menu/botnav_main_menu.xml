@@ -3,17 +3,17 @@
 
     <item
         android:id="@+id/home_fragment"
-        android:title="Task"
-        android:icon="@drawable/baseline_task_24" />
+        android:title="Home"
+        android:icon="@drawable/bottom_nav_home_selector" />
 
     <item
-        android:id="@+id/calender_fragment"
-        android:title="Calendar"
-        android:icon="@drawable/baseline_calendar_month_24" />
+        android:id="@+id/placeholder"
+        android:enabled="false"
+        android:title="" />
 
     <item
         android:id="@+id/profile_fragment"
         android:title="Profile"
-        android:icon="@drawable/baseline_account_circle_24" />
+        android:icon="@drawable/bottom_nav_profile_selector" />
 
 </menu>

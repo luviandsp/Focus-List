@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.project.focuslist.data.adapter.TaskAdapter
+import com.project.focuslist.data.adapter.VerticalTaskAdapter
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.data.viewmodel.TaskViewModel
 import com.project.focuslist.databinding.FragmentCalenderBinding
@@ -28,7 +28,7 @@ class CalendarFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val taskViewModel by viewModels<TaskViewModel>()
-    private lateinit var taskAdapter: TaskAdapter
+    private lateinit var verticalTaskAdapter: VerticalTaskAdapter
 
     private var calendar: Calendar = Calendar.getInstance()
     private var dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -67,7 +67,7 @@ class CalendarFragment : Fragment() {
                 taskViewModel.getUserTaskByDate(date = formattedDate, resetPaging = true)
             }
 
-            taskAdapter = TaskAdapter(
+            verticalTaskAdapter = VerticalTaskAdapter(
                 onItemClickListener = { task -> readTask(task) },
                 onLongClickListener = { task -> detailTask(task); true },
                 onCheckBoxClickListener = { task, isChecked ->
@@ -82,7 +82,7 @@ class CalendarFragment : Fragment() {
 
             rvTask.apply {
                 layoutManager = LinearLayoutManager(context)
-                adapter = taskAdapter
+                adapter = verticalTaskAdapter
             }
 
             rvTask.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -104,8 +104,8 @@ class CalendarFragment : Fragment() {
     private fun observeViewModels() {
         taskViewModel.taskByDate.observe(viewLifecycleOwner) { tasks ->
             Log.d(TAG, "Fetched Tasks: $tasks")
-            taskAdapter.submitList(tasks)
-            taskAdapter.notifyDataSetChanged()
+            verticalTaskAdapter.submitList(tasks)
+            verticalTaskAdapter.notifyDataSetChanged()
 
             if (tasks.isNullOrEmpty()) {
                 updateTaskListVisibility(true)

@@ -1,4 +1,4 @@
-package com.project.focuslist.ui.optionsmenu
+package com.project.focuslist.ui.activity
 
 import android.net.Uri
 import android.os.Bundle
@@ -29,6 +29,7 @@ class EditProfileActivity : AppCompatActivity() {
     private val storageViewModel by viewModels<StorageViewModel>()
 
     private var imageUri: Uri? = null
+    private var oldImageUrl: String? = null
     private var isPhotoDeleted: Boolean = false
 
     private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -69,7 +70,7 @@ class EditProfileActivity : AppCompatActivity() {
         with(binding) {
             btnEdit.setOnClickListener {
                 val username = tietUsernameEdit.text.toString().trim()
-                val oldProfileImageUrl = userViewModel.userImageUrl.value ?: ""
+                oldImageUrl = userViewModel.userImageUrl.value ?: ""
 
                 if (username.isEmpty()) {
                     showToast("Username Tidak Boleh Kosong")
@@ -77,24 +78,22 @@ class EditProfileActivity : AppCompatActivity() {
                 }
 
                 if (imageUri != null) {
-                    if (oldProfileImageUrl.isNotEmpty()) {
+                    if (!oldImageUrl.isNullOrEmpty()) {
                         // Update Foto Profil Baru
                         userViewModel.updateProfile(username, "")
 
                         uploadImageToSupabase(imageUri!!) { imageUrl ->
                             userViewModel.updateProfile(username, imageUrl)
-                            deleteProfilePhoto(oldProfileImageUrl)
-                            setResult(RESULT_CODE)
-                            finish()
+                            deleteProfilePhoto(oldImageUrl)
                         }
                     } else {
                         // Upload Foto Profil Baru
                         uploadImageToSupabase(imageUri!!) { imageUrl ->
                             userViewModel.updateProfile(username, imageUrl)
-                            setResult(RESULT_CODE)
-                            finish()
                         }
                     }
+                } else {
+                    userViewModel.updateProfile(username, oldImageUrl ?: "")
                 }
             }
 
@@ -102,7 +101,7 @@ class EditProfileActivity : AppCompatActivity() {
 
             ivImageEdit.setOnClickListener {
                 launcher.launch(
-                    ImagePicker.with(this@EditProfileActivity)
+                    ImagePicker.Companion.with(this@EditProfileActivity)
                         .crop()
                         .cropOval()
                         .galleryOnly()
@@ -114,17 +113,40 @@ class EditProfileActivity : AppCompatActivity() {
 
     private fun observeViewModels() {
         userViewModel.apply {
+            operationStatus.observe(this@EditProfileActivity) { (success, message) ->
+                binding.progressBar.visibility = View.GONE
+                if (success) {
+                    showToast(message ?: "Profile berhasil diperbarui")
+                    Log.d(TAG, "Profile berhasil diperbarui")
+
+                    setResult(RESULT_CODE)
+                    finish()
+                } else {
+                    showToast(message ?: "Terjadi kesalahan")
+                    Log.e(TAG, "Terjadi kesalahan: $message")
+                }
+            }
+
             userImageUrl.observe(this@EditProfileActivity) { oldImageUrl ->
                 updateProfilePicture(oldImageUrl)
                 Log.d(TAG, "Old Image URL: $oldImageUrl")
             }
-            
+
             userName.observe(this@EditProfileActivity) { binding.tietUsernameEdit.setText(it) }
         }
 
         storageViewModel.apply {
-            uploadStatus.observe(this@EditProfileActivity) { if (it) showToast("Foto profil berhasil diunggah") }
-            deleteStatus.observe(this@EditProfileActivity) { if (it && isPhotoDeleted) showToast("Foto profil berhasil dihapus") }
+            uploadStatus.observe(this@EditProfileActivity) { if (it) showToast("Foto profil berhasil diperbarui") }
+            deleteStatus.observe(this@EditProfileActivity) { status ->
+                if (status) {
+                    showToast("Foto profil berhasil dihapus")
+                    isPhotoDeleted = true
+
+                    setResult(RESULT_CODE)
+                    finish()
+                }
+            }
+
             imageUrl.observeOnce(this@EditProfileActivity) { newImageUrl ->
                 if (!newImageUrl.isNullOrEmpty()) {
                     userViewModel.updateProfileImageUrl(newImageUrl)

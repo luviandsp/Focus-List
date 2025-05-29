@@ -23,7 +23,7 @@
         android:id="@+id/rv_draft_task"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        tools:listitem="@layout/task_draft_item"
+        tools:listitem="@layout/item_draft_task"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

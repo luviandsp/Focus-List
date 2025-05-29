@@ -21,6 +21,9 @@ class UserViewModel : ViewModel() {
     private val _authLogin = MutableLiveData<Pair<Boolean, String?>>()
     val authLogin: LiveData<Pair<Boolean, String?>> get() = _authLogin
 
+    private val _operationStatus = MutableLiveData<Pair<Boolean, String?>>()
+    val operationStatus: LiveData<Pair<Boolean, String?>> get() = _operationStatus
+
     private val _userId = MutableLiveData<String?>()
     val userId: LiveData<String?> get() = _userId
 
@@ -103,6 +106,7 @@ class UserViewModel : ViewModel() {
                 _userUsername.postValue(username)
                 _userImageUrl.postValue(profileImageUrl)
                 _errorMessage.postValue(null)
+                _operationStatus.postValue(Pair(true, null))
             }
         }
     }
@@ -131,7 +135,15 @@ class UserViewModel : ViewModel() {
     fun deleteAccount() {
         viewModelScope.launch {
             val result = userRepository.deleteAccount()
-            _authStatus.postValue(result)
+
+            if (result.first) {
+                _authStatus.postValue(result)
+                _userId.postValue(null)
+                _userUsername.postValue(null)
+                _userEmail.postValue(null)
+                _userImageUrl.postValue(null)
+                _errorMessage.postValue(null)
+            }
         }
     }
 

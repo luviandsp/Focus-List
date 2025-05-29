@@ -21,7 +21,7 @@ import com.project.focuslist.databinding.FragmentProfileBinding
 import com.project.focuslist.ui.activity.DeleteProfileActivity
 import com.project.focuslist.ui.activity.DraftTaskActivity
 import com.project.focuslist.ui.auth.AuthActivity
-import com.project.focuslist.ui.optionsmenu.EditProfileActivity
+import com.project.focuslist.ui.activity.EditProfileActivity
 import kotlinx.coroutines.launch
 
 class ProfileFragment : Fragment() {

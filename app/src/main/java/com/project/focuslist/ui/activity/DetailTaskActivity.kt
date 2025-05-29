@@ -371,10 +371,7 @@ class DetailTaskActivity : AppCompatActivity() {
                     )
                 }
                 setResult(RESULT_OK)
-
                 deleteTaskFromDraft()
-
-                finish()
             }
         } else {
             if (taskId != null) {
@@ -404,10 +401,7 @@ class DetailTaskActivity : AppCompatActivity() {
                 )
             }
             setResult(RESULT_OK)
-
             deleteTaskFromDraft()
-
-            finish()
         }
     }
 

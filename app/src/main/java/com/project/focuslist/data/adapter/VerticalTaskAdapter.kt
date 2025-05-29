@@ -1,6 +1,5 @@
 package com.project.focuslist.data.adapter
 
-
 import android.media.SoundPool
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -12,13 +11,13 @@ import com.project.focuslist.R
 import com.project.focuslist.data.enumData.TaskPriority
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.data.model.TaskWithUser
-import com.project.focuslist.databinding.TaskItemBinding
+import com.project.focuslist.databinding.ItemVerticalTaskBinding
 
-class TaskAdapter(
+class VerticalTaskAdapter(
     private val onItemClickListener: (Task) -> Unit,
     private val onLongClickListener: (Task) -> Boolean,
     private val onCheckBoxClickListener: (Task, Boolean) -> Unit
-) : ListAdapter<TaskWithUser, TaskAdapter.TaskViewHolder>(DIFF_CALLBACK) {
+) : ListAdapter<TaskWithUser, VerticalTaskAdapter.TaskViewHolder>(DIFF_CALLBACK) {
 
     private var sp: SoundPool = SoundPool.Builder().setMaxStreams(10).build()
     private var soundIdBell: Int = 0
@@ -30,14 +29,25 @@ class TaskAdapter(
         }
     }
 
-    inner class TaskViewHolder(private val binding: TaskItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class TaskViewHolder(private val binding: ItemVerticalTaskBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(taskWithUser: TaskWithUser) {
             with(binding) {
+
                 var isChecked = taskWithUser.task.isCompleted
+
                 ivTaskCheck.setImageResource(
-                    if (isChecked) R.drawable.baseline_check_box_24
-                    else R.drawable.baseline_check_box_outline_blank_24
+                    if (isChecked) {
+                        if (taskWithUser.task.taskPriority == TaskPriority.MID.value) {
+                            R.drawable.checkbox_outline_yellow
+                        } else {
+                            R.drawable.checkbox_outline
+                        }
+                    } else if (taskWithUser.task.taskPriority == TaskPriority.MID.value) {
+                        R.drawable.checkbox_outline_blank_yellow
+                    } else {
+                        R.drawable.checkbox_outline_blank
+                    }
                 )
 
                 llTaskCheck.setOnClickListener {
@@ -46,21 +56,39 @@ class TaskAdapter(
                         if (isChecked) {
                             playSoundBell()
                             Toast.makeText(itemView.context, "Task Completed", Toast.LENGTH_SHORT).show()
-                            R.drawable.baseline_check_box_24
+                            if (taskWithUser.task.taskPriority == TaskPriority.MID.value) {
+                                R.drawable.checkbox_outline_yellow
+                            } else {
+                                R.drawable.checkbox_outline
+                            }
                         }
-                        else R.drawable.baseline_check_box_outline_blank_24
+                        else if (taskWithUser.task.taskPriority == TaskPriority.MID.value) {
+                            R.drawable.checkbox_outline_blank_yellow
+                        }
+                        else {
+                            R.drawable.checkbox_outline_blank
+                        }
                     )
                     onCheckBoxClickListener(taskWithUser.task, isChecked)
                 }
 
-                tvTaskName.text = taskWithUser.task.taskTitle
-                tvTaskBody.text = taskWithUser.task.taskBody
-                tvDueDate.text = taskWithUser.task.taskDueTime
+                tvTitle.text = taskWithUser.task.taskTitle
+                tvDesc.text = taskWithUser.task.taskBody
+
+                if (taskWithUser.task.taskPriority == TaskPriority.MID.value) {
+                    tvTitle.setTextColor(itemView.context.getColor(R.color.dark_yellow))
+                    tvDesc.setTextColor(itemView.context.getColor(R.color.dark_yellow))
+                    ivArrow.setColorFilter(itemView.context.getColor(R.color.dark_yellow))
+                } else {
+                    tvTitle.setTextColor(itemView.context.getColor(R.color.white))
+                    tvDesc.setTextColor(itemView.context.getColor(R.color.white))
+                    ivArrow.setColorFilter(itemView.context.getColor(R.color.white))
+                }
 
                 when (taskWithUser.task.taskPriority) {
-                    TaskPriority.LOW.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_1)
-                    TaskPriority.MEDIUM.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_2)
-                    TaskPriority.HIGH.value -> constraintLayout.setBackgroundResource(R.drawable.background_shape_3)
+                    TaskPriority.LOW.value -> cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.blue))
+                    TaskPriority.MID.value -> cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.yellow))
+                    TaskPriority.HIGH.value -> cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.red))
                 }
 
                 itemView.setOnClickListener { onItemClickListener(taskWithUser.task) }
@@ -74,7 +102,7 @@ class TaskAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
-        val binding = TaskItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemVerticalTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         soundIdBell = sp.load(parent.context, R.raw.bell_sound, 1)
         return TaskViewHolder(binding)
     }

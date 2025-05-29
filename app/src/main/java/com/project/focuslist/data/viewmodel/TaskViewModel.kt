@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
@@ -24,6 +25,9 @@ class TaskViewModel: ViewModel() {
     companion object {
         private const val TAG = "TaskViewModel"
     }
+
+    private val _todayTask = MutableLiveData<List<TaskWithUser>>()
+    val todayTask: LiveData<List<TaskWithUser>> = _todayTask
 
     private val _allTask = MutableLiveData<List<TaskWithUser>>()
     val allTask: LiveData<List<TaskWithUser>> = _allTask
@@ -64,7 +68,8 @@ class TaskViewModel: ViewModel() {
     private val _operationResult = MutableLiveData<Pair<Boolean, String?>>()
     val operationResult: LiveData<Pair<Boolean, String?>> get() = _operationResult
 
-    private var currentList = mutableListOf<TaskWithUser>()
+    private var currentVerticalList = mutableListOf<TaskWithUser>()
+    private var currentHorizontalList = mutableListOf<TaskWithUser>()
 
     fun hasMoreData(): Boolean {
         return !taskRepository.isLastPage()
@@ -106,6 +111,7 @@ class TaskViewModel: ViewModel() {
 
                 scheduleNotification(
                     context = context,
+                    taskId = result.second!!,
                     taskTitle = taskTitle,
                     taskDueDate = taskDueTime,
                     reminderOffsetMillis = reminderOffsetMillis
@@ -116,18 +122,33 @@ class TaskViewModel: ViewModel() {
         }
     }
 
+    fun getTodayTask(resetPaging: Boolean = false) {
+        viewModelScope.launch {
+            val tasks = taskRepository.getUserTodayTask(resetPaging)
+
+            if (resetPaging) {
+                currentHorizontalList.clear()
+            }
+
+            currentHorizontalList.addAll(tasks)
+            _todayTask.postValue(currentHorizontalList)
+
+            Log.d(TAG, "getTodayTask: Current list size: ${currentHorizontalList.size}")
+        }
+    }
+
     fun getUserTask(resetPaging: Boolean = false) {
         viewModelScope.launch {
             val tasks = taskRepository.getUserTask(resetPaging)
 
             if (resetPaging) {
-                currentList.clear()
+                currentVerticalList.clear()
             }
 
-            currentList.addAll(tasks)
-            _allTask.postValue(currentList)
+            currentVerticalList.addAll(tasks)
+            _allTask.postValue(currentVerticalList)
 
-            Log.d(TAG, "getUserTask: Current list size: ${currentList.size}")
+            Log.d(TAG, "getUserTask: Current list size: ${currentVerticalList.size}")
         }
     }
 
@@ -136,13 +157,13 @@ class TaskViewModel: ViewModel() {
             val tasks = taskRepository.getUserCompletedTask(resetPaging)
 
             if (resetPaging) {
-                currentList.clear()
+                currentVerticalList.clear()
             }
 
-            currentList.addAll(tasks)
-            _taskCompleted.postValue(currentList)
+            currentVerticalList.addAll(tasks)
+            _taskCompleted.postValue(currentVerticalList)
 
-            Log.d(TAG, "getUserCompletedTask: Current list size: ${currentList.size}")
+            Log.d(TAG, "getUserCompletedTask: Current list size: ${currentVerticalList.size}")
         }
     }
 
@@ -151,13 +172,13 @@ class TaskViewModel: ViewModel() {
             val tasks = taskRepository.getUserInProgressTask(resetPaging)
 
             if (resetPaging) {
-                currentList.clear()
+                currentVerticalList.clear()
             }
 
-            currentList.addAll(tasks)
-            _taskInProgress.postValue(currentList)
+            currentVerticalList.addAll(tasks)
+            _taskInProgress.postValue(currentVerticalList)
 
-            Log.d(TAG, "getUserInProgressTask: Current list size: ${currentList.size}")
+            Log.d(TAG, "getUserInProgressTask: Current list size: ${currentVerticalList.size}")
         }
     }
 
@@ -169,13 +190,13 @@ class TaskViewModel: ViewModel() {
             )
 
             if (resetPaging) {
-                currentList.clear()
+                currentVerticalList.clear()
             }
 
-            currentList.addAll(tasks)
-            _taskByDate.postValue(currentList)
+            currentVerticalList.addAll(tasks)
+            _taskByDate.postValue(currentVerticalList)
 
-            Log.d(TAG, "getUserTaskByDate: Current list size: ${currentList.size}")
+            Log.d(TAG, "getUserTaskByDate: Current list size: ${currentVerticalList.size}")
         }
     }
 
@@ -233,6 +254,7 @@ class TaskViewModel: ViewModel() {
 
                 scheduleNotification(
                     context = context,
+                    taskId = taskId,
                     taskTitle = taskTitle,
                     taskDueDate = taskDueTime,
                     reminderOffsetMillis = reminderOffsetMillis
@@ -273,16 +295,13 @@ class TaskViewModel: ViewModel() {
         }
     }
 
-    private fun scheduleNotification(context: Context, taskTitle: String, taskDueDate: String?, reminderOffsetMillis: Long?) {
-        taskDueDate?.matches(Regex("\\d{2}/\\d{2}/\\d{4} \\d{2}:\\d{2}"))?.let {
-            if (!it) {
-                Log.e(TAG, "Invalid taskDueDate format: $taskDueDate")
-                return
-            }
+    private fun scheduleNotification(context: Context, taskId: String, taskTitle: String, taskDueDate: String?, reminderOffsetMillis: Long?) {
+        if (taskDueDate == null || !taskDueDate.matches(Regex("\\d{2}/\\d{2}/\\d{4} \\d{2}:\\d{2}"))) {
+            Log.e(TAG, "Invalid or null taskDueDate format: $taskDueDate")
+            return
         }
 
-        if (taskDueDate == null) return
-
+        Log.d(TAG, "Task ID for notification: $taskId")
         Log.d(TAG, "Scheduling notification for task: $taskTitle")
 
         val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
@@ -290,15 +309,19 @@ class TaskViewModel: ViewModel() {
         val dueDate = try {
             formatter.parse(taskDueDate)?.time ?: return
         } catch (e: Exception) {
+            Log.e(TAG, "Failed to parse taskDueDate: $taskDueDate", e)
             return
         }
 
-        Log.d(TAG, "Task due date: $dueDate")
+        Log.d(TAG, "Task due date (ms): $dueDate")
 
-        val reminderTime = reminderOffsetMillis ?: 0
+        val reminderTime = reminderOffsetMillis ?: 0L
+        val delay = dueDate - System.currentTimeMillis()
+        val finalDelay = delay - reminderTime
 
-        val delay = dueDate - System.currentTimeMillis() - reminderTime
-        Log.d(TAG, "Delay: $delay")
+        Log.d(TAG, "Calculated delay (ms): $delay")
+        Log.d(TAG, "Final delay (ms): $finalDelay")
+
         if (delay <= 0) return
 
         val data = workDataOf(
@@ -307,11 +330,15 @@ class TaskViewModel: ViewModel() {
         )
 
         val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
-            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+            .setInitialDelay(finalDelay, TimeUnit.MILLISECONDS)
             .setInputData(data)
             .build()
 
-        WorkManager.getInstance(context).enqueue(workRequest)
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            "reminder_$taskId",
+            ExistingWorkPolicy.REPLACE,
+            workRequest
+        )
     }
 
 }

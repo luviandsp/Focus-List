@@ -10,6 +10,8 @@ import com.project.focuslist.data.model.Task
 import com.project.focuslist.data.model.TaskWithUser
 import com.project.focuslist.data.model.User
 import kotlinx.coroutines.tasks.await
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import kotlin.coroutines.cancellation.CancellationException
 
 class TaskRepository() {
@@ -73,10 +75,10 @@ class TaskRepository() {
     ): Pair<Boolean, String?> {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
-            val serviceId = taskCollection.document().id // Auto-generate ID
+            val taskId = taskCollection.document().id // Auto-generate ID
 
             val taskModelData = Task(
-                taskId = serviceId,
+                taskId = taskId,
                 userId = userId,
                 taskTitle = taskTitle,
                 taskBody = taskBody,
@@ -90,9 +92,9 @@ class TaskRepository() {
                 updatedAt = Timestamp.now()
             ).toHashMap()
 
-            taskCollection.document(serviceId).set(taskModelData).await()
-            Log.d(TAG, "Task created with ID: $serviceId")
-            Pair(true, "Tugas berhasil dibuat")
+            taskCollection.document(taskId).set(taskModelData).await()
+            Log.d(TAG, "Task created with ID: $taskId")
+            Pair(true, taskId)
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.e(TAG, "Error creating task: ${e.message}")
@@ -199,6 +201,70 @@ class TaskRepository() {
             if (e is CancellationException) throw e
             Log.e(TAG, "Error fetching task by ID: ${e.message}")
             null
+        }
+    }
+
+    suspend fun getUserTodayTask(resetPaging: Boolean = false): List<TaskWithUser> {
+        return try {
+            if (resetPaging) {
+                lastDocument = null
+                isLastPage = false
+            }
+
+            val userId = firebaseAuth.currentUser?.uid ?: return emptyList()
+            val currentDate = getCurrentDate()
+
+            if (isLastPage) return emptyList()
+
+            var query: Query = taskCollection
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("taskDueDate", currentDate)
+                .orderBy("taskPriority", Query.Direction.DESCENDING)
+                .limit(PAGE_SIZE.toLong())
+
+            // Jika ada lastDocument, gunakan startAfter untuk melanjutkan paging
+            lastDocument?.let {
+                query = query.startAfter(it)
+            }
+
+            // Ambil data tugas milik user
+            val taskSnapshot = query.get().await()
+
+            // Jika tidak ada data, langsung set isLastPage = true
+            if (taskSnapshot.isEmpty) {
+                isLastPage = true
+                return emptyList()
+            }
+
+            val task = taskSnapshot.documents.mapNotNull { it.data?.toTask() }
+
+            // Simpan dokumen terakhir untuk paginasi berikutnya
+            lastDocument = taskSnapshot.documents.lastOrNull()
+
+            // Cek apakah ini halaman terakhir
+            if (taskSnapshot.documents.size < PAGE_SIZE) {
+                isLastPage = true
+            }
+
+            // Ambil data user yang sedang login
+            val userSnapshot = userCollection
+                .document(userId)
+                .get()
+                .await()
+
+            val userData = userSnapshot.toObject(User::class.java)
+
+            if (userData == null) {
+                Log.e(TAG, "User data not found for userId: $userId")
+                return emptyList()
+            }
+
+            // Gabungkan tugas dengan data pengguna
+            task.map { service -> TaskWithUser(service, userData) }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Log.e(TAG, "Error fetching user tasks: ${e.message}")
+            emptyList()
         }
     }
 
@@ -448,6 +514,12 @@ class TaskRepository() {
 
     fun isLastPage(): Boolean {
         return isLastPage
+    }
+
+    fun getCurrentDate(): String {
+        val currentDate = LocalDate.now()
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        return currentDate.format(formatter)
     }
 
     private fun getErrorMessage(e: Exception): String {

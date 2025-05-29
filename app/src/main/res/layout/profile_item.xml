@@ -22,7 +22,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:textSize="20sp"
-        android:fontFamily="@font/nunito_black"
         android:maxLines="1"
         android:text="@string/username"
         android:textStyle="bold"
