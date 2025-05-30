@@ -17,7 +17,7 @@
 
     <activity
         android:id="@+id/detail_task_activiy"
-        android:name="com.project.focuslist.ui.activity.DetailTaskActivity"
-        tools:layout="@layout/activity_detail_task" />
+        android:name="com.project.focuslist.ui.activity.CreateUpdateTaskActivity"
+        tools:layout="@layout/activity_create_update_task" />
 
 </navigation>

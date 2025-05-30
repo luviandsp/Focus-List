@@ -1,19 +1,6 @@
 <resources>
     <string name="app_name">FocusList</string>
-    <string name="login_title">Login</string>
-    <string name="register_title">Register</string>
-    <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="welcome">"Welcome!"</string>
-    <string name="invalid_username">Not a valid username</string>
-    <string name="invalid_password">Password must be >5 characters</string>
-    <string name="login_failed">"Login failed"</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="add_task">Add Task</string>
-    <string name="logout">Logout</string>
     <string name="edit">Edit</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="save">Save</string>
@@ -26,7 +13,6 @@
     <string name="task_name">Task Name</string>
     <string name="task_body">Task Body</string>
     <string name="due_date">Due Date</string>
-    <string name="all_profiles">All Profiles</string>
     <string name="delete_profile">Delete Profile</string>
     <string name="delete">Delete</string>
     <string name="delete_message">Apa anda yakin untuk menghapus profile ini?</string>
@@ -34,11 +20,13 @@
     <string name="yes">Yes</string>
     <string name="user">User</string>
     <string name="set_reminder">Set Reminder</string>
-    <string name="save_draft">Save Draft</string>
-    <string name="draft_list">Daftar Draft</string>
+    <string name="save_draft">Save as draft</string>
+    <string name="draft_list">Draft List</string>
 
+    <!--  Authentication  -->
     <string name="login">Login</string>
     <string name="login_desc">Log in to continue and enjoy all the features we’ve prepared for you.</string>
+    <string name="logout">Logout</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="remember_me">Remember me</string>
@@ -46,13 +34,14 @@
     <string name="don_t_have_an_account">Don’t have an account?</string>
     <string name="register">Register</string>
     <string name="register_desc">Join us today and unlock your full experience.</string>
-    <string name="username">Username</string>
-    <string name="confirm_password">Confirm Password</string>
     <string name="already_have_an_account">Already have an account?</string>
     <string name="forgot_password_title">Forgot Password</string>
     <string name="forgot_password_desc">No worries — we’ll help you get back on track.</string>
-    <string name="change_password">Change Password</string>
     <string name="resend_verification">Resend Verification</string>
+    <string name="change_password">Change Password</string>
+    <string name="confirm_password">Confirm Password</string>
+
+    <string name="username">Username</string>
     <string name="search_task">Find your tasks</string>
     <string name="today_tasks">Today’s tasks</string>
     <string name="my_tasks">My tasks</string>
@@ -63,4 +52,11 @@
     <string name="greeting_message">Hi, %1$s</string>
     <string name="task_time">%1$s WIB</string>
     <string name="home_desc">Let’s be productive today!</string>
+    <string name="deadline">Deadline</string>
+    <string name="priority_scale">Priority Scale</string>
+    <string name="add_image">Add Image</string>
+    <string name="priority">Priority</string>
+    <string name="edit_image">Edit Image</string>
+    <string name="your_activity">Your activity</string>
+    <string name="activity_for_task">What do you want to do?</string>
 </resources>

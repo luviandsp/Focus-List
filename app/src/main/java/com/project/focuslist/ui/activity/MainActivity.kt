@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.project.focuslist.databinding.ActivityMainBinding
+import com.project.focuslist.ui.tasks.CreateTaskActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,11 +37,9 @@ class MainActivity : AppCompatActivity() {
         with(binding) {
 
             fabAdd.setOnClickListener {
-                val intent = Intent(this@MainActivity, DetailTaskActivity::class.java).apply {
-                    putExtra(DetailTaskActivity.INTENT_KEY, DetailTaskActivity.CREATE_KEY)
+                Intent(this@MainActivity, CreateTaskActivity::class.java).also {
+                    startActivity(it)
                 }
-
-                startActivity(intent)
             }
 
             val navHostFragment = supportFragmentManager.findFragmentById(fcvMain.id) as NavHostFragment

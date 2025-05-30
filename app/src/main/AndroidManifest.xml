@@ -16,6 +16,18 @@
         android:theme="@style/Base.Theme.FocusList"
         tools:targetApi="31">
         <activity
+            android:name=".ui.tasks.EditTaskActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.tasks.CreateTaskActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.tasks.DetailTaskActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.CalenderActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activity.DraftTaskActivity"
             android:exported="false" />
         <activity
@@ -28,7 +40,7 @@
             android:name=".ui.activity.EditProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.DetailTaskActivity"
+            android:name=".ui.activity.CreateUpdateTaskActivity"
             android:exported="false" />
         <activity
             android:name=".ui.auth.AuthActivity"

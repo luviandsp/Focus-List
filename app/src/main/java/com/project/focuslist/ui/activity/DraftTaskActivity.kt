@@ -17,6 +17,8 @@ import com.project.focuslist.data.adapter.TaskPdAdapter
 import com.project.focuslist.data.model.TaskDraft
 import com.project.focuslist.data.viewmodel.TaskDraftViewModel
 import com.project.focuslist.databinding.ActivityDraftTaskBinding
+import com.project.focuslist.ui.tasks.DetailTaskActivity
+import com.project.focuslist.ui.tasks.EditTaskActivity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -47,9 +49,11 @@ class DraftTaskActivity : AppCompatActivity() {
 
     private fun initViews() {
         with(binding) {
+            toolbar.setNavigationOnClickListener { finish() }
+
             taskDraftAdapter = TaskPdAdapter(
                 onItemClickListener = { task -> readTask(task) },
-                onLongClickListener = { task -> detailTask(task); true }
+                onLongClickListener = { task -> editTask(task); true }
             )
 
             taskDraftAdapter.addLoadStateListener { loadStates ->
@@ -82,22 +86,21 @@ class DraftTaskActivity : AppCompatActivity() {
     }
 
     private fun readTask(task: TaskDraft) {
-        Intent(this, ReadTaskActivity::class.java).apply {
-            putExtra(ReadTaskActivity.TASK_DRAFT_ID, task.taskId)
+        Intent(this, DetailTaskActivity::class.java).apply {
+            putExtra(DetailTaskActivity.TASK_DRAFT_ID, task.taskId)
             startActivity(this)
         }
     }
 
-    private fun detailTask(task: TaskDraft) {
-        Intent(this, DetailTaskActivity::class.java).apply {
-            putExtra(DetailTaskActivity.TASK_DRAFT_ID, task.taskId)
-            putExtra(DetailTaskActivity.INTENT_KEY, DetailTaskActivity.EDIT_KEY)
+    private fun editTask(task: TaskDraft) {
+        Intent(this, EditTaskActivity::class.java).apply {
+            putExtra(EditTaskActivity.TASK_DRAFT_ID, task.taskId)
             startActivity(this)
         }
     }
 
     private fun updateTaskListVisibility(isEmpty: Boolean) {
-        binding.ivDraftTaskList.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.ivPlaceholderTask.visibility = if (isEmpty) View.VISIBLE else View.GONE
         binding.rvDraftTask.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 

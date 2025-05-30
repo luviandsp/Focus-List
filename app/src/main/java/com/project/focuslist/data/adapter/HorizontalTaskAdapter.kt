@@ -23,8 +23,17 @@ class HorizontalTaskAdapter(
 
                 tvTitle.text = taskWithUser.task.taskTitle
                 tvDesc.text = taskWithUser.task.taskBody
-
                 tvTimes.text = itemView.context.getString(R.string.task_time, taskHour)
+
+                if (taskWithUser.task.taskPriority == TaskPriority.MID.value) {
+                    tvTitle.setTextColor(itemView.context.getColor(R.color.dark_yellow))
+                    tvDesc.setTextColor(itemView.context.getColor(R.color.dark_yellow))
+                    tvTimes.setTextColor(itemView.context.getColor(R.color.dark_yellow))
+                } else {
+                    tvTitle.setTextColor(itemView.context.getColor(R.color.white))
+                    tvDesc.setTextColor(itemView.context.getColor(R.color.white))
+                    tvTimes.setTextColor(itemView.context.getColor(R.color.white))
+                }
 
                 when (taskWithUser.task.taskPriority) {
                     TaskPriority.LOW.value -> {

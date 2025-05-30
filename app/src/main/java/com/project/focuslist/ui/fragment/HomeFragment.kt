@@ -21,8 +21,9 @@ import com.project.focuslist.data.model.Task
 import com.project.focuslist.data.viewmodel.TaskViewModel
 import com.project.focuslist.data.viewmodel.UserViewModel
 import com.project.focuslist.databinding.FragmentHomeBinding
-import com.project.focuslist.ui.activity.DetailTaskActivity
-import com.project.focuslist.ui.activity.ReadTaskActivity
+import com.project.focuslist.ui.activity.CalenderActivity
+import com.project.focuslist.ui.tasks.DetailTaskActivity
+import com.project.focuslist.ui.tasks.EditTaskActivity
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -68,6 +69,12 @@ class HomeFragment : Fragment() {
 
             tvDays.text = dayName
             tvDates.text = date
+
+            cvCalendar.setOnClickListener {
+                Intent(requireContext(), CalenderActivity::class.java).also {
+                    startActivity(it)
+                }
+            }
 
             setupTaskList(
                 onReloadAfterCheck = { taskViewModel.getUserTask(resetPaging = true) },
@@ -182,7 +189,7 @@ class HomeFragment : Fragment() {
         with(binding) {
             verticalTaskAdapter = VerticalTaskAdapter(
                 onItemClickListener = { task -> readTask(task) },
-                onLongClickListener = { task -> detailTask(task); true },
+                onLongClickListener = { task -> editTask(task); true },
                 onCheckBoxClickListener = { task, isChecked ->
                     taskViewModel.updateCompletionStatus(
                         taskId = task.taskId,
@@ -255,16 +262,15 @@ class HomeFragment : Fragment() {
     }
 
     private fun readTask(task: Task) {
-        Intent(requireContext(), ReadTaskActivity::class.java).apply {
-            putExtra(ReadTaskActivity.TASK_ID, task.taskId)
+        Intent(requireContext(), DetailTaskActivity::class.java).apply {
+            putExtra(DetailTaskActivity.TASK_ID, task.taskId)
             startActivity(this)
         }
     }
 
-    private fun detailTask(task: Task) {
-        Intent(requireContext(), DetailTaskActivity::class.java).apply {
-            putExtra(DetailTaskActivity.TASK_ID, task.taskId)
-            putExtra(DetailTaskActivity.INTENT_KEY, DetailTaskActivity.EDIT_KEY)
+    private fun editTask(task: Task) {
+        Intent(requireContext(), EditTaskActivity::class.java).apply {
+            putExtra(EditTaskActivity.TASK_ID, task.taskId)
             startActivity(this)
         }
     }

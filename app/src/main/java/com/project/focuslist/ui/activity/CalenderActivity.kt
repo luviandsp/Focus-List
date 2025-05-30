@@ -1,31 +1,28 @@
-package com.project.focuslist.ui.fragment
+package com.project.focuslist.ui.activity
 
 import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.project.focuslist.data.adapter.VerticalTaskAdapter
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.data.viewmodel.TaskViewModel
-import com.project.focuslist.databinding.FragmentCalenderBinding
-import com.project.focuslist.ui.activity.CreateUpdateTaskActivity
-import com.project.focuslist.ui.activity.ReadTaskActivity
+import com.project.focuslist.databinding.ActivityCalenderBinding
 import java.util.Locale
 
+class CalenderActivity : AppCompatActivity() {
 
-class CalendarFragment : Fragment() {
-
-    private var _binding: FragmentCalenderBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: ActivityCalenderBinding
 
     private val taskViewModel by viewModels<TaskViewModel>()
     private lateinit var verticalTaskAdapter: VerticalTaskAdapter
@@ -35,19 +32,19 @@ class CalendarFragment : Fragment() {
     private var formattedDate: String = dateFormat.format(calendar.time)
 
     companion object {
-        private const val TAG = "CalendarFragment"
+        private const val TAG = "CalenderActivity"
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentCalenderBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        binding = ActivityCalenderBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         initViews()
         observeViewModels()
@@ -55,8 +52,9 @@ class CalendarFragment : Fragment() {
 
     private fun initViews() {
         with (binding) {
+            toolbar.setNavigationOnClickListener { finish() }
 
-            binding.calenderView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            calenderView.setOnDateChangeListener { _, year, month, dayOfMonth ->
                 calendar = Calendar.getInstance().apply {
                     set(year, month, dayOfMonth)
                 }
@@ -102,7 +100,7 @@ class CalendarFragment : Fragment() {
     }
 
     private fun observeViewModels() {
-        taskViewModel.taskByDate.observe(viewLifecycleOwner) { tasks ->
+        taskViewModel.taskByDate.observe(this@CalenderActivity) { tasks ->
             Log.d(TAG, "Fetched Tasks: $tasks")
             verticalTaskAdapter.submitList(tasks)
             verticalTaskAdapter.notifyDataSetChanged()
@@ -116,18 +114,18 @@ class CalendarFragment : Fragment() {
     }
 
     private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        Toast.makeText(this@CalenderActivity, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun readTask(task: Task) {
-        Intent(requireContext(), ReadTaskActivity::class.java).apply {
+        Intent(this@CalenderActivity, ReadTaskActivity::class.java).apply {
             putExtra(ReadTaskActivity.TASK_ID, task.taskId)
             startActivity(this)
         }
     }
 
     private fun detailTask(task: Task) {
-        Intent(requireContext(), CreateUpdateTaskActivity::class.java).apply {
+        Intent(this@CalenderActivity, CreateUpdateTaskActivity::class.java).apply {
             putExtra(CreateUpdateTaskActivity.TASK_ID, task.taskId)
             putExtra(CreateUpdateTaskActivity.INTENT_KEY, CreateUpdateTaskActivity.EDIT_KEY)
             startActivity(this)
@@ -142,10 +140,5 @@ class CalendarFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         taskViewModel.getUserTaskByDate(date = formattedDate, resetPaging = true)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

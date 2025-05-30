@@ -29,15 +29,15 @@ import com.project.focuslist.data.viewmodel.StorageViewModel
 import com.project.focuslist.data.viewmodel.TaskDraftViewModel
 import com.project.focuslist.data.viewmodel.TaskViewModel
 import com.project.focuslist.data.viewmodel.UserViewModel
-import com.project.focuslist.databinding.ActivityDetailTaskBinding
+import com.project.focuslist.databinding.ActivityCreateUpdateTaskBinding
 import com.project.focuslist.databinding.DialogReminderBinding
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class DetailTaskActivity : AppCompatActivity() {
+class CreateUpdateTaskActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityDetailTaskBinding
+    private lateinit var binding: ActivityCreateUpdateTaskBinding
     private val taskViewModel by viewModels<TaskViewModel>()
     private val userViewModel by viewModels<UserViewModel>()
     private val storageViewModel by viewModels<StorageViewModel>()
@@ -68,7 +68,7 @@ class DetailTaskActivity : AppCompatActivity() {
     private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             result.data?.data?.let { uri ->
-                Glide.with(this@DetailTaskActivity).load(uri).into(binding.ivImage)
+                Glide.with(this@CreateUpdateTaskActivity).load(uri).into(binding.ivImage)
 
                 imageUri = uri
             }
@@ -78,7 +78,7 @@ class DetailTaskActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivityDetailTaskBinding.inflate(layoutInflater)
+        binding = ActivityCreateUpdateTaskBinding.inflate(layoutInflater)
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -98,13 +98,13 @@ class DetailTaskActivity : AppCompatActivity() {
             taskViewModel.getTaskById(taskId!!)
         } else if (taskDraftId != -1) {
             lifecycleScope.launch {
-                taskDraftViewModel.getTaskById(taskDraftId!!).observe(this@DetailTaskActivity) { task ->
+                taskDraftViewModel.getTaskById(taskDraftId!!).observe(this@CreateUpdateTaskActivity) { task ->
                     with(binding) {
                         tietTitle.setText(task.taskTitle)
                         tietBody.setText(task.taskBody)
                         spinnerPriority.setSelection(task.taskPriority - 1)
                         tvSelectDate.text = task.taskDueDate
-                        Glide.with(this@DetailTaskActivity).load(task.taskImageUrl).into(ivImage)
+                        Glide.with(this@CreateUpdateTaskActivity).load(task.taskImageUrl).into(ivImage)
 
                         selectedDueDate = task.taskDueDate
                         selectedDueHours = task.taskDueHours
@@ -115,10 +115,7 @@ class DetailTaskActivity : AppCompatActivity() {
         }
 
         initViews()
-
-        if (taskId != null) {
-            observeViewModels()
-        }
+        observeViewModels()
     }
 
     private fun initViews() {
@@ -135,7 +132,7 @@ class DetailTaskActivity : AppCompatActivity() {
 
             val itemLayout = if (isDarkMode) R.layout.spinner_item_dark else R.layout.spinner_item
             val priorities = arrayOf("Rendah", "Sedang", "Tinggi")
-            val adapter = ArrayAdapter(this@DetailTaskActivity, itemLayout, priorities)
+            val adapter = ArrayAdapter(this@CreateUpdateTaskActivity, itemLayout, priorities)
             adapter.setDropDownViewResource(itemLayout)
             spinnerPriority.adapter = adapter
 
@@ -177,7 +174,7 @@ class DetailTaskActivity : AppCompatActivity() {
 
             ivImageInsert.setOnClickListener {
                 launcher.launch(
-                    ImagePicker.with(this@DetailTaskActivity)
+                    ImagePicker.with(this@CreateUpdateTaskActivity)
                         .crop()
                         .galleryOnly()
                         .createIntent()
@@ -186,7 +183,7 @@ class DetailTaskActivity : AppCompatActivity() {
 
             ivCamera.setOnClickListener {
                 launcher.launch(
-                    ImagePicker.with(this@DetailTaskActivity)
+                    ImagePicker.with(this@CreateUpdateTaskActivity)
                         .crop()
                         .cameraOnly()
                         .createIntent()
@@ -197,7 +194,7 @@ class DetailTaskActivity : AppCompatActivity() {
 
     private fun observeViewModels() {
         taskViewModel.apply {
-            operationResult.observe(this@DetailTaskActivity) { (success, message) ->
+            operationResult.observe(this@CreateUpdateTaskActivity) { (success, message) ->
                 binding.progressBar.visibility = View.GONE
                 if (success) {
                     setResult(RESULT_OK)
@@ -207,34 +204,34 @@ class DetailTaskActivity : AppCompatActivity() {
                 }
             }
 
-            taskTitle.observe(this@DetailTaskActivity) { binding.tietTitle.setText(it) }
-            taskBody.observe(this@DetailTaskActivity) { binding.tietBody.setText(it) }
+            taskTitle.observe(this@CreateUpdateTaskActivity) { binding.tietTitle.setText(it) }
+            taskBody.observe(this@CreateUpdateTaskActivity) { binding.tietBody.setText(it) }
 
-            taskImageUrl.observe(this@DetailTaskActivity) { imageUrl ->
+            taskImageUrl.observe(this@CreateUpdateTaskActivity) { imageUrl ->
                 if (imageUrl != null) {
-                    Glide.with(this@DetailTaskActivity).load(imageUrl).into(binding.ivImage)
+                    Glide.with(this@CreateUpdateTaskActivity).load(imageUrl).into(binding.ivImage)
                 }
             }
 
-            taskDueDate.observe(this@DetailTaskActivity) { dueDate ->
+            taskDueDate.observe(this@CreateUpdateTaskActivity) { dueDate ->
                 binding.tvSelectDate.text = dueDate
                 selectedDueDate = dueDate
             }
 
-            taskDueHours.observe(this@DetailTaskActivity) { dueHours ->
+            taskDueHours.observe(this@CreateUpdateTaskActivity) { dueHours ->
                 selectedDueHours = dueHours
             }
 
-            taskDueTime.observe(this@DetailTaskActivity) { dueTime ->
+            taskDueTime.observe(this@CreateUpdateTaskActivity) { dueTime ->
                 selectedDueTime = dueTime
             }
 
-            taskPriority.observe(this@DetailTaskActivity) { priority ->
+            taskPriority.observe(this@CreateUpdateTaskActivity) { priority ->
                 binding.spinnerPriority.setSelection(priority - 1)
             }
         }
 
-        storageViewModel.uploadStatus.observe(this@DetailTaskActivity) { success ->
+        storageViewModel.uploadStatus.observe(this@CreateUpdateTaskActivity) { success ->
             if (success) showToast("Foto berhasil diunggah") else showToast("Gagal mengunggah foto")
         }
     }

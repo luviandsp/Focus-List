@@ -67,12 +67,15 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.fragment.ktx)
 
+    // Spinner
+    implementation(libs.amazingspinner)
+
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
 
     // Navigation Fragment
-    implementation (libs.androidx.navigation.fragment.ktx)
-    implementation (libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
 
     // Firebase
     implementation(platform(libs.firebase.bom))
@@ -85,26 +88,26 @@ dependencies {
     implementation(libs.supabase.storage.kt)
 
     // Hilt
-    implementation (libs.hilt.android)
+    implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
     // Paging
     implementation(libs.androidx.paging.runtime)
-    implementation (libs.androidx.room.paging)
+    implementation(libs.androidx.room.paging)
 
     // Image
-    implementation (libs.glide)
-    implementation (libs.ucrop)
-    implementation (libs.imagepicker)
+    implementation(libs.glide)
+    implementation(libs.ucrop)
+    implementation(libs.imagepicker)
 
     // Splash Screen
     implementation(libs.androidx.core.splashscreen)
 
     // View Model
-    implementation (libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
     // Datastore
-    implementation (libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.preferences)
 
     // Ktor
     implementation(libs.ktor.client.okhttp)
