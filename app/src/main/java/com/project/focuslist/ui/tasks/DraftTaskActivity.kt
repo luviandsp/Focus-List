@@ -1,4 +1,4 @@
-package com.project.focuslist.ui.activity
+package com.project.focuslist.ui.tasks
 
 import android.content.Intent
 import android.os.Bundle
@@ -17,8 +17,6 @@ import com.project.focuslist.data.adapter.TaskPdAdapter
 import com.project.focuslist.data.model.TaskDraft
 import com.project.focuslist.data.viewmodel.TaskDraftViewModel
 import com.project.focuslist.databinding.ActivityDraftTaskBinding
-import com.project.focuslist.ui.tasks.DetailTaskActivity
-import com.project.focuslist.ui.tasks.EditTaskActivity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

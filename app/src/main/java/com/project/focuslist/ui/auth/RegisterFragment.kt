@@ -1,6 +1,8 @@
 package com.project.focuslist.ui.auth
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -62,7 +64,7 @@ class RegisterFragment : Fragment() {
                 val password = tietPassword.text.toString().trim()
                 val confirmPassword = tietConfirmPassword.text.toString().trim()
 
-                if (!validateInputs(email, password, confirmPassword, username)) {
+                if (!validateInputs(email, username, password, confirmPassword)) {
                     return@setOnClickListener
                 }
 
@@ -85,13 +87,66 @@ class RegisterFragment : Fragment() {
             tvLogin.setOnClickListener {
                 navigateToLogin()
             }
+
+            tietPassword.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    updatePasswordValidation(s.toString())
+                }
+
+                override fun afterTextChanged(s: Editable?) {}
+            })
+        }
+    }
+
+    private fun validateInputs(email: String, userName: String, password: String, confirmPassword: String) : Boolean {
+        if (email.isEmpty() || userName.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            Toast.makeText(activity, "All fields are required!", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (password.length < 8) {
+            Toast.makeText(activity, "Password must have at least 8 characters", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (!password.any { it.isUpperCase() }) {
+            Toast.makeText(activity, "Password must have at least 1 uppercase character", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (!password.any { it.isLowerCase() }) {
+            Toast.makeText(activity, "Password must have at least 1 lowercase character", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (!password.any { it.isDigit() }) {
+            Toast.makeText(activity, "Password must have at least 1 number", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (password != confirmPassword) {
+            Toast.makeText(activity, "Password and confirm password do not match", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        return true
+    }
+
+    private fun updatePasswordValidation(password: String) {
+        with(binding) {
+            iconLength.setImageResource(if (password.length >= 8) R.drawable.check_circle else R.drawable.cross_circle)
+            iconUppercase.setImageResource(if (password.any { it.isUpperCase() }) R.drawable.check_circle else R.drawable.cross_circle)
+            iconLowercase.setImageResource(if (password.any { it.isLowerCase() }) R.drawable.check_circle else R.drawable.cross_circle)
+            iconNumber.setImageResource(if (password.any { it.isDigit() }) R.drawable.check_circle else R.drawable.cross_circle)
         }
     }
 
     private fun observeViewModel() {
         userViewModel.authRegister.observe(viewLifecycleOwner) { result ->
             if (result.first) {
-                Toast.makeText(activity, "Registrasi berhasil, silahkan cek email untuk verifikasi", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), result.second ?: "Registration success, please check your email", Toast.LENGTH_SHORT).show()
 
                 lifecycleScope.launch {
                     userAccountPreferences.setRegistered(true)
@@ -106,40 +161,6 @@ class RegisterFragment : Fragment() {
         userViewModel.authStatus.observe(viewLifecycleOwner) { result ->
             Toast.makeText(activity, result.second, Toast.LENGTH_SHORT).show()
         }
-    }
-
-    private fun validateInputs(email: String, password: String, confirmPassword: String, username: String): Boolean {
-        if (email.isEmpty() || password.isEmpty() || username.isEmpty()) {
-            Toast.makeText(activity, "Semua field harus diisi!", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        if (password.length < 8) {
-            Toast.makeText(activity, "Password minimal 8 karakter", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        if (!password.any { it.isUpperCase() }) {
-            Toast.makeText(activity, "Password harus mengandung huruf kapital", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        if (!password.any { it.isLowerCase() }) {
-            Toast.makeText(activity, "Password harus mengandung huruf kecil", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        if (!password.any { it.isDigit() }) {
-            Toast.makeText(activity, "Password harus mengandung angka", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        if (password != confirmPassword) {
-            Toast.makeText(activity, "Password tidak sama", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        return true
     }
 
     private fun navigateToLogin() {

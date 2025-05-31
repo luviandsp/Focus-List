@@ -24,28 +24,22 @@ class UserViewModel : ViewModel() {
     private val _operationStatus = MutableLiveData<Pair<Boolean, String?>>()
     val operationStatus: LiveData<Pair<Boolean, String?>> get() = _operationStatus
 
+    private val _operationUpdateStatus = MutableLiveData<Pair<Boolean, String?>>()
+    val operationUpdateStatus: LiveData<Pair<Boolean, String?>> get() = _operationUpdateStatus
+
     private val _userId = MutableLiveData<String?>()
     val userId: LiveData<String?> get() = _userId
 
     private val _userUsername = MutableLiveData<String?>()
     val userName: LiveData<String?> get() = _userUsername
 
-    private val _userEmail = MutableLiveData<String?>()
-    val userEmail: LiveData<String?> get() = _userEmail
-
     private val _userImageUrl = MutableLiveData<String?>()
     val userImageUrl: LiveData<String?> get() = _userImageUrl
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?> get() = _errorMessage
-
-    init {
-        getUser()
-    }
 
     fun registerAccountOnly(email: String, password: String) {
         viewModelScope.launch {
             val result = userRepository.registerAccountOnly(email, password)
+
             _authRegister.postValue(result)
         }
     }
@@ -53,6 +47,7 @@ class UserViewModel : ViewModel() {
     fun resendVerificationEmail() {
         viewModelScope.launch {
             val result = userRepository.resendVerificationEmail()
+
             _authStatus.postValue(result)
         }
     }
@@ -60,6 +55,7 @@ class UserViewModel : ViewModel() {
     fun completeUserRegistration(context: Context) {
         viewModelScope.launch {
             val result = userRepository.completeUserRegistration(context)
+
             _authStatus.postValue(result)
         }
     }
@@ -67,6 +63,7 @@ class UserViewModel : ViewModel() {
     fun loginUser(email: String, password: String) {
         viewModelScope.launch {
             val result = userRepository.login(email, password)
+
             _authLogin.postValue(result)
         }
     }
@@ -77,11 +74,8 @@ class UserViewModel : ViewModel() {
 
             if (userData != null) {
                 _userId.postValue(userData.userId)
-                _userEmail.postValue(userData.email)
                 _userUsername.postValue(userData.username)
                 _userImageUrl.postValue(userData.profileImageUrl)
-            } else {
-                _errorMessage.postValue("Data user tidak ditemukan")
             }
         }
     }
@@ -100,22 +94,11 @@ class UserViewModel : ViewModel() {
                 profileImageUrl = profileImageUrl
             )
 
-            _authStatus.postValue(result)
+            _operationUpdateStatus.postValue(result)
 
             if (result.first) {
                 _userUsername.postValue(username)
                 _userImageUrl.postValue(profileImageUrl)
-                _errorMessage.postValue(null)
-                _operationStatus.postValue(Pair(true, null))
-            }
-        }
-    }
-
-    fun updateProfileImageUrl(imageUrl: String) {
-        viewModelScope.launch {
-            val result = userRepository.updateProfileImageUrl(imageUrl)
-            if (result.first) {
-                _userImageUrl.postValue(imageUrl)
             }
         }
     }
@@ -123,34 +106,39 @@ class UserViewModel : ViewModel() {
     fun logoutUser() {
         viewModelScope.launch {
             userRepository.logout()
+
             _userId.postValue(null)
             _userUsername.postValue(null)
-            _userEmail.postValue(null)
             _userImageUrl.postValue(null)
-            _errorMessage.postValue(null)
-            _authStatus.postValue(Pair(false, "User logged out"))
+            _authStatus.postValue(Pair(true, "User logged out"))
         }
     }
 
-    fun deleteAccount() {
+    fun deleteAccount(
+        email: String,
+        password: String
+    ) {
         viewModelScope.launch {
-            val result = userRepository.deleteAccount()
+            val result = userRepository.deleteAccountWithReauth(
+                email = email,
+                password = password
+            )
+
+            _operationStatus.postValue(result)
 
             if (result.first) {
-                _authStatus.postValue(result)
                 _userId.postValue(null)
                 _userUsername.postValue(null)
-                _userEmail.postValue(null)
                 _userImageUrl.postValue(null)
-                _errorMessage.postValue(null)
             }
         }
     }
 
     fun forgotPassword(email: String) {
         viewModelScope.launch {
-            userRepository.forgotPassword(email)
-            _authStatus.postValue(Pair(true, "Silakan cek email Anda untuk reset password"))
+            val result = userRepository.forgotPassword(email)
+
+            _authStatus.postValue(result)
         }
     }
 }

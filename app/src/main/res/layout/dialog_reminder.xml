@@ -1,62 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="16dp"
-    android:orientation="vertical">
+    android:layout_margin="16dp"
+    android:layout_gravity="center"
+    app:cardCornerRadius="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-
-        <NumberPicker
-            android:id="@+id/np_days"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        android:layout_margin="8dp"
+        android:orientation="vertical">
 
         <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:text="Days"/>
+            android:layout_margin="16dp"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:text="@string/set_reminder" />
 
-        <NumberPicker
-            android:id="@+id/np_hours"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            android:gravity="center">
+
+            <NumberPicker
+                android:id="@+id/np_days"
+                android:gravity="start"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:text="@string/days"/>
+
+            <NumberPicker
+                android:id="@+id/np_hours"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:text="@string/hrs"/>
+
+            <NumberPicker
+                android:id="@+id/np_minutes"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mins"/>
+
+        </LinearLayout>
 
         <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_reminder"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:text="Hours"/>
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            android:textSize="14sp"
+            android:text="@string/reminder_times" />
 
-        <NumberPicker
-            android:id="@+id/np_minutes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_done"
+            style="@style/ButtonApp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/done"/>
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Minutes"/>
-
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel"
+            style="@style/ButtonApp.Outline"
+            app:strokeColor="@color/blue"
+            android:layout_marginBottom="16dp"
+            android:text="@string/cancel"/>
     </LinearLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_done"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cornerRadius="8dp"
-        android:text="DONE"/>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_cancel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cornerRadius="8dp"
-        android:text="Cancel"/>
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

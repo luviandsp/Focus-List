@@ -1,14 +1,20 @@
-package com.project.focuslist.ui.fragment
+package com.project.focuslist.ui.others
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.core.content.ContextCompat.getColor
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -22,16 +28,16 @@ import com.project.focuslist.data.model.Task
 import com.project.focuslist.data.model.TaskWithUser
 import com.project.focuslist.data.viewmodel.TaskViewModel
 import com.project.focuslist.data.viewmodel.UserViewModel
-import com.project.focuslist.databinding.FragmentHomeBinding
-import com.project.focuslist.ui.activity.CalenderActivity
+import com.project.focuslist.databinding.ActivityMainBinding
+import com.project.focuslist.ui.profile.ProfileActivity
+import com.project.focuslist.ui.tasks.CreateTaskActivity
 import com.project.focuslist.ui.tasks.DetailTaskActivity
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class HomeFragment : Fragment() {
+class MainActivity : AppCompatActivity() {
 
-    private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: ActivityMainBinding
 
     private val taskViewModel by viewModels<TaskViewModel>()
     private val userViewModel by viewModels<UserViewModel>()
@@ -47,29 +53,38 @@ class HomeFragment : Fragment() {
 
     private var buttonType = TaskCategory.ALL_TASK.name
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            showToast("Notification permission granted")
+        } else {
+            showToast("Notification permission denied")
+        }
+    }
+
     companion object {
-        private const val TAG = "HomeFragment"
+        private const val TAG = "MainActivity"
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        Log.d(TAG, "onViewCreated called")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         horizontalTaskAdapter = HorizontalTaskAdapter(
             onItemClickListener = { task -> readTask(task) }
         )
 
-        setupTaskList()
+        checkAndRequestNotificationPermission()
 
+        setupTaskList()
         initViews()
         observeViewModels()
     }
@@ -82,14 +97,27 @@ class HomeFragment : Fragment() {
             tvDays.text = dayName
             tvDates.text = date
 
+            llProfile.setOnClickListener {
+                Intent(this@MainActivity, ProfileActivity::class.java).also {
+                    startActivity(it)
+                }
+            }
+
+            ivAddTask.setOnClickListener {
+                Intent(this@MainActivity, CreateTaskActivity::class.java).also {
+                    startActivity(it)
+                }
+            }
+
             cvCalendar.setOnClickListener {
-                Intent(requireContext(), CalenderActivity::class.java).also {
+                Intent(this@MainActivity, CalenderActivity::class.java).also {
                     startActivity(it)
                 }
             }
 
             rvTodayTask.apply {
-                layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+                layoutManager =
+                    LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
                 adapter = horizontalTaskAdapter
             }
 
@@ -114,18 +142,18 @@ class HomeFragment : Fragment() {
         with(binding) {
             fun setActive(btn: MaterialButton) {
                 btn.apply {
-                    setTextColor(getColor(requireContext(), R.color.white))
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
                     setBackgroundColor(
-                        getColor(requireContext(), R.color.black)
+                        ContextCompat.getColor(this@MainActivity, R.color.black)
                     )
                 }
             }
 
             fun setInactive(btn: MaterialButton) {
                 btn.apply {
-                    setTextColor(getColor(requireContext(), R.color.black))
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.black))
                     setBackgroundColor(
-                        getColor(requireContext(), R.color.white)
+                        ContextCompat.getColor(this@MainActivity, R.color.white)
                     )
                 }
             }
@@ -193,7 +221,7 @@ class HomeFragment : Fragment() {
             )
 
             binding.rvVerticalTask.apply {
-                layoutManager = LinearLayoutManager(requireContext())
+                layoutManager = LinearLayoutManager(this@MainActivity)
                 adapter = verticalTaskAdapter
             }
 
@@ -232,12 +260,12 @@ class HomeFragment : Fragment() {
 
     private fun observeViewModels() {
         userViewModel.apply {
-            userName.observe(viewLifecycleOwner) { username ->
+            userName.observe(this@MainActivity) { username ->
                 binding.tvProfileName.text = getString(R.string.greeting_message, username)
             }
 
-            userImageUrl.observe(viewLifecycleOwner) { imageUrl ->
-                Glide.with(this@HomeFragment)
+            userImageUrl.observe(this@MainActivity) { imageUrl ->
+                Glide.with(this@MainActivity)
                     .load(imageUrl)
                     .placeholder(R.drawable.baseline_account_circle_24)
                     .circleCrop()
@@ -246,7 +274,7 @@ class HomeFragment : Fragment() {
         }
 
         taskViewModel.apply {
-            todayTask.observe(viewLifecycleOwner) { tasks ->
+            todayTask.observe(this@MainActivity) { tasks ->
                 Log.d(TAG, "Fetched Today Tasks: $tasks")
                 updateRecyclerView(
                     tasks,
@@ -266,24 +294,47 @@ class HomeFragment : Fragment() {
                 )
             }
 
-            allTask.observe(viewLifecycleOwner, commonObserver)
-            taskInProgress.observe(viewLifecycleOwner, commonObserver)
-            taskCompleted.observe(viewLifecycleOwner, commonObserver)
+            allTask.observe(this@MainActivity, commonObserver)
+            taskInProgress.observe(this@MainActivity, commonObserver)
+            taskCompleted.observe(this@MainActivity, commonObserver)
         }
     }
 
     private fun readTask(task: Task) {
-        Intent(requireContext(), DetailTaskActivity::class.java).apply {
-            putExtra(DetailTaskActivity.TASK_ID, task.taskId)
+        Intent(this@MainActivity, DetailTaskActivity::class.java).apply {
+            putExtra(DetailTaskActivity.Companion.TASK_ID, task.taskId)
             startActivity(this)
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun checkAndRequestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED -> {
+                    // Permission already granted
+                }
+
+                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+
+                else -> {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } else {
+            showToast("Notification permission not needed for this device")
         }
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume called")
-        Log.d(TAG, "buttonType: $buttonType")
 
+        userViewModel.getUser()
         taskViewModel.getTodayTask(resetPaging = true)
         Log.d(TAG, "Get Today Task")
 
@@ -304,10 +355,5 @@ class HomeFragment : Fragment() {
                 Log.d(TAG, "Get Completed Task")
             }
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

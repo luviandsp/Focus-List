@@ -1,7 +1,5 @@
 package com.project.focuslist.ui.tasks
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.icu.util.Calendar
 import android.net.Uri
 import android.os.Bundle
@@ -20,6 +18,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.github.drjacky.imagepicker.ImagePicker
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointForward
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import com.google.firebase.Timestamp
 import com.project.focuslist.R
 import com.project.focuslist.data.enumData.TaskPriority
@@ -31,6 +35,7 @@ import com.project.focuslist.data.viewmodel.UserViewModel
 import com.project.focuslist.databinding.ActivityCreateTaskBinding
 import com.project.focuslist.databinding.DialogReminderBinding
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 class CreateTaskActivity : AppCompatActivity() {
@@ -49,6 +54,7 @@ class CreateTaskActivity : AppCompatActivity() {
     private var reminderDays: Int = 0
     private var reminderHours: Int = 0
     private var reminderMinutes: Int = 0
+    private var formattedReminderTime: String? = null
 
     private var imageUri: Uri? = null
 
@@ -96,6 +102,17 @@ class CreateTaskActivity : AppCompatActivity() {
         with(binding) {
             toolbar.setNavigationOnClickListener { finish() }
 
+            toolbar.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.set_reminder -> {
+                        showReminder()
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+
             val spinnerAdapter = ArrayAdapter(this@CreateTaskActivity, android.R.layout.simple_dropdown_item_1line, priorityList)
             spinnerPriority.setAdapter(spinnerAdapter)
             spinnerPriority.setOnItemClickListener { _, _, position, _ ->
@@ -112,6 +129,15 @@ class CreateTaskActivity : AppCompatActivity() {
                 )
             }
 
+            flImageContainer.setOnClickListener {
+                launcher.launch(
+                    ImagePicker.with(this@CreateTaskActivity)
+                        .crop()
+                        .galleryOnly()
+                        .createIntent()
+                )
+            }
+
             tietDeadline.setOnClickListener { showDatePicker() }
 
             btnSave.setOnClickListener { saveTask() }
@@ -120,22 +146,45 @@ class CreateTaskActivity : AppCompatActivity() {
     }
 
     private fun showDatePicker() {
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-        val hour = calendar.get(Calendar.HOUR_OF_DAY)
-        val minute = calendar.get(Calendar.MINUTE)
-
         val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
 
-        val datePickerDialog = DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDayOfMonth ->
-            val dayFormatted = String.format("%02d", selectedDayOfMonth)
-            val monthFormatted = String.format("%02d", selectedMonth + 1)
+        val constraintsBuilder = CalendarConstraints.Builder()
+            .setValidator(DateValidatorPointForward.now())
 
-            TimePickerDialog(this, { _, selectedHour, selectedMinute ->
-                val hourFormatted = String.format("%02d", selectedHour)
-                val minuteFormatted = String.format("%02d", selectedMinute)
+        // Buat MaterialDatePicker
+        val datePicker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText("Select Due Date")
+            .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+            .setCalendarConstraints(constraintsBuilder.build())
+            .build()
+
+        datePicker.addOnPositiveButtonClickListener { selectedDateInMillis ->
+            val calendar = Calendar.getInstance().apply {
+                timeInMillis = selectedDateInMillis
+            }
+
+            val selectedYear = calendar.get(Calendar.YEAR)
+            val selectedMonth = calendar.get(Calendar.MONTH)
+            val selectedDay = calendar.get(Calendar.DAY_OF_MONTH)
+
+            val dayFormatted = String.format(Locale.US, "%02d", selectedDay)
+            val monthFormatted = String.format(Locale.US, "%02d", selectedMonth + 1)
+
+            // Setelah tanggal dipilih, tampilkan time picker
+            val currentTime = Calendar.getInstance()
+            val timePicker = MaterialTimePicker.Builder()
+                .setTitleText("Select Due Time")
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(currentTime.get(Calendar.HOUR_OF_DAY))
+                .setMinute(currentTime.get(Calendar.MINUTE))
+                .build()
+
+            timePicker.addOnPositiveButtonClickListener {
+                val selectedHour = timePicker.hour
+                val selectedMinute = timePicker.minute
+
+                val hourFormatted = String.format(Locale.US, "%02d", selectedHour)
+                val minuteFormatted = String.format(Locale.US, "%02d", selectedMinute)
 
                 val finalTime = "$dayFormatted/$monthFormatted/$selectedYear $hourFormatted:$minuteFormatted"
                 val finalDate = "$dayFormatted/$monthFormatted/$selectedYear"
@@ -156,18 +205,17 @@ class CreateTaskActivity : AppCompatActivity() {
                 Log.d(TAG, "Selected due date: $selectedDueDate")
                 Log.d(TAG, "Selected due hours: $selectedDueHours")
                 Log.d(TAG, "Selected due time: $selectedDueTime")
+            }
 
-            }, hour, minute, true).show()
+            timePicker.show(supportFragmentManager, "timePicker")
+        }
 
-        }, year, month, day)
-
-        datePickerDialog.datePicker.minDate = System.currentTimeMillis()
-        datePickerDialog.show()
+        datePicker.show(supportFragmentManager, "datePicker")
     }
 
     private fun showReminder() {
         val reminderBinding = DialogReminderBinding.inflate(layoutInflater)
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setView(reminderBinding.root)
             .create()
 
@@ -183,10 +231,39 @@ class CreateTaskActivity : AppCompatActivity() {
             npHours.wrapSelectorWheel = true
             npMinutes.wrapSelectorWheel = true
 
+            // Inisialisasi nilai awal
+            var selectedDays = npDays.value
+            var selectedHours = npHours.value
+            var selectedMinutes = npMinutes.value
+
+            // Fungsi untuk update TextView
+            fun updateReminderText() {
+                tvReminder.text = getString(R.string.reminder_text, selectedDays, selectedHours, selectedMinutes)
+            }
+
+            // Set listener untuk masing-masing NumberPicker
+            npDays.setOnValueChangedListener { _, _, newVal ->
+                selectedDays = newVal
+                updateReminderText()
+            }
+
+            npHours.setOnValueChangedListener { _, _, newVal ->
+                selectedHours = newVal
+                updateReminderText()
+            }
+
+            npMinutes.setOnValueChangedListener { _, _, newVal ->
+                selectedMinutes = newVal
+                updateReminderText()
+            }
+
+            // Set nilai awal
+            updateReminderText()
+
             btnDone.setOnClickListener {
-                reminderDays = npDays.value
-                reminderHours = npHours.value
-                reminderMinutes = npMinutes.value
+                reminderDays = selectedDays
+                reminderHours = selectedHours
+                reminderMinutes = selectedMinutes
 
                 showToast("Reminder set for $reminderDays days, $reminderHours hours, and $reminderMinutes minutes earlier")
                 dialog.dismiss()
@@ -202,8 +279,8 @@ class CreateTaskActivity : AppCompatActivity() {
 
     private fun saveTask() {
         with(binding) {
-            val activity = tietActivity.text.toString().trim().ifEmpty { "Tanpa Judul" }
-            val description = tietDescription.text.toString().trim().ifEmpty { "Tanpa Isi" }
+            val activity = tietActivity.text.toString().trim().ifEmpty { "Empty Title" }
+            val description = tietDescription.text.toString().trim().ifEmpty { "Empty Description" }
             val selectedPriority = spinnerPriority.text.toString().trim()
 
             val reminderDaysLong = reminderDays * 24 * 60 * 60 * 1000L
@@ -211,6 +288,21 @@ class CreateTaskActivity : AppCompatActivity() {
             val reminderMinutesLong = reminderMinutes * 60 * 1000L
 
             val reminderOffsetMillis: Long = reminderDaysLong + reminderHoursLong + reminderMinutesLong
+
+            val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+
+            if (!selectedDueTime.isNullOrEmpty()) {
+                val dueTime = try {
+                    formatter.parse(selectedDueTime ?: "")?.time ?: return
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to parse taskDueDate: $selectedDueTime", e)
+                    return
+                }
+
+                val reminderTimestamp = dueTime - reminderOffsetMillis
+                Log.d(TAG, "Reminder timestamp: $reminderTimestamp")
+                formattedReminderTime = formatter.format(Date(reminderTimestamp))
+            }
 
             val priorityValue = priorityMap[selectedPriority] ?: 0
 
@@ -226,6 +318,7 @@ class CreateTaskActivity : AppCompatActivity() {
                         taskDueDate = selectedDueDate,
                         taskDueHours = selectedDueHours,
                         taskDueTime = selectedDueTime,
+                        taskReminderTime = formattedReminderTime,
                         taskImageUrl = imageUrl,
                         reminderOffsetMillis = reminderOffsetMillis
                     )
@@ -239,6 +332,7 @@ class CreateTaskActivity : AppCompatActivity() {
                     taskDueDate = selectedDueDate,
                     taskDueHours = selectedDueHours,
                     taskDueTime = selectedDueTime,
+                    taskReminderTime = formattedReminderTime,
                     taskImageUrl = "",
                     reminderOffsetMillis = reminderOffsetMillis
                 )
@@ -248,8 +342,8 @@ class CreateTaskActivity : AppCompatActivity() {
 
     private fun saveToDraft() {
         with(binding) {
-            val activity = tietActivity.text.toString().trim().ifEmpty { "Tanpa Judul" }
-            val description = tietDescription.text.toString().trim().ifEmpty { "Tanpa Isi" }
+            val activity = tietActivity.text.toString().trim().ifEmpty { "Empty Title" }
+            val description = tietDescription.text.toString().trim().ifEmpty { "Empty Description" }
             val selectedPriority = spinnerPriority.text.toString().trim()
 
             val userId = userViewModel.userId.value ?: ""
@@ -276,7 +370,7 @@ class CreateTaskActivity : AppCompatActivity() {
                     )
 
                     setResult(RESULT_OK)
-                    showToast("Task draft berhasil disimpan")
+                    showToast("Draft task successfully created")
                     Log.d(TAG, "$selectedDueDate $selectedDueHours $selectedDueTime")
                     finish()
                 }
@@ -297,7 +391,7 @@ class CreateTaskActivity : AppCompatActivity() {
                 )
 
                 setResult(RESULT_OK)
-                showToast("Task draft berhasil disimpan")
+                showToast("Draft task successfully created")
                 Log.d(TAG, "$selectedDueDate $selectedDueHours $selectedDueTime")
                 finish()
             }
@@ -305,18 +399,19 @@ class CreateTaskActivity : AppCompatActivity() {
     }
 
     private fun observeViewModels() {
-        taskViewModel.operationResult.observe(this@CreateTaskActivity) { (success, message) ->
+        taskViewModel.operationResult.observe(this@CreateTaskActivity) { (success, _) ->
             binding.progressBar.visibility = View.GONE
             if (success) {
                 setResult(RESULT_OK)
+                showToast("Task successfully created")
                 finish()
             } else {
-                showToast(message ?: "Terjadi kesalahan")
+                showToast("Error occured")
             }
         }
 
         storageViewModel.uploadStatus.observe(this@CreateTaskActivity) { success ->
-            if (success) showToast("Foto berhasil diunggah") else showToast("Gagal mengunggah foto")
+            if (success) Log.d(TAG, "Image uploaded successfully") else Log.d(TAG, "Image upload failed")
         }
     }
 
@@ -325,7 +420,7 @@ class CreateTaskActivity : AppCompatActivity() {
     }
 
     private fun uploadImageToSupabase(uri: Uri, onSuccess: (String) -> Unit) {
-        val inputStream = contentResolver.openInputStream(uri) ?: return showToast("Gagal membaca file")
+        val inputStream = contentResolver.openInputStream(uri) ?: return showToast("Failed to read file")
         val fileName = "task_${System.currentTimeMillis()}.jpg"
         val byteArray = inputStream.use { it.readBytes() }
 
@@ -336,7 +431,7 @@ class CreateTaskActivity : AppCompatActivity() {
             if (!imageUrl.isNullOrEmpty()) {
                 onSuccess(imageUrl)
             } else {
-                showToast("Gagal mengunggah gambar")
+                showToast("Failed to upload image")
             }
         }
     }

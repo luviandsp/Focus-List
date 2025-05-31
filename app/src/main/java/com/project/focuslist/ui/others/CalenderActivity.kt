@@ -1,4 +1,4 @@
-package com.project.focuslist.ui.activity
+package com.project.focuslist.ui.others
 
 import android.content.Intent
 import android.icu.text.SimpleDateFormat

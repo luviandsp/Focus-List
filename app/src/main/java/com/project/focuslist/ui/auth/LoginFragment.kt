@@ -13,7 +13,7 @@ import androidx.navigation.findNavController
 import com.project.focuslist.R
 import com.project.focuslist.data.preferences.AuthPreferences
 import com.project.focuslist.databinding.FragmentLoginBinding
-import com.project.focuslist.ui.activity.MainActivity
+import com.project.focuslist.ui.others.MainActivity
 import com.project.focuslist.data.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
@@ -64,7 +64,7 @@ class LoginFragment : Fragment() {
                 password = tietPassword.text.toString().trim()
 
                 if (email.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(activity, "Email dan Password wajib diisi", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, "Email and password cannot be empty", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
@@ -86,7 +86,7 @@ class LoginFragment : Fragment() {
             if (result.first) {
                 userViewModel.completeUserRegistration(requireContext())
             } else {
-                Toast.makeText(requireContext(), result.second ?: "Terjadi kesalahan", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), result.second ?: "Error occurred", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -98,11 +98,11 @@ class LoginFragment : Fragment() {
                     }
 
                     authPreferences.setLoginStatus(true)
-                    Toast.makeText(requireContext(), result.second ?: "Berhasil login", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), result.second ?: "Login success", Toast.LENGTH_SHORT).show()
                     navigateToMainActivity()
                 }
             } else {
-                Toast.makeText(requireContext(), result.second ?: "Terjadi kesalahan", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), result.second ?: "Error occurred", Toast.LENGTH_SHORT).show()
             }
         }
     }

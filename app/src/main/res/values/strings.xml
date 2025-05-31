@@ -9,19 +9,14 @@
     <string name="description">Description</string>
     <string name="placeholder_task_title">What do you want to do?</string>
     <string name="create_task">Create Task</string>
-    <string name="have_an_account">Have an account?</string>
-    <string name="task_name">Task Name</string>
     <string name="task_body">Task Body</string>
     <string name="due_date">Due Date</string>
     <string name="delete_account">Delete Account</string>
-    <string name="delete">Delete</string>
-    <string name="delete_message">Apa anda yakin untuk menghapus profile ini?</string>
-    <string name="no">No</string>
-    <string name="yes">Yes</string>
-    <string name="user">User</string>
+    <string name="delete_account_desc">To delete your account, please enter your email and password.</string>
     <string name="set_reminder">Set Reminder</string>
     <string name="save_draft">Save as draft</string>
     <string name="draft_list">Draft List</string>
+    <string name="delete">Delete</string>
 
     <!--  Authentication  -->
     <string name="login">Login</string>
@@ -40,6 +35,10 @@
     <string name="resend_verification">Resend Verification</string>
     <string name="change_password">Change Password</string>
     <string name="confirm_password">Confirm Password</string>
+    <string name="minimal_char">Have at least 8 characters</string>
+    <string name="minimal_caps">Have at least 1 uppercase</string>
+    <string name="minimal_lowercase">Have at least 1 lowercase</string>
+    <string name="minimal_number">Have at least 1 number</string>
 
     <string name="username">Username</string>
     <string name="search_task">Find your tasks</string>
@@ -64,4 +63,18 @@
     <string name="today_task_empty">You don\'t have any task today</string>
     <string name="your_task">Your Task:</string>
     <string name="edit_task">Edit Task</string>
+    <string name="task_title">Task Title</string>
+    <string name="task_description">Task Description</string>
+    <string name="user">User</string>
+    <string name="done">Done</string>
+    <string name="cancel">Cancel</string>
+    <string name="days">days</string>
+    <string name="hrs">hrs</string>
+    <string name="mins">mins</string>
+    <string name="reminder_times">Reminder times</string>
+    <string name="reminder_me">Remind Me At</string>
+    <string name="no_deadline">No Deadline</string>
+    <string name="no_priority">No Priority</string>
+    <string name="reminder_text">Reminder set for %1$d days, %2$d hours, and %3$d minutes earlier</string>
+
 </resources>

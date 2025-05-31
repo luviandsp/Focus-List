@@ -50,7 +50,7 @@ class ForgotPasswordFragment : Fragment() {
                 val email = tietEmail.text.toString().trim()
 
                 if (email.isEmpty()) {
-                    Toast.makeText(activity, "Email tidak boleh kosong", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, "Email cannot be empty", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 

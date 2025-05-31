@@ -40,6 +40,7 @@ class TaskRepository() {
             "taskDueDate" to taskDueDate,
             "taskDueHours" to taskDueHours,
             "taskDueTime" to taskDueTime,
+            "taskReminderTime" to taskReminderTime,
             "taskImageUrl" to taskImageUrl,
             "isCompleted" to isCompleted,
             "createdAt" to createdAt,
@@ -57,6 +58,7 @@ class TaskRepository() {
             taskDueDate = this["taskDueDate"] as? String,
             taskDueHours = this["taskDueHours"] as? String,
             taskDueTime = this["taskDueTime"] as? String,
+            taskReminderTime = this["taskReminderTime"] as? String,
             taskImageUrl = this["taskImageUrl"] as? String,
             isCompleted = this["isCompleted"] as? Boolean == true,
             createdAt = this["createdAt"] as Timestamp,
@@ -71,10 +73,11 @@ class TaskRepository() {
         taskDueDate: String?,
         taskDueHours: String?,
         taskDueTime: String?,
+        taskReminderTime: String?,
         taskImageUrl: String?
     ): Pair<Boolean, String?> {
         return try {
-            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
+            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User has not logged in")
             val taskId = taskCollection.document().id // Auto-generate ID
 
             val taskModelData = Task(
@@ -86,6 +89,7 @@ class TaskRepository() {
                 taskDueDate = taskDueDate,
                 taskDueHours = taskDueHours,
                 taskDueTime = taskDueTime,
+                taskReminderTime = taskReminderTime,
                 taskImageUrl = taskImageUrl,
                 isCompleted = false,
                 createdAt = Timestamp.now(),
@@ -110,10 +114,11 @@ class TaskRepository() {
         taskDueDate: String?,
         taskDueHours: String?,
         taskDueTime: String?,
+        taskReminderTime: String?,
         taskImageUrl: String?
     ) : Pair<Boolean, String?> {
         return try {
-            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
+            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User has not logged in")
             val taskRef = taskCollection.document(taskId)
             val taskSnapshot = taskRef.get().await()
 
@@ -126,16 +131,17 @@ class TaskRepository() {
                         "taskDueDate" to taskDueDate,
                         "taskDueHours" to taskDueHours,
                         "taskDueTime" to taskDueTime,
+                        "taskReminderTime" to taskReminderTime,
                         "taskImageUrl" to taskImageUrl,
-                        "updateAt" to Timestamp.now()
+                        "updatedAt" to Timestamp.now()
                     )
                 ).await()
                 Log.d(TAG, "Task updated with ID: $taskId")
 
-                Pair(true, "Tugas berhasil diperbarui")
+                Pair(true, "Task successfully updated")
             } else {
                 Log.e(TAG, "Task not found or not owned by the user")
-                Pair(false, "Tugas tidak ditemukan atau bukan milik pengguna ini")
+                Pair(false, "Task not found or not owned by the user")
             }
         } catch (e: Exception) {
             if (e is CancellationException) throw e
@@ -158,7 +164,7 @@ class TaskRepository() {
             ).await()
 
             Log.d(TAG, "Task completion status updated with ID: $taskId")
-            Pair(true, "Status tugas berhasil diperbarui")
+            Pair(true, "Status successfully updated")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Pair(false, getErrorMessage(e))
@@ -169,7 +175,7 @@ class TaskRepository() {
         taskId: String
     ) : Pair<Boolean, String?> {
         return try {
-            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
+            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User has not logged in")
             val taskRef = taskCollection.document(taskId)
             val taskSnapshot = taskRef.get().await()
 
@@ -525,8 +531,8 @@ class TaskRepository() {
     private fun getErrorMessage(e: Exception): String {
         return when {
             e.message?.contains("A network error (such as timeout, interrupted connection or unreachable host) has occurred.", ignoreCase = true) == true ->
-                "Terjadi kesalahan jaringan, coba lagi nanti"
-            else -> e.message ?: "Terjadi kesalahan, coba lagi nanti"
+                "Network error, please check your internet connection"
+            else -> e.message ?: "Unknown error occurred"
         }
     }
 }

@@ -4,10 +4,10 @@
     <item
         android:id="@+id/activity_delete_profile"
         app:showAsAction="never"
-        android:title="Delete Account"/>
+        android:title="@string/delete_account"/>
 
     <item
         android:id="@+id/activity_edit_profile"
         app:showAsAction="never"
-        android:title="Edit Profile"/>
+        android:title="@string/edit_profile"/>
 </menu>

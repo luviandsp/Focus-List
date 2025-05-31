@@ -3,7 +3,9 @@ package com.project.focuslist.data.repository
 import android.content.Context
 import android.util.Log
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.project.focuslist.data.model.User
@@ -21,6 +23,7 @@ class UserRepository {
     }
 
     private val userCollection = firestore.collection("users")
+    private val taskCollection = firestore.collection("tasks")
 
     private fun User.toHashMap(): HashMap<String, Any?> {
         return hashMapOf(
@@ -49,7 +52,7 @@ class UserRepository {
         return try {
             val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
             authResult.user?.sendEmailVerification()
-            Pair(true, "Silakan verifikasi email Anda sebelum login.")
+            Pair(true, "Please check your email to verify your account")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Pair(false, getErrorMessage(e))
@@ -63,13 +66,13 @@ class UserRepository {
             user?.reload()
 
             if (user != null && user.isEmailVerified) {
-                return Pair(false, "Email sudah diverifikasi")
+                return Pair(false, "Your account is already verified")
             }
 
             user?.sendEmailVerification()?.await()
             Log.d("Auth", "Verification email sent to ${user?.email}")
 
-            Pair(true, "Silakan cek email Anda untuk verifikasi akun Anda.")
+            Pair(true, "Please check your email to verify your account")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Pair(false, getErrorMessage(e))
@@ -94,7 +97,7 @@ class UserRepository {
                 }
 
                 val prefs = UserAccountPreferences(context)
-                val tempUser = prefs.getTempUser() ?: return Pair(false, "Data user tidak ditemukan")
+                val tempUser = prefs.getTempUser() ?: return Pair(false, "User data not found")
 
                 val userModelData = User(
                     userId = refreshedUser.uid,
@@ -108,9 +111,9 @@ class UserRepository {
                 userDocRef.set(userModelData).await()
                 prefs.clearTempUser()
 
-                return Pair(true, "Akun berhasil dibuat sepenuhnya!")
+                return Pair(true, "Your account has been created")
             } else {
-                return Pair(false, "Akun belum terverifikasi")
+                return Pair(false, "Your account is not verified")
             }
         } catch (e: Exception) {
             if (e is CancellationException) throw e
@@ -164,7 +167,7 @@ class UserRepository {
     // Fungsi untuk mengubah informasi pengguna
     suspend fun updateProfile(username: String, profileImageUrl: String): Pair<Boolean, String?> {
         return try {
-            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
+            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User has not logged in")
             val userRef = userCollection.document(userId)
 
             userRef.update(
@@ -176,36 +179,11 @@ class UserRepository {
             ).await()
 
             Log.d(TAG, "User profile updated with ID: $userId")
-            Pair(true, "Profil berhasil diperbarui")
+            Pair(true, "Profile successfully updated")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.e(TAG, "Error updating user profile: ${e.message}")
             Pair(false, getErrorMessage(e))
-        }
-    }
-
-    // Fungsi untuk mengubah foto profil
-    suspend fun updateProfileImageUrl(imageUrl: String): Pair<Boolean, String?> {
-        return try {
-            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
-            val userRef = userCollection.document(userId)
-
-            userRef.update(
-                mapOf(
-                    "profileImageUrl" to imageUrl,
-                    "updatedAt" to Timestamp.now()
-                )
-            ).await()
-
-            Log.d(TAG, "User profile image URL updated with ID: $userId")
-            Pair(true, "URL foto profil berhasil diperbarui")
-        } catch (e: Exception) {
-            if (e is CancellationException) throw e
-
-            val errorMessage = getErrorMessage(e)
-            Log.e(TAG, "Error updating profile image URL: $errorMessage")
-
-            Pair(false, errorMessage)
         }
     }
 
@@ -214,7 +192,7 @@ class UserRepository {
         return try {
             firebaseAuth.sendPasswordResetEmail(email).await()
             Log.d(TAG, "Password reset email sent to $email")
-            Pair(true, "Silakan cek email Anda untuk reset password")
+            Pair(true, "Please check your email to reset your password")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.e(TAG, "Error sending password reset email: ${e.message}")
@@ -234,16 +212,34 @@ class UserRepository {
     }
 
     // Fungsi untuk menghapus akun
-    suspend fun deleteAccount(): Pair<Boolean, String?> {
+    suspend fun deleteAccountWithReauth(email: String, password: String): Pair<Boolean, String?> {
         return try {
-            firebaseAuth.currentUser?.delete()?.await()
-            Pair(true, "Akun berhasil dihapus")
+            val user = firebaseAuth.currentUser ?: return Pair(false, "User is not logged in")
+
+            // Re-authenticate dulu
+            val credential = EmailAuthProvider.getCredential(email, password)
+            user.reauthenticate(credential).await()
+
+            // Hapus data Firestore
+            val userId = user.uid
+            val tasksSnapshot = taskCollection.whereEqualTo("userId", userId).get().await()
+            for (doc in tasksSnapshot.documents) {
+                doc.reference.delete().await()
+            }
+
+            userCollection.document(userId).delete().await()
+
+            // Hapus akun Auth
+            user.delete().await()
+
+            Pair(true, "Your account has been deleted")
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            Pair(false, "Invalid credentials. Please check your email/password.")
+        } catch (e: FirebaseAuthRecentLoginRequiredException) {
+            Pair(false, "Please login again before deleting your account")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            if (e is FirebaseAuthRecentLoginRequiredException) {
-                return Pair(false, "Harap login ulang untuk menghapus akun")
-            }
-            return Pair(false, getErrorMessage(e))
+            Pair(false, getErrorMessage(e))
         }
     }
 
@@ -251,24 +247,24 @@ class UserRepository {
     private fun getErrorMessage(e: Exception): String {
         return when {
             e.message?.contains("email address is badly formatted", ignoreCase = true) == true ->
-                "Format email tidak valid"
+                "Email address is badly formatted"
             e.message?.contains("password is invalid or the user does not have a password", ignoreCase = true) == true ->
-                "Password salah atau akun tidak memiliki password"
+                "Password is invalid or the user does not have a password"
             e.message?.contains("There is no user record corresponding to this identifier", ignoreCase = true) == true ->
-                "Email belum terdaftar"
+                "Email has not been registered"
             e.message?.contains("The email address is already in use", ignoreCase = true) == true ->
-                "Email sudah digunakan"
+                "Email address is already in use"
             e.message?.contains("Password should be at least 8 characters", ignoreCase = true) == true ->
-                "Password minimal harus 8 karakter"
+                "Password should be at least 8 characters"
             e.message?.contains("The supplied auth credential is incorrect, malformed or has expired.", ignoreCase = true) == true ->
-                "Email atau password salah"
+                "Email address or password is incorrect"
             e.message?.contains("A network error (such as timeout, interrupted connection or unreachable host) has occurred.", ignoreCase = true) == true ->
-                "Terjadi kesalahan jaringan, coba lagi nanti"
+                "Network error, please check your connection"
             e.message?.contains("PERMISSION_DENIED: Missing or insufficient permissions.", ignoreCase = true) == true ->
-                "Anda tidak memiliki izin untuk melakukan ini"
+                "You don't have permission to access this feature"
             e.message?.contains("We have blocked all requests from this device due to unusual activity. Try again later.", ignoreCase = true) == true ->
-                "Terlalu banyak permintaan, coba lagi nanti"
-            else -> e.message ?: "Terjadi kesalahan, coba lagi nanti"
+                "Too many requests, please try again later"
+            else -> e.message ?: "Unknown error occurred"
         }
     }
 }

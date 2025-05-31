@@ -15,6 +15,7 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             style="@style/ToolbarApp.Back"
+            app:menu="@menu/task_edit_menu"
             app:title="@string/edit_task" />
 
         <FrameLayout

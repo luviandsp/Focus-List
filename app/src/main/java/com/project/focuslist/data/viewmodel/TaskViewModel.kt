@@ -59,6 +59,9 @@ class TaskViewModel: ViewModel() {
     private val _taskDueTime = MutableLiveData<String?>()
     val taskDueTime: LiveData<String?> = _taskDueTime
 
+    private val _taskReminderTime = MutableLiveData<String?>()
+    val taskReminderTime: LiveData<String?> = _taskReminderTime
+
     private val _taskImageUrl = MutableLiveData<String?>()
     val taskImageUrl: LiveData<String?> = _taskImageUrl
 
@@ -86,6 +89,7 @@ class TaskViewModel: ViewModel() {
         taskDueDate: String?,
         taskDueHours: String?,
         taskDueTime: String?,
+        taskReminderTime: String?,
         taskImageUrl: String?,
         reminderOffsetMillis: Long?
         ) {
@@ -97,6 +101,7 @@ class TaskViewModel: ViewModel() {
                 taskDueDate = taskDueDate,
                 taskDueHours = taskDueHours,
                 taskDueTime = taskDueTime,
+                taskReminderTime = taskReminderTime,
                 taskImageUrl = taskImageUrl
             )
 
@@ -109,6 +114,7 @@ class TaskViewModel: ViewModel() {
                 _taskDueDate.postValue(taskDueDate)
                 _taskDueHours.postValue(taskDueHours)
                 _taskDueTime.postValue(taskDueTime)
+                _taskReminderTime.postValue(taskReminderTime)
                 _taskImageUrl.postValue(taskImageUrl)
                 _isCompleted.postValue(false)
 
@@ -116,7 +122,7 @@ class TaskViewModel: ViewModel() {
                     context = context,
                     taskId = result.second!!,
                     taskTitle = taskTitle,
-                    taskDueDate = taskDueTime,
+                    taskDueTime = taskDueTime,
                     reminderOffsetMillis = reminderOffsetMillis
                 )
 
@@ -214,6 +220,7 @@ class TaskViewModel: ViewModel() {
                 _taskDueDate.postValue(tasks.task.taskDueDate)
                 _taskDueHours.postValue(tasks.task.taskDueHours)
                 _taskDueTime.postValue(tasks.task.taskDueTime)
+                _taskReminderTime.postValue(tasks.task.taskReminderTime)
                 _taskImageUrl.postValue(tasks.task.taskImageUrl)
             }
         }
@@ -228,6 +235,7 @@ class TaskViewModel: ViewModel() {
         taskDueDate: String?,
         taskDueHours: String?,
         taskDueTime: String?,
+        taskReminderTime: String?,
         taskImageUrl: String?,
         reminderOffsetMillis: Long?
     ) {
@@ -240,6 +248,7 @@ class TaskViewModel: ViewModel() {
                 taskDueDate = taskDueDate,
                 taskDueHours = taskDueHours,
                 taskDueTime = taskDueTime,
+                taskReminderTime = taskReminderTime,
                 taskImageUrl = taskImageUrl
             )
 
@@ -252,6 +261,7 @@ class TaskViewModel: ViewModel() {
                 _taskDueDate.postValue(taskDueDate)
                 _taskDueHours.postValue(taskDueHours)
                 _taskDueTime.postValue(taskDueTime)
+                _taskReminderTime.postValue(taskReminderTime)
                 _taskImageUrl.postValue(taskImageUrl)
                 _isCompleted.postValue(false)
 
@@ -259,7 +269,7 @@ class TaskViewModel: ViewModel() {
                     context = context,
                     taskId = taskId,
                     taskTitle = taskTitle,
-                    taskDueDate = taskDueTime,
+                    taskDueTime = taskDueTime,
                     reminderOffsetMillis = reminderOffsetMillis
                 )
 
@@ -298,9 +308,9 @@ class TaskViewModel: ViewModel() {
         }
     }
 
-    private fun scheduleNotification(context: Context, taskId: String, taskTitle: String, taskDueDate: String?, reminderOffsetMillis: Long?) {
-        if (taskDueDate == null || !taskDueDate.matches(Regex("\\d{2}/\\d{2}/\\d{4} \\d{2}:\\d{2}"))) {
-            Log.e(TAG, "Invalid or null taskDueDate format: $taskDueDate")
+    private fun scheduleNotification(context: Context, taskId: String, taskTitle: String, taskDueTime: String?, reminderOffsetMillis: Long?) {
+        if (taskDueTime == null || !taskDueTime.matches(Regex("\\d{2}/\\d{2}/\\d{4} \\d{2}:\\d{2}"))) {
+            Log.e(TAG, "Invalid or null taskDueDate format: $taskDueTime")
             return
         }
 
@@ -309,17 +319,17 @@ class TaskViewModel: ViewModel() {
 
         val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
 
-        val dueDate = try {
-            formatter.parse(taskDueDate)?.time ?: return
+        val dueTime = try {
+            formatter.parse(taskDueTime)?.time ?: return
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to parse taskDueDate: $taskDueDate", e)
+            Log.e(TAG, "Failed to parse taskDueDate: $taskDueTime", e)
             return
         }
 
-        Log.d(TAG, "Task due date (ms): $dueDate")
+        Log.d(TAG, "Task due date (ms): $dueTime")
 
         val reminderTime = reminderOffsetMillis ?: 0L
-        val delay = dueDate - System.currentTimeMillis()
+        val delay = dueTime - System.currentTimeMillis()
         val finalDelay = delay - reminderTime
 
         Log.d(TAG, "Calculated delay (ms): $delay")

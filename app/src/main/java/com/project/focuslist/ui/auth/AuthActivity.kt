@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.project.focuslist.R
 import com.project.focuslist.data.preferences.AuthPreferences
 import com.project.focuslist.databinding.ActivityAuthBinding
-import com.project.focuslist.ui.activity.MainActivity
+import com.project.focuslist.ui.others.MainActivity
 import kotlinx.coroutines.launch
 
 class AuthActivity : AppCompatActivity() {

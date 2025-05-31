@@ -16,6 +16,9 @@
         android:theme="@style/Base.Theme.FocusList"
         tools:targetApi="31">
         <activity
+            android:name=".ui.profile.ProfileActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.tasks.EditTaskActivity"
             android:exported="false" />
         <activity
@@ -25,19 +28,16 @@
             android:name=".ui.tasks.DetailTaskActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.CalenderActivity"
+            android:name=".ui.others.CalenderActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.DraftTaskActivity"
+            android:name=".ui.tasks.DraftTaskActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.DeleteAccountActivity"
+            android:name=".ui.profile.DeleteAccountActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.EditProfileActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.activity.CreateUpdateTaskActivity"
+            android:name=".ui.profile.EditProfileActivity"
             android:exported="false" />
         <activity
             android:name=".ui.auth.AuthActivity"
@@ -50,7 +50,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name=".ui.others.MainActivity"
             android:exported="false" />
 
         <meta-data

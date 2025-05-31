@@ -12,7 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.project.focuslist.R
-import com.project.focuslist.ui.activity.MainActivity
+import com.project.focuslist.ui.others.MainActivity
 
 object NotificationUtils {
 
