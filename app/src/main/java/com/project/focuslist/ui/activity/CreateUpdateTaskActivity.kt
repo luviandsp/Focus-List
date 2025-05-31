@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,7 +22,6 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.github.drjacky.imagepicker.ImagePicker
 import com.google.firebase.Timestamp
-import com.project.focuslist.R
 import com.project.focuslist.data.model.TaskDraft
 import com.project.focuslist.data.viewmodel.StorageViewModel
 import com.project.focuslist.data.viewmodel.TaskDraftViewModel
@@ -130,11 +128,11 @@ class CreateUpdateTaskActivity : AppCompatActivity() {
                 ivDelete.visibility = View.GONE
             }
 
-            val itemLayout = if (isDarkMode) R.layout.spinner_item_dark else R.layout.spinner_item
-            val priorities = arrayOf("Rendah", "Sedang", "Tinggi")
-            val adapter = ArrayAdapter(this@CreateUpdateTaskActivity, itemLayout, priorities)
-            adapter.setDropDownViewResource(itemLayout)
-            spinnerPriority.adapter = adapter
+//            val itemLayout = if (isDarkMode) R.layout.spinner_item_dark else R.layout.spinner_item
+//            val priorities = arrayOf("Rendah", "Sedang", "Tinggi")
+//            val adapter = ArrayAdapter(this@CreateUpdateTaskActivity, itemLayout, priorities)
+//            adapter.setDropDownViewResource(itemLayout)
+//            spinnerPriority.adapter = adapter
 
             btnDatePicker.setOnClickListener {
                 showDatePicker()
@@ -540,7 +538,7 @@ class CreateUpdateTaskActivity : AppCompatActivity() {
     private fun deleteOldTaskImage(oldImageUrl: String) {
         if (oldImageUrl.isNotEmpty()) {
             val fileName = oldImageUrl.substringAfterLast("/")
-            storageViewModel.deleteFile(fileName, "service_banner")
+            storageViewModel.deleteFile(fileName, "task_images")
         }
     }
 

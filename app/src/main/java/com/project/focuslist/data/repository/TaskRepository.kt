@@ -176,11 +176,11 @@ class TaskRepository() {
             if (taskSnapshot.exists() && taskSnapshot.getString("userId") == userId) {
                 taskRef.delete().await()
             } else {
-                return Pair(false, "Anda tidak berhak menghapus tugas ini")
+                return Pair(false, "You don't have permission to delete this task")
             }
 
             Log.d(TAG, "Task deleted with ID: $taskId")
-            Pair(true, "Tugas berhasil dihapus")
+            Pair(true, "Task successfully deleted")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.e(TAG, "Error deleting task: ${e.message}")

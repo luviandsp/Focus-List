@@ -14,7 +14,7 @@ import com.project.focuslist.R
 import com.project.focuslist.data.preferences.AuthPreferences
 import com.project.focuslist.data.viewmodel.UserViewModel
 import com.project.focuslist.databinding.FragmentProfileBinding
-import com.project.focuslist.ui.activity.DeleteProfileActivity
+import com.project.focuslist.ui.activity.DeleteAccountActivity
 import com.project.focuslist.ui.activity.DraftTaskActivity
 import com.project.focuslist.ui.activity.EditProfileActivity
 import com.project.focuslist.ui.auth.AuthActivity
@@ -53,7 +53,7 @@ class ProfileFragment : Fragment() {
         with(binding) {
             toolbar.menu.apply {
                 findItem(R.id.activity_delete_profile).setOnMenuItemClickListener {
-                    Intent(requireContext(), DeleteProfileActivity::class.java).apply {
+                    Intent(requireContext(), DeleteAccountActivity::class.java).apply {
                         startActivity(this)
                     }
                     true

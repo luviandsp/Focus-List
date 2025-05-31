@@ -6,8 +6,8 @@
     </style>
 
     <style name="Theme.FocusList.SplashScreen" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/black_theme</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_app</item>
+        <item name="windowSplashScreenBackground">@color/dark_grey</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/app_icon_foreground</item>
         <item name="postSplashScreenTheme">@style/Base.Theme.FocusList</item>
     </style>
 

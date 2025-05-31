@@ -4,8 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.auth.LoginFragment"
-    android:layout_margin="16dp">
+    tools:context=".ui.auth.LoginFragment">
 
     <LinearLayout
         android:id="@+id/ll_login"
@@ -36,19 +35,14 @@
             android:gravity="center"/>
 
         <com.google.android.material.textview.MaterialTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/email"
-            android:textSize="16sp"
-            android:layout_marginBottom="8dp"
-            android:gravity="start"/>
+            style="@style/TextTitle.Input"
+            android:layout_marginHorizontal="0dp"
+            android:text="@string/email" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:hintEnabled="false">
+            android:layout_marginHorizontal="0dp"
+            style="@style/TextInputForm">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiet_email"
@@ -61,19 +55,14 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textview.MaterialTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/password"
-            android:textSize="16sp"
-            android:layout_marginBottom="8dp"
-            android:gravity="start"/>
+            style="@style/TextTitle.Input"
+            android:layout_marginHorizontal="0dp"
+            android:text="@string/password" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:hintEnabled="false"
+            android:layout_marginHorizontal="0dp"
+            style="@style/TextInputForm"
             app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -117,14 +106,9 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_login"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxWidth="320dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:text="@string/login"
-            android:backgroundTint="@color/blue"
-            android:textSize="16sp" />
+            style="@style/ButtonApp"
+            android:layout_marginHorizontal="0dp"
+            android:text="@string/login" />
 
         <LinearLayout
             android:layout_width="match_parent"

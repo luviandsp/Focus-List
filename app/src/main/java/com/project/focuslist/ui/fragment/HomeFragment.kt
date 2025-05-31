@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.button.MaterialButton
@@ -18,12 +19,12 @@ import com.project.focuslist.data.adapter.HorizontalTaskAdapter
 import com.project.focuslist.data.adapter.VerticalTaskAdapter
 import com.project.focuslist.data.enumData.TaskCategory
 import com.project.focuslist.data.model.Task
+import com.project.focuslist.data.model.TaskWithUser
 import com.project.focuslist.data.viewmodel.TaskViewModel
 import com.project.focuslist.data.viewmodel.UserViewModel
 import com.project.focuslist.databinding.FragmentHomeBinding
 import com.project.focuslist.ui.activity.CalenderActivity
 import com.project.focuslist.ui.tasks.DetailTaskActivity
-import com.project.focuslist.ui.tasks.EditTaskActivity
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -40,6 +41,9 @@ class HomeFragment : Fragment() {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("MMMM dd")
     private val today = LocalDate.now()
+
+    private var currentReload: (() -> Unit)? = null
+    private var currentLoadMore: (() -> Unit)? = null
 
     private var buttonType = TaskCategory.ALL_TASK.name
 
@@ -58,6 +62,14 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.d(TAG, "onViewCreated called")
+
+        horizontalTaskAdapter = HorizontalTaskAdapter(
+            onItemClickListener = { task -> readTask(task) }
+        )
+
+        setupTaskList()
+
         initViews()
         observeViewModels()
     }
@@ -75,15 +87,6 @@ class HomeFragment : Fragment() {
                     startActivity(it)
                 }
             }
-
-            setupTaskList(
-                onReloadAfterCheck = { taskViewModel.getUserTask(resetPaging = true) },
-                onLoadMore = { taskViewModel.getUserTask() }
-            )
-
-            horizontalTaskAdapter = HorizontalTaskAdapter(
-                onItemClickListener = { task -> readTask(task) }
-            )
 
             rvTodayTask.apply {
                 layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -158,54 +161,44 @@ class HomeFragment : Fragment() {
     private fun showAllTask() {
         taskViewModel.getUserTask(resetPaging = true)
 
-        setupTaskList(
-            onReloadAfterCheck = { taskViewModel.getUserTask(resetPaging = true) },
-            onLoadMore = { taskViewModel.getUserTask() }
-        )
+        currentReload = { taskViewModel.getUserTask(resetPaging = true) }
+        currentLoadMore = { taskViewModel.getUserTask() }
     }
 
     private fun showInProgressTask() {
         taskViewModel.getUserInProgressTask(resetPaging = true)
 
-        setupTaskList(
-            onReloadAfterCheck = { taskViewModel.getUserInProgressTask(resetPaging = true) },
-            onLoadMore = { taskViewModel.getUserInProgressTask() }
-        )
+        currentReload = { taskViewModel.getUserInProgressTask(resetPaging = true) }
+        currentLoadMore = { taskViewModel.getUserInProgressTask() }
     }
 
     private fun showCompletedTask() {
         taskViewModel.getUserCompletedTask(resetPaging = true)
 
-        setupTaskList(
-            onReloadAfterCheck = { taskViewModel.getUserCompletedTask(resetPaging = true) },
-            onLoadMore = { taskViewModel.getUserCompletedTask() }
-        )
+        currentReload = { taskViewModel.getUserCompletedTask(resetPaging = true) }
+        currentLoadMore = { taskViewModel.getUserCompletedTask() }
     }
 
-    private fun setupTaskList(
-        onReloadAfterCheck: () -> Unit,
-        onLoadMore: () -> Unit
-    ) {
+    private fun setupTaskList() {
         with(binding) {
             verticalTaskAdapter = VerticalTaskAdapter(
                 onItemClickListener = { task -> readTask(task) },
-                onLongClickListener = { task -> editTask(task); true },
                 onCheckBoxClickListener = { task, isChecked ->
                     taskViewModel.updateCompletionStatus(
                         taskId = task.taskId,
                         isCompleted = isChecked
                     )
-                    onReloadAfterCheck()
+                    currentReload?.invoke()
                 }
             )
 
-            rvVerticalTask.apply {
+            binding.rvVerticalTask.apply {
                 layoutManager = LinearLayoutManager(requireContext())
                 adapter = verticalTaskAdapter
             }
 
-            rvVerticalTask.clearOnScrollListeners()
-            rvVerticalTask.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            binding.rvVerticalTask.clearOnScrollListeners()
+            binding.rvVerticalTask.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
                     val layoutManager = recyclerView.layoutManager as LinearLayoutManager
@@ -213,10 +206,27 @@ class HomeFragment : Fragment() {
                     val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
 
                     if (lastVisibleItem >= totalItemCount - 3 && taskViewModel.hasMoreData()) {
-                        onLoadMore()
+                        currentLoadMore?.invoke()
                     }
                 }
             })
+        }
+    }
+
+    private fun updateRecyclerView(
+        tasks: List<TaskWithUser>,
+        placeholderView: View,
+        recyclerView: RecyclerView,
+        adapter: ListAdapter<TaskWithUser, *>
+    ) {
+        if (tasks.isEmpty()) {
+            placeholderView.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
+        } else {
+            placeholderView.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
+            adapter.submitList(tasks)
+            adapter.notifyDataSetChanged()
         }
     }
 
@@ -230,6 +240,7 @@ class HomeFragment : Fragment() {
                 Glide.with(this@HomeFragment)
                     .load(imageUrl)
                     .placeholder(R.drawable.baseline_account_circle_24)
+                    .circleCrop()
                     .into(binding.ivProfilePicture)
             }
         }
@@ -237,27 +248,27 @@ class HomeFragment : Fragment() {
         taskViewModel.apply {
             todayTask.observe(viewLifecycleOwner) { tasks ->
                 Log.d(TAG, "Fetched Today Tasks: $tasks")
-                horizontalTaskAdapter.submitList(tasks)
-                horizontalTaskAdapter.notifyDataSetChanged()
+                updateRecyclerView(
+                    tasks,
+                    binding.tvPlaceholderToday,
+                    binding.rvTodayTask,
+                    horizontalTaskAdapter
+                )
             }
 
-            allTask.observe(viewLifecycleOwner) { tasks ->
-                Log.d(TAG, "Fetched All Tasks: $tasks")
-                verticalTaskAdapter.submitList(tasks)
-                verticalTaskAdapter.notifyDataSetChanged()
+            val commonObserver: (List<TaskWithUser>) -> Unit = { tasks ->
+                Log.d(TAG, "Fetched Tasks: $tasks")
+                updateRecyclerView(
+                    tasks,
+                    binding.ivTaskPlaceholder,
+                    binding.rvVerticalTask,
+                    verticalTaskAdapter
+                )
             }
 
-            taskInProgress.observe(viewLifecycleOwner) { tasks ->
-                Log.d(TAG, "Fetched InProgress Tasks: $tasks")
-                verticalTaskAdapter.submitList(tasks)
-                verticalTaskAdapter.notifyDataSetChanged()
-            }
-
-            taskCompleted.observe(viewLifecycleOwner) { tasks ->
-                Log.d(TAG, "Fetched Completed Tasks: $tasks")
-                verticalTaskAdapter.submitList(tasks)
-                verticalTaskAdapter.notifyDataSetChanged()
-            }
+            allTask.observe(viewLifecycleOwner, commonObserver)
+            taskInProgress.observe(viewLifecycleOwner, commonObserver)
+            taskCompleted.observe(viewLifecycleOwner, commonObserver)
         }
     }
 
@@ -268,35 +279,31 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun editTask(task: Task) {
-        Intent(requireContext(), EditTaskActivity::class.java).apply {
-            putExtra(EditTaskActivity.TASK_ID, task.taskId)
-            startActivity(this)
-        }
-    }
-
     override fun onResume() {
         super.onResume()
+        Log.d(TAG, "onResume called")
+        Log.d(TAG, "buttonType: $buttonType")
 
         taskViewModel.getTodayTask(resetPaging = true)
+        Log.d(TAG, "Get Today Task")
 
         when (buttonType) {
             TaskCategory.ALL_TASK.name -> {
                 changeButtonActive(TaskCategory.ALL_TASK.name)
                 showAllTask()
+                Log.d(TAG, "Get All Task")
             }
             TaskCategory.IN_PROGRESS.name -> {
                 changeButtonActive(TaskCategory.IN_PROGRESS.name)
                 showInProgressTask()
+                Log.d(TAG, "Get In Progress Task")
             }
             TaskCategory.COMPLETED.name -> {
                 changeButtonActive(TaskCategory.COMPLETED.name)
                 showCompletedTask()
+                Log.d(TAG, "Get Completed Task")
             }
         }
-
-        Log.d(TAG, "onResume called")
-        Log.d(TAG, "buttonType: $buttonType")
     }
 
     override fun onDestroyView() {

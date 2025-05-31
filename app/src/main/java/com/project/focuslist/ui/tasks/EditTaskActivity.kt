@@ -108,9 +108,9 @@ class EditTaskActivity : AppCompatActivity() {
                         tietActivity.setText(task.taskTitle)
                         tietDescription.setText(task.taskBody)
                         when (task.taskPriority) {
-                            1 -> spinnerPriority.setText(TaskPriority.LOW.name)
-                            2 -> spinnerPriority.setText(TaskPriority.MID.name)
-                            3 -> spinnerPriority.setText(TaskPriority.HIGH.name)
+                            1 -> spinnerPriority.setText(TaskPriority.LOW.name, false)
+                            2 -> spinnerPriority.setText(TaskPriority.MID.name, false)
+                            3 -> spinnerPriority.setText(TaskPriority.HIGH.name, false)
                         }
                         tietDeadline.setText(task.taskDueDate)
                         Glide.with(this@EditTaskActivity).load(task.taskImageUrl).into(ivSelectedImage)
@@ -389,9 +389,9 @@ class EditTaskActivity : AppCompatActivity() {
 
             taskPriority.observe(this@EditTaskActivity) { priority ->
                 when (priority) {
-                    1 -> binding.spinnerPriority.setText(TaskPriority.LOW.name)
-                    2 -> binding.spinnerPriority.setText(TaskPriority.MID.name)
-                    3 -> binding.spinnerPriority.setText(TaskPriority.HIGH.name)
+                    1 -> binding.spinnerPriority.setText(TaskPriority.LOW.name, false)
+                    2 -> binding.spinnerPriority.setText(TaskPriority.MID.name, false)
+                    3 -> binding.spinnerPriority.setText(TaskPriority.HIGH.name, false)
                 }
             }
         }

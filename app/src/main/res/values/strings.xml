@@ -13,7 +13,7 @@
     <string name="task_name">Task Name</string>
     <string name="task_body">Task Body</string>
     <string name="due_date">Due Date</string>
-    <string name="delete_profile">Delete Profile</string>
+    <string name="delete_account">Delete Account</string>
     <string name="delete">Delete</string>
     <string name="delete_message">Apa anda yakin untuk menghapus profile ini?</string>
     <string name="no">No</string>
@@ -59,4 +59,9 @@
     <string name="edit_image">Edit Image</string>
     <string name="your_activity">Your activity</string>
     <string name="activity_for_task">What do you want to do?</string>
+    <string name="upload_task">Upload Task</string>
+    <string name="delete_task">Delete Task</string>
+    <string name="today_task_empty">You don\'t have any task today</string>
+    <string name="your_task">Your Task:</string>
+    <string name="edit_task">Edit Task</string>
 </resources>

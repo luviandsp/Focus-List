@@ -68,6 +68,9 @@ class TaskViewModel: ViewModel() {
     private val _operationResult = MutableLiveData<Pair<Boolean, String?>>()
     val operationResult: LiveData<Pair<Boolean, String?>> get() = _operationResult
 
+    private val _operationDeleteResult = MutableLiveData<Pair<Boolean, String?>>()
+    val operationDeleteResult: LiveData<Pair<Boolean, String?>> get() = _operationDeleteResult
+
     private var currentVerticalList = mutableListOf<TaskWithUser>()
     private var currentHorizontalList = mutableListOf<TaskWithUser>()
 
@@ -291,7 +294,7 @@ class TaskViewModel: ViewModel() {
                 taskId = taskId
             )
 
-            _operationResult.postValue(result)
+            _operationDeleteResult.postValue(result)
         }
     }
 

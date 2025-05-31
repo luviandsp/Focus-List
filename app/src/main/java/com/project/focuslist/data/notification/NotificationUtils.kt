@@ -52,7 +52,7 @@ object NotificationUtils {
         )
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.logo_app) // Ganti dengan ikon kamu
+            .setSmallIcon(R.drawable.app_icon_foreground)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)

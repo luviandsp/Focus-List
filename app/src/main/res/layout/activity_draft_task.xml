@@ -10,11 +10,8 @@
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
-        app:navigationIcon="@drawable/arrow_back"
-        app:title="My Draft"
-        app:titleCentered="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        style="@style/ToolbarApp.Back"
+        app:title="My Draft" />
 
     <ImageView
         android:id="@+id/iv_placeholder_task"

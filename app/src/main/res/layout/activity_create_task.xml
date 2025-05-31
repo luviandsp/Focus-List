@@ -14,21 +14,15 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
-            app:navigationIcon="@drawable/arrow_back"
-            app:title="New Tasks"
-            app:titleCentered="true"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            style="@style/ToolbarApp.Back"
+            app:title="New Tasks" />
 
         <LinearLayout
             android:id="@+id/ll_add_image"
-            android:layout_width="match_parent"
-            android:layout_height="160dp"
+            style="@style/TaskImageContainer"
             android:orientation="horizontal"
             android:gravity="center"
-            android:background="@drawable/dashed_border"
-            android:padding="16dp"
-            android:layout_margin="16dp">
+            android:padding="16dp">
 
             <ImageView
                 android:id="@+id/add_image_icon"
@@ -49,10 +43,7 @@
 
         <FrameLayout
             android:id="@+id/fl_image_container"
-            android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:layout_margin="16dp"
-            android:background="@drawable/dashed_border"
+            style="@style/TaskImageContainer"
             android:clipToOutline="true">
 
             <!-- Gambar yang ditampilkan -->
@@ -95,23 +86,12 @@
         </FrameLayout>
 
         <com.google.android.material.textview.MaterialTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/activity_for_task"
-            android:textSize="16sp"
-            android:layout_marginBottom="8dp"
-            android:gravity="start"/>
+            style="@style/TextTitle.Input"
+            android:text="@string/activity_for_task" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_activity"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:hintEnabled="false">
+            style="@style/TextInputForm">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiet_activity"
@@ -119,28 +99,17 @@
                 android:layout_height="match_parent"
                 android:hint="@string/your_activity"
                 android:maxWidth="488dp"
-                android:inputType="textEmailAddress" />
+                android:inputType="text" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textview.MaterialTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/description"
-            android:textSize="16sp"
-            android:layout_marginBottom="8dp"
-            android:gravity="start"/>
+            style="@style/TextTitle.Input"
+            android:text="@string/description" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_description"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:hintEnabled="false">
+            style="@style/TextInputForm">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiet_description"
@@ -155,23 +124,12 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textview.MaterialTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/deadline"
-            android:textSize="16sp"
-            android:layout_marginBottom="8dp"
-            android:gravity="start"/>
+            style="@style/TextTitle.Input"
+            android:text="@string/deadline" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_deadline"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:hintEnabled="false">
+            style="@style/TextInputForm">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiet_deadline"
@@ -190,24 +148,12 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textview.MaterialTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/priority_scale"
-            android:textSize="16sp"
-            android:layout_marginBottom="8dp"
-            android:gravity="start"/>
+            style="@style/TextTitle.Input"
+            android:text="@string/priority_scale" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_priority"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:hintEnabled="false"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp" >
+            style="@style/TextInputForm.Dropdown">
 
             <com.rosemaryapp.amazingspinner.AmazingSpinner
                 android:id="@+id/spinner_priority"
@@ -220,40 +166,21 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:visibility="gone"
-            android:max="100"
-            android:progress="50" />
+            android:id="@+id/progressBar" 
+            style="@style/ProgressBarApp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save"
+            style="@style/ButtonApp"
             android:layout_marginTop="24dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/save"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:backgroundTint="@color/blue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:text="@string/save" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save_draft"
+            style="@style/ButtonApp.Outline"
             android:layout_marginTop="8dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            app:strokeColor="@color/blue"
-            app:strokeWidth="1dp"
-            android:text="@string/save_draft"
-            android:textColor="@color/blue"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:backgroundTint="@color/white"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_marginBottom="16dp"
+            android:text="@string/save_draft" />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

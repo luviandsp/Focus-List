@@ -97,7 +97,7 @@ class EditProfileActivity : AppCompatActivity() {
                 }
             }
 
-            ivBack.setOnClickListener { finish() }
+            toolbar.setNavigationOnClickListener { finish() }
 
             ivImageEdit.setOnClickListener {
                 launcher.launch(

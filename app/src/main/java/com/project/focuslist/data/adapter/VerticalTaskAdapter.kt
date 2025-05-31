@@ -15,7 +15,6 @@ import com.project.focuslist.databinding.ItemVerticalTaskBinding
 
 class VerticalTaskAdapter(
     private val onItemClickListener: (Task) -> Unit,
-    private val onLongClickListener: (Task) -> Boolean,
     private val onCheckBoxClickListener: (Task, Boolean) -> Unit
 ) : ListAdapter<TaskWithUser, VerticalTaskAdapter.TaskViewHolder>(DIFF_CALLBACK) {
 
@@ -92,7 +91,6 @@ class VerticalTaskAdapter(
                 }
 
                 itemView.setOnClickListener { onItemClickListener(taskWithUser.task) }
-                itemView.setOnLongClickListener { onLongClickListener(taskWithUser.task) }
             }
         }
     }

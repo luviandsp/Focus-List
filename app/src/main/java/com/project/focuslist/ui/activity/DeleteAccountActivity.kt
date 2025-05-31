@@ -14,27 +14,24 @@ import com.bumptech.glide.Glide
 import com.project.focuslist.R
 import com.project.focuslist.data.preferences.AuthPreferences
 import com.project.focuslist.data.viewmodel.UserViewModel
-import com.project.focuslist.databinding.ActivityDeleteProfileBinding
+import com.project.focuslist.databinding.ActivityDeleteAccountBinding
 import com.project.focuslist.ui.auth.AuthActivity
 import kotlinx.coroutines.launch
 
-class DeleteProfileActivity : AppCompatActivity() {
+class DeleteAccountActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityDeleteProfileBinding
+    private lateinit var binding: ActivityDeleteAccountBinding
     private val userViewModel by viewModels<UserViewModel>()
     private lateinit var authPreferences: AuthPreferences
 
     companion object {
-        private const val TAG = "DeleteProfileActivity"
-        const val DELETE_KEY = "DELETE"
-        const val INTENT_KEY = "DELETE_OR_NOT"
-        const val INTENT_KEY_PROFILE_ID = "TASK_ID"
+        private const val TAG = "DeleteAccountActivity"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivityDeleteProfileBinding.inflate(layoutInflater)
+        binding = ActivityDeleteAccountBinding.inflate(layoutInflater)
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -50,11 +47,13 @@ class DeleteProfileActivity : AppCompatActivity() {
     private fun initViews() {
         with(binding) {
 
+            toolbar.setNavigationOnClickListener { finish() }
+
             btnDelete.setOnClickListener {
-                val builder: AlertDialog.Builder = AlertDialog.Builder(this@DeleteProfileActivity)
+                val builder: AlertDialog.Builder = AlertDialog.Builder(this@DeleteAccountActivity)
 
                 builder
-                    .setTitle(R.string.delete_profile)
+                    .setTitle(R.string.delete_account)
                     .setMessage(R.string.delete_message)
                     .setPositiveButton(R.string.yes) { _, _ ->
                         userViewModel.deleteAccount()
@@ -66,10 +65,6 @@ class DeleteProfileActivity : AppCompatActivity() {
                 val dialog: AlertDialog = builder.create()
                 dialog.show()
             }
-
-            ivBack.setOnClickListener {
-                finish()
-            }
         }
     }
 
@@ -79,10 +74,13 @@ class DeleteProfileActivity : AppCompatActivity() {
         }
 
         userViewModel.userImageUrl.observe(this) { imageUrl ->
-            Glide.with(this).load(imageUrl).into(binding.ivProfileImage)
+            Glide.with(this)
+                .load(imageUrl.takeUnless { it.isNullOrEmpty() } ?: R.drawable.baseline_account_circle_24)
+                .circleCrop()
+                .into(binding.ivProfileImage)
         }
 
-        userViewModel.authStatus.observe(this@DeleteProfileActivity) { status ->
+        userViewModel.authStatus.observe(this@DeleteAccountActivity) { status ->
             if (status.first) {
                 logoutUser()
             }
@@ -94,7 +92,7 @@ class DeleteProfileActivity : AppCompatActivity() {
     private fun logoutUser() {
         lifecycleScope.launch {
             userViewModel.logoutUser()
-            startActivity(Intent(this@DeleteProfileActivity, AuthActivity::class.java).apply {
+            startActivity(Intent(this@DeleteAccountActivity, AuthActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             })
         }

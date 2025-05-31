@@ -18,6 +18,7 @@ import com.project.focuslist.data.adapter.VerticalTaskAdapter
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.data.viewmodel.TaskViewModel
 import com.project.focuslist.databinding.ActivityCalenderBinding
+import com.project.focuslist.ui.tasks.DetailTaskActivity
 import java.util.Locale
 
 class CalenderActivity : AppCompatActivity() {
@@ -67,7 +68,6 @@ class CalenderActivity : AppCompatActivity() {
 
             verticalTaskAdapter = VerticalTaskAdapter(
                 onItemClickListener = { task -> readTask(task) },
-                onLongClickListener = { task -> detailTask(task); true },
                 onCheckBoxClickListener = { task, isChecked ->
                     taskViewModel.updateCompletionStatus(
                         taskId = task.taskId,
@@ -118,16 +118,8 @@ class CalenderActivity : AppCompatActivity() {
     }
 
     private fun readTask(task: Task) {
-        Intent(this@CalenderActivity, ReadTaskActivity::class.java).apply {
-            putExtra(ReadTaskActivity.TASK_ID, task.taskId)
-            startActivity(this)
-        }
-    }
-
-    private fun detailTask(task: Task) {
-        Intent(this@CalenderActivity, CreateUpdateTaskActivity::class.java).apply {
-            putExtra(CreateUpdateTaskActivity.TASK_ID, task.taskId)
-            putExtra(CreateUpdateTaskActivity.INTENT_KEY, CreateUpdateTaskActivity.EDIT_KEY)
+        Intent(this@CalenderActivity, DetailTaskActivity::class.java).apply {
+            putExtra(DetailTaskActivity.TASK_ID, task.taskId)
             startActivity(this)
         }
     }

@@ -8,13 +8,14 @@
     tools:context=".ui.tasks.DetailTaskActivity">
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nsv_detail"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/btn_edit"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" >
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -23,18 +24,13 @@
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
-                app:navigationIcon="@drawable/arrow_back"
-                app:title="Task Title"
-                app:titleCentered="true"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                style="@style/ToolbarApp.Back"
+                app:menu="@menu/task_menu"
+                app:title="Task Title" />
 
             <FrameLayout
                 android:id="@+id/fl_image_container"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_margin="16dp"
-                android:background="@drawable/dashed_border"
+                style="@style/TaskImageContainer"
                 android:clipToOutline="true">
 
                 <ImageView
@@ -45,90 +41,51 @@
             </FrameLayout>
 
             <com.google.android.material.textview.MaterialTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/description"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"
-                android:gravity="start"/>
+                style="@style/TextTitle.Output"
+                android:text="@string/description" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:justificationMode="inter_word"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/description"
-                android:textSize="16sp"
-                android:layout_marginBottom="8dp"
-                android:gravity="start"/>
+                style="@style/TextTitle.Body"
+                android:text="@string/description" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/deadline"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"
-                android:gravity="start"/>
+                style="@style/TextTitle.Output"
+                android:text="@string/deadline" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_deadline"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:justificationMode="inter_word"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/deadline"
-                android:textSize="16sp"
-                android:layout_marginBottom="8dp"
-                android:gravity="start"/>
+                style="@style/TextTitle.Body"
+                android:text="@string/deadline" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/priority_scale"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"
-                android:gravity="start"/>
+                style="@style/TextTitle.Output"
+                android:text="@string/priority_scale" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_priority"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:justificationMode="inter_word"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/deadline"
-                android:textSize="16sp"
-                android:layout_marginBottom="8dp"
-                android:gravity="start"/>
+                style="@style/TextTitle.Body"
+                android:text="@string/deadline" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_upload_task"
+        style="@style/ButtonApp"
+        android:text="@string/upload_task"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_edit"
+        app:layout_constraintEnd_toEndOf="@+id/nsv_detail"
+        app:layout_constraintStart_toStartOf="@+id/nsv_detail" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_edit"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        style="@style/ButtonApp"
         android:text="@string/edit"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:backgroundTint="@color/blue"
+        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="@+id/nsv_detail"
+        app:layout_constraintStart_toStartOf="@+id/nsv_detail" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
