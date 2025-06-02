@@ -19,11 +19,9 @@ class HorizontalTaskAdapter(
 
         fun bind(taskWithUser: TaskWithUser) {
             with(binding) {
-                val taskHour = taskWithUser.task.taskDueHours
-
                 tvTitle.text = taskWithUser.task.taskTitle
                 tvDesc.text = taskWithUser.task.taskBody
-                tvTimes.text = itemView.context.getString(R.string.task_time, taskHour)
+                tvTimes.text = taskWithUser.task.taskDueHours
 
                 if (taskWithUser.task.taskPriority == TaskPriority.MID.value) {
                     tvTitle.setTextColor(itemView.context.getColor(R.color.dark_yellow))
@@ -39,14 +37,21 @@ class HorizontalTaskAdapter(
                     TaskPriority.LOW.value -> {
                         cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.blue))
                         tvPriority.text = TaskPriority.LOW.name
+                        cvPriority.visibility = ViewGroup.VISIBLE
                     }
                     TaskPriority.MID.value -> {
                         cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.yellow))
                         tvPriority.text = TaskPriority.MID.name
+                        cvPriority.visibility = ViewGroup.VISIBLE
                     }
                     TaskPriority.HIGH.value -> {
                         cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.red))
                         tvPriority.text = TaskPriority.HIGH.name
+                        cvPriority.visibility = ViewGroup.VISIBLE
+                    }
+                    else -> {
+                        cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.blue))
+                        cvPriority.visibility = ViewGroup.GONE
                     }
                 }
 

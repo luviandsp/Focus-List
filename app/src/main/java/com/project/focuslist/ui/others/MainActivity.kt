@@ -3,6 +3,7 @@ package com.project.focuslist.ui.others
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -140,21 +141,42 @@ class MainActivity : AppCompatActivity() {
 
     private fun changeButtonActive(type: String) {
         with(binding) {
+
+            val isDarkMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+
             fun setActive(btn: MaterialButton) {
                 btn.apply {
-                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
-                    setBackgroundColor(
-                        ContextCompat.getColor(this@MainActivity, R.color.black)
-                    )
+                    if (isDarkMode) {
+                        setTextColor(ContextCompat.getColor(this@MainActivity, R.color.blue))
+                        setBackgroundColor(
+                            ContextCompat.getColor(this@MainActivity, R.color.dark_grey)
+                        )
+                        setStrokeColorResource(R.color.blue)
+                    } else {
+                        setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                        setBackgroundColor(
+                            ContextCompat.getColor(this@MainActivity, R.color.blue)
+                        )
+                        setStrokeColorResource(R.color.blue)
+                    }
                 }
             }
 
             fun setInactive(btn: MaterialButton) {
                 btn.apply {
-                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.black))
-                    setBackgroundColor(
-                        ContextCompat.getColor(this@MainActivity, R.color.white)
-                    )
+                    if (isDarkMode) {
+                        setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                        setBackgroundColor(
+                            ContextCompat.getColor(this@MainActivity, R.color.dark_grey)
+                        )
+                        setStrokeColorResource(R.color.white)
+                    } else {
+                        setTextColor(ContextCompat.getColor(this@MainActivity, R.color.black))
+                        setBackgroundColor(
+                            ContextCompat.getColor(this@MainActivity, R.color.white)
+                        )
+                        setStrokeColorResource(R.color.black)
+                    }
                 }
             }
 

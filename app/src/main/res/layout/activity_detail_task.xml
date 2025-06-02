@@ -94,7 +94,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_edit"
-        style="@style/ButtonApp"
+        style="@style/ButtonApp.Outline"
         android:text="@string/edit"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"

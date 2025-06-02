@@ -91,14 +91,13 @@ class DetailTaskActivity : AppCompatActivity() {
                 btnUploadTask.setOnClickListener {
                     uploadTask()
                 }
-
-                btnEdit.apply {
-                    setBackgroundColor(getColor(R.color.white))
-                    setTextColor(getColor(R.color.blue))
-                    strokeColor = getColorStateList(R.color.blue)
-                }
             } else {
                 btnUploadTask.visibility = View.GONE
+
+                btnEdit.apply {
+                    setBackgroundColor(getColor(R.color.blue))
+                    setTextColor(getColor(R.color.white))
+                }
             }
 
             btnEdit.setOnClickListener {

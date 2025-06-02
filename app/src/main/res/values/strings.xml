@@ -1,28 +1,12 @@
 <resources>
     <string name="app_name">FocusList</string>
-    <string name="add_task">Add Task</string>
-    <string name="edit">Edit</string>
-    <string name="edit_profile">Edit Profile</string>
-    <string name="save">Save</string>
-    <string name="pick_a_date">Pick a Date</string>
-    <string name="select_date">Select Date</string>
-    <string name="description">Description</string>
-    <string name="placeholder_task_title">What do you want to do?</string>
-    <string name="create_task">Create Task</string>
-    <string name="task_body">Task Body</string>
-    <string name="due_date">Due Date</string>
-    <string name="delete_account">Delete Account</string>
-    <string name="delete_account_desc">To delete your account, please enter your email and password.</string>
-    <string name="set_reminder">Set Reminder</string>
-    <string name="save_draft">Save as draft</string>
-    <string name="draft_list">Draft List</string>
-    <string name="delete">Delete</string>
 
     <!--  Authentication  -->
     <string name="login">Login</string>
     <string name="login_desc">Log in to continue and enjoy all the features we’ve prepared for you.</string>
     <string name="logout">Logout</string>
     <string name="email">Email</string>
+    <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="remember_me">Remember me</string>
     <string name="forgot_password">Forgot Password?</string>
@@ -40,8 +24,20 @@
     <string name="minimal_lowercase">Have at least 1 lowercase</string>
     <string name="minimal_number">Have at least 1 number</string>
 
-    <string name="username">Username</string>
-    <string name="search_task">Find your tasks</string>
+    <string name="add_task">Add Task</string>
+    <string name="edit">Edit</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="save">Save</string>
+    <string name="placeholder_task_title">What do you want to do?</string>
+    <string name="create_task">Create Task</string>
+    <string name="due_date">Due Date</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_desc">To delete your account, please enter your email and password.</string>
+    <string name="set_reminder">Set Reminder</string>
+    <string name="save_draft">Save as draft</string>
+    <string name="description">Description</string>
+    <string name="draft_list">Draft List</string>
+    <string name="delete">Delete</string>
     <string name="today_tasks">Today’s tasks</string>
     <string name="my_tasks">My tasks</string>
     <string name="all_tasks">All Tasks</string>
@@ -49,7 +45,6 @@
     <string name="completed">Completed</string>
     <string name="status_dot">Status:</string>
     <string name="greeting_message">Hi, %1$s</string>
-    <string name="task_time">%1$s WIB</string>
     <string name="home_desc">Let’s be productive today!</string>
     <string name="deadline">Deadline</string>
     <string name="priority_scale">Priority Scale</string>

@@ -50,8 +50,7 @@ class DraftTaskActivity : AppCompatActivity() {
             toolbar.setNavigationOnClickListener { finish() }
 
             taskDraftAdapter = TaskPdAdapter(
-                onItemClickListener = { task -> readTask(task) },
-                onLongClickListener = { task -> editTask(task); true }
+                onItemClickListener = { task -> readTask(task) }
             )
 
             taskDraftAdapter.addLoadStateListener { loadStates ->
@@ -86,13 +85,6 @@ class DraftTaskActivity : AppCompatActivity() {
     private fun readTask(task: TaskDraft) {
         Intent(this, DetailTaskActivity::class.java).apply {
             putExtra(DetailTaskActivity.TASK_DRAFT_ID, task.taskId)
-            startActivity(this)
-        }
-    }
-
-    private fun editTask(task: TaskDraft) {
-        Intent(this, EditTaskActivity::class.java).apply {
-            putExtra(EditTaskActivity.TASK_DRAFT_ID, task.taskId)
             startActivity(this)
         }
     }

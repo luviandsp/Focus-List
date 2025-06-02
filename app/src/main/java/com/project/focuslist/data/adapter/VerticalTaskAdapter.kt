@@ -88,6 +88,7 @@ class VerticalTaskAdapter(
                     TaskPriority.LOW.value -> cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.blue))
                     TaskPriority.MID.value -> cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.yellow))
                     TaskPriority.HIGH.value -> cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.red))
+                    else -> cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.blue))
                 }
 
                 itemView.setOnClickListener { onItemClickListener(taskWithUser.task) }

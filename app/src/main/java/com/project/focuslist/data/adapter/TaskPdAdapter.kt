@@ -12,7 +12,6 @@ import com.project.focuslist.databinding.ItemDraftTaskBinding
 
 class TaskPdAdapter(
     private val onItemClickListener: (TaskDraft) -> Unit,
-    private val onLongClickListener: (TaskDraft) -> Boolean,
 ) : PagingDataAdapter<TaskDraft, TaskPdAdapter.TaskViewHolder>(DIFF_CALLBACK) {
 
     inner class TaskViewHolder(private val binding: ItemDraftTaskBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -39,10 +38,10 @@ class TaskPdAdapter(
                     TaskPriority.LOW.value -> cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.blue))
                     TaskPriority.MID.value -> cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.yellow))
                     TaskPriority.HIGH.value -> cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.red))
+                    else -> cvTasks.setCardBackgroundColor(itemView.context.getColor(R.color.blue))
                 }
 
                 itemView.setOnClickListener { onItemClickListener(task) }
-                itemView.setOnLongClickListener { onLongClickListener(task) }
             }
         }
     }

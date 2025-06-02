@@ -13,6 +13,7 @@
         android:layout_height="match_parent" >
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_priority"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:strokeColor="@color/black"
@@ -31,7 +32,7 @@
                 android:layout_marginEnd="10dp"
                 android:layout_marginTop="2dp"
                 android:layout_marginBottom="2dp"
-                android:text="Low"
+                android:text="@string/priority_scale"
                 android:textSize="11sp" />
 
         </com.google.android.material.card.MaterialCardView>
@@ -42,7 +43,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="2"
-            android:text="Tugas Pertemuan 13"
+            android:text="@string/task_title"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -59,7 +60,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:text="Mengerjakan pre-test"
+            android:text="@string/task_description"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginTop="4dp"
@@ -94,7 +95,7 @@
             android:id="@+id/tv_times"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="23.59 WIB"
+            android:text="@string/deadline"
             android:textColor="@color/white"
             android:textSize="11sp"
             android:layout_marginEnd="12dp"
