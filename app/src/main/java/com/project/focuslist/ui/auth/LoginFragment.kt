@@ -2,28 +2,27 @@ package com.project.focuslist.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.project.focuslist.R
-import com.project.focuslist.data.preferences.AuthPreferences
+import com.project.focuslist.data.utils.UserViewModelFactory
+import com.project.focuslist.data.viewmodel.UserViewModel
 import com.project.focuslist.databinding.FragmentLoginBinding
 import com.project.focuslist.ui.others.MainActivity
-import com.project.focuslist.data.viewmodel.UserViewModel
-import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var authPreferences: AuthPreferences
-    private val userViewModel by viewModels<UserViewModel>()
+    private val userViewModel by viewModels<UserViewModel>(
+        factoryProducer = { UserViewModelFactory(requireContext()) }
+    )
 
     private var email: String = ""
     private var password: String = ""
@@ -42,7 +41,8 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        authPreferences = AuthPreferences(requireContext())
+
+        userViewModel.getEmail()
 
         initViews()
         observeViewModel()
@@ -50,14 +50,6 @@ class LoginFragment : Fragment() {
 
     private fun initViews() {
         with(binding) {
-            lifecycleScope.launch {
-                if (authPreferences.getEmail().isNotEmpty()) {
-                    email = authPreferences.getEmail()
-
-                    tietEmail.setText(email)
-                    cbRemember.isChecked = true
-                }
-            }
 
             btnLogin.setOnClickListener {
                 email = tietEmail.text.toString().trim()
@@ -82,6 +74,15 @@ class LoginFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        userViewModel.userEmail.observe(viewLifecycleOwner) { email ->
+            with(binding) {
+                if (email != null) {
+                    tietEmail.setText(email)
+                    cbRemember.isChecked = true
+                }
+            }
+        }
+
         userViewModel.authLogin.observe(viewLifecycleOwner) { result ->
             if (result.first) {
                 userViewModel.completeUserRegistration(requireContext())
@@ -92,15 +93,13 @@ class LoginFragment : Fragment() {
 
         userViewModel.authStatus.observe(viewLifecycleOwner) { result ->
             if (result.first) {
-                lifecycleScope.launch {
-                    if (binding.cbRemember.isChecked) {
-                        authPreferences.setEmail(email)
-                    }
-
-                    authPreferences.setLoginStatus(true)
-                    Toast.makeText(requireContext(), result.second ?: "Login success", Toast.LENGTH_SHORT).show()
-                    navigateToMainActivity()
+                if (binding.cbRemember.isChecked) {
+                    userViewModel.setEmail(email)
                 }
+
+                userViewModel.setLoginStatus(true)
+                Toast.makeText(requireContext(), result.second ?: "Login success", Toast.LENGTH_SHORT).show()
+                navigateToMainActivity()
             } else {
                 Toast.makeText(requireContext(), result.second ?: "Error occurred", Toast.LENGTH_SHORT).show()
             }

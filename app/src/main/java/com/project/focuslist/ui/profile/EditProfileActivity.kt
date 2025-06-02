@@ -17,6 +17,7 @@ import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.github.drjacky.imagepicker.ImagePicker
 import com.project.focuslist.R
+import com.project.focuslist.data.utils.UserViewModelFactory
 import com.project.focuslist.data.viewmodel.StorageViewModel
 import com.project.focuslist.data.viewmodel.UserViewModel
 import com.project.focuslist.databinding.ActivityEditProfileBinding
@@ -25,7 +26,9 @@ class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditProfileBinding
 
-    private val userViewModel by viewModels<UserViewModel>()
+    private val userViewModel by viewModels<UserViewModel>(
+        factoryProducer = { UserViewModelFactory(applicationContext) }
+    )
     private val storageViewModel by viewModels<StorageViewModel>()
 
     private var imageUri: Uri? = null
@@ -59,8 +62,6 @@ class EditProfileActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-        userViewModel.getUser()
 
         initViews()
         observeViewModels()

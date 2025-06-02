@@ -9,7 +9,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.project.focuslist.data.model.User
-import com.project.focuslist.data.preferences.UserAccountPreferences
+import com.project.focuslist.data.preferences.UserTempPreferences
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -96,7 +96,7 @@ class UserRepository {
                     return Pair(true, null)
                 }
 
-                val prefs = UserAccountPreferences(context)
+                val prefs = UserTempPreferences(context)
                 val tempUser = prefs.getTempUser() ?: return Pair(false, "User data not found")
 
                 val userModelData = User(
@@ -149,17 +149,6 @@ class UserRepository {
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.e(TAG, "Error getting user data: ${e.message}")
-            null
-        }
-    }
-
-    fun getUserId(): String? {
-        return try {
-            val userId = firebaseAuth.currentUser?.uid ?: return null
-            userId
-        } catch (e: Exception) {
-            if (e is CancellationException) throw e
-            Log.e(TAG, "Error getting user ID: ${e.message}")
             null
         }
     }

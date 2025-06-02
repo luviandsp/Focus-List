@@ -9,7 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
 
-private val Context.datastore: DataStore<Preferences> by preferencesDataStore(name = "app")
+private val Context.datastore: DataStore<Preferences> by preferencesDataStore(name = "auth_preferences")
 
 class AuthPreferences(private val context: Context) {
 

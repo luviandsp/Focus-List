@@ -226,6 +226,7 @@ class TaskRepository() {
                 .whereEqualTo("userId", userId)
                 .whereEqualTo("taskDueDate", currentDate)
                 .orderBy("taskPriority", Query.Direction.DESCENDING)
+                .orderBy("taskDueTime", Query.Direction.ASCENDING)
                 .limit(PAGE_SIZE.toLong())
 
             // Jika ada lastDocument, gunakan startAfter untuk melanjutkan paging
@@ -288,6 +289,7 @@ class TaskRepository() {
             var query: Query = taskCollection
                 .whereEqualTo("userId", userId)
                 .orderBy("taskPriority", Query.Direction.DESCENDING)
+                .orderBy("taskDueTime", Query.Direction.ASCENDING)
                 .limit(PAGE_SIZE.toLong())
 
             // Jika ada lastDocument, gunakan startAfter untuk melanjutkan paging
@@ -344,6 +346,7 @@ class TaskRepository() {
                 .whereEqualTo("userId", userId)
                 .whereEqualTo("isCompleted", true)
                 .orderBy("taskPriority", Query.Direction.DESCENDING)
+                .orderBy("taskDueTime", Query.Direction.ASCENDING)
                 .limit(PAGE_SIZE.toLong())
 
             // Jika ada lastDocument, gunakan startAfter untuk melanjutkan paging
@@ -407,6 +410,7 @@ class TaskRepository() {
                 .whereEqualTo("userId", userId)
                 .whereEqualTo("isCompleted", false)
                 .orderBy("taskPriority", Query.Direction.DESCENDING)
+                .orderBy("taskDueTime", Query.Direction.ASCENDING)
                 .limit(PAGE_SIZE.toLong())
 
             // Jika ada lastDocument, gunakan startAfter untuk melanjutkan paging
@@ -470,6 +474,7 @@ class TaskRepository() {
                 .whereEqualTo("userId", userId)
                 .whereEqualTo("taskDueDate", date)
                 .orderBy("taskPriority", Query.Direction.DESCENDING)
+                .orderBy("taskDueTime", Query.Direction.ASCENDING)
                 .limit(PAGE_SIZE.toLong())
 
             // Jika ada lastDocument, gunakan startAfter untuk melanjutkan paging

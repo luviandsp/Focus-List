@@ -2,28 +2,28 @@ package com.project.focuslist.ui.profile
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.project.focuslist.R
-import com.project.focuslist.data.preferences.AuthPreferences
+import com.project.focuslist.data.utils.UserViewModelFactory
 import com.project.focuslist.data.viewmodel.UserViewModel
 import com.project.focuslist.databinding.ActivityDeleteAccountBinding
 import com.project.focuslist.databinding.DialogDeleteAccountBinding
 import com.project.focuslist.ui.auth.AuthActivity
-import kotlinx.coroutines.launch
 
 class DeleteAccountActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDeleteAccountBinding
-    private val userViewModel by viewModels<UserViewModel>()
-    private lateinit var authPreferences: AuthPreferences
+    private val userViewModel by viewModels<UserViewModel>(
+        factoryProducer = { UserViewModelFactory(applicationContext) }
+    )
 
     companion object {
         private const val TAG = "DeleteAccountActivity"
@@ -40,7 +40,6 @@ class DeleteAccountActivity : AppCompatActivity() {
             insets
         }
 
-        authPreferences = AuthPreferences(this)
         userViewModel.getUser()
 
         initViews()
@@ -98,22 +97,18 @@ class DeleteAccountActivity : AppCompatActivity() {
                     .into(binding.ivProfileImage)
             }
 
-            operationStatus.observe(this@DeleteAccountActivity) { status ->
-                if (status.first) {
-                    userViewModel.logoutUser()
-                }
-
-                Toast.makeText(this@DeleteAccountActivity, status.second, Toast.LENGTH_SHORT).show()
-            }
-
-            authStatus.observe(this@DeleteAccountActivity) { result ->
+            operationStatus.observe(this@DeleteAccountActivity) { result ->
                 if (result.first) {
-                    lifecycleScope.launch {
-                        authPreferences.setLoginStatus(false)
-                        startActivity(Intent(this@DeleteAccountActivity, AuthActivity::class.java).apply {
-                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        })
-                    }
+                    Toast.makeText(this@DeleteAccountActivity, "Account deleted successfully", Toast.LENGTH_SHORT).show()
+
+                    userViewModel.setLoginStatus(false)
+                    startActivity(Intent(this@DeleteAccountActivity, AuthActivity::class.java).apply {
+                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    })
+                    finish()
+                } else {
+                    Toast.makeText(this@DeleteAccountActivity, "Failed to delete account: ${result.second}", Toast.LENGTH_SHORT).show()
+                    Log.e(TAG, "Failed to delete account: ${result.second}")
                 }
             }
         }

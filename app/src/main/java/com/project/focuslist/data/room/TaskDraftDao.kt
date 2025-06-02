@@ -12,7 +12,7 @@ import com.project.focuslist.data.model.TaskDraft
 @Dao
 interface TaskDraftDao {
 
-    @Query("SELECT * FROM task_draft_table WHERE user_id = :userId ORDER BY task_priority DESC, task_due_date ASC")
+    @Query("SELECT * FROM task_draft_table WHERE user_id = :userId ORDER BY task_priority DESC, task_due_time ASC")
     fun getTaskList(userId: String): PagingSource<Int, TaskDraft>
 
     @Query("SELECT * FROM task_draft_table WHERE task_id = :taskId")

@@ -10,13 +10,10 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.project.focuslist.R
-import com.project.focuslist.data.preferences.UserAccountPreferences
 import com.project.focuslist.data.viewmodel.UserViewModel
 import com.project.focuslist.databinding.FragmentRegisterBinding
-import kotlinx.coroutines.launch
 
 class RegisterFragment : Fragment() {
 
@@ -24,9 +21,6 @@ class RegisterFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val userViewModel by viewModels<UserViewModel>()
-    private lateinit var userAccountPreferences: UserAccountPreferences
-
-    private var isRegistered : Boolean = false
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
@@ -45,13 +39,11 @@ class RegisterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        userAccountPreferences = UserAccountPreferences(requireContext())
 
-        lifecycleScope.launch {
-            isRegistered = userAccountPreferences.isRegistered()
-            initViews()
-            observeViewModel()
-        }
+        userViewModel.getIsRegistered()
+
+        initViews()
+        observeViewModel()
     }
 
     private fun initViews() {
@@ -68,16 +60,7 @@ class RegisterFragment : Fragment() {
                     return@setOnClickListener
                 }
 
-                lifecycleScope.launch {
-                    userAccountPreferences.saveTempUser(email, username)
-                    userViewModel.registerAccountOnly(email, password)
-                }
-            }
-
-            if (isRegistered) {
-                tvResendVerification.visibility = View.VISIBLE
-            } else {
-                tvResendVerification.visibility = View.GONE
+                userViewModel.registerAccountOnly(email, password)
             }
 
             tvResendVerification.setOnClickListener {
@@ -144,22 +127,30 @@ class RegisterFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        userViewModel.authRegister.observe(viewLifecycleOwner) { result ->
-            if (result.first) {
-                Toast.makeText(requireContext(), result.second ?: "Registration success, please check your email", Toast.LENGTH_SHORT).show()
+        userViewModel.apply {
+            authRegister.observe(viewLifecycleOwner) { result ->
+                if (result.first) {
+                    Toast.makeText(requireContext(), result.second ?: "Registration success, please check your email", Toast.LENGTH_SHORT).show()
 
-                lifecycleScope.launch {
-                    userAccountPreferences.setRegistered(true)
+                    userViewModel.setRegistered(true)
+
+                    binding.tvResendVerification.visibility = View.VISIBLE
+                } else {
+                    Toast.makeText(activity, result.second, Toast.LENGTH_SHORT).show()
                 }
+            }
 
-                binding.tvResendVerification.visibility = View.VISIBLE
-            } else {
+            authIsRegistered.observe(viewLifecycleOwner) { isRegistered ->
+                if (isRegistered) {
+                    binding.tvResendVerification.visibility = View.VISIBLE
+                } else {
+                    binding.tvResendVerification.visibility = View.GONE
+                }
+            }
+
+            authStatus.observe(viewLifecycleOwner) { result ->
                 Toast.makeText(activity, result.second, Toast.LENGTH_SHORT).show()
             }
-        }
-
-        userViewModel.authStatus.observe(viewLifecycleOwner) { result ->
-            Toast.makeText(activity, result.second, Toast.LENGTH_SHORT).show()
         }
     }
 

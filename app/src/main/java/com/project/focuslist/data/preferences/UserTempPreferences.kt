@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.first
 
 private val Context.datastore by preferencesDataStore(name = "user_account_temp_preferences")
 
-class UserAccountPreferences(private val context: Context) {
+class UserTempPreferences(private val context: Context) {
 
     companion object {
         private val EMAIL_KEY = stringPreferencesKey("email")
@@ -28,7 +28,7 @@ class UserAccountPreferences(private val context: Context) {
 
     suspend fun isRegistered(): Boolean {
         val preferences = context.datastore.data.first()
-        return preferences[REGISTERED_KEY] ?: false
+        return preferences[REGISTERED_KEY] == true
     }
 
     suspend fun saveTempUser(email: String, username: String) {

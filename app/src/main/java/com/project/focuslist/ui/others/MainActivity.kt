@@ -27,6 +27,7 @@ import com.project.focuslist.data.adapter.VerticalTaskAdapter
 import com.project.focuslist.data.enumData.TaskCategory
 import com.project.focuslist.data.model.Task
 import com.project.focuslist.data.model.TaskWithUser
+import com.project.focuslist.data.utils.UserViewModelFactory
 import com.project.focuslist.data.viewmodel.TaskViewModel
 import com.project.focuslist.data.viewmodel.UserViewModel
 import com.project.focuslist.databinding.ActivityMainBinding
@@ -41,7 +42,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val taskViewModel by viewModels<TaskViewModel>()
-    private val userViewModel by viewModels<UserViewModel>()
+    private val userViewModel by viewModels<UserViewModel>(
+        factoryProducer = { UserViewModelFactory(applicationContext) }
+    )
 
     private lateinit var verticalTaskAdapter: VerticalTaskAdapter
     private lateinit var horizontalTaskAdapter: HorizontalTaskAdapter
@@ -85,9 +88,10 @@ class MainActivity : AppCompatActivity() {
 
         checkAndRequestNotificationPermission()
 
+        observeUserViewModel()
         setupTaskList()
         initViews()
-        observeViewModels()
+        observeTaskViewModels()
     }
 
     private fun initViews() {
@@ -280,21 +284,45 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun observeViewModels() {
+    private fun observeUserViewModel() {
         userViewModel.apply {
+            userId.observe(this@MainActivity) { userId ->
+                if (!userId.isNullOrEmpty()) {
+                    Log.d(TAG, "User ID: $userId")
+                }
+            }
+
             userName.observe(this@MainActivity) { username ->
-                binding.tvProfileName.text = getString(R.string.greeting_message, username)
+                if (!username.isNullOrEmpty()) {
+                    binding.tvProfileName.text = username
+                    Log.d(TAG, "User Name: $username")
+                }
             }
 
             userImageUrl.observe(this@MainActivity) { imageUrl ->
-                Glide.with(this@MainActivity)
-                    .load(imageUrl)
-                    .placeholder(R.drawable.baseline_account_circle_24)
-                    .circleCrop()
-                    .into(binding.ivProfilePicture)
+                if (!imageUrl.isNullOrEmpty()) {
+                    Glide.with(this@MainActivity)
+                        .load(imageUrl)
+                        .placeholder(R.drawable.baseline_account_circle_24)
+                        .circleCrop()
+                        .into(binding.ivProfilePicture)
+                    Log.d(TAG, "User Image: $imageUrl")
+                }
+            }
+
+            authStatus.observe(this@MainActivity) { result ->
+                if (result.first) {
+                    Log.d(TAG, "Authentication status: Success")
+                    // Lakukan tindakan setelah otentikasi berhasil jika perlu
+                } else {
+                    Log.d(TAG, "Authentication status: Failed - ${result.second}")
+                    // Handle error otentikasi jika perlu
+                }
             }
         }
+    }
 
+    private fun observeTaskViewModels() {
         taskViewModel.apply {
             todayTask.observe(this@MainActivity) { tasks ->
                 Log.d(TAG, "Fetched Today Tasks: $tasks")
@@ -357,6 +385,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         userViewModel.getUser()
+
         taskViewModel.getTodayTask(resetPaging = true)
         Log.d(TAG, "Get Today Task")
 

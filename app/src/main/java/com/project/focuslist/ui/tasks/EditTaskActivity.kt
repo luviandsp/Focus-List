@@ -29,6 +29,7 @@ import com.google.firebase.Timestamp
 import com.project.focuslist.R
 import com.project.focuslist.data.enumData.TaskPriority
 import com.project.focuslist.data.model.TaskDraft
+import com.project.focuslist.data.utils.UserViewModelFactory
 import com.project.focuslist.data.viewmodel.StorageViewModel
 import com.project.focuslist.data.viewmodel.TaskDraftViewModel
 import com.project.focuslist.data.viewmodel.TaskViewModel
@@ -45,7 +46,9 @@ class EditTaskActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditTaskBinding
 
     private val taskViewModel by viewModels<TaskViewModel>()
-    private val userViewModel by viewModels<UserViewModel>()
+    private val userViewModel by viewModels<UserViewModel>(
+        factoryProducer = { UserViewModelFactory(applicationContext) }
+    )
     private val storageViewModel by viewModels<StorageViewModel>()
     private val taskDraftViewModel by viewModels<TaskDraftViewModel>()
 
@@ -103,7 +106,7 @@ class EditTaskActivity : AppCompatActivity() {
         taskDraftId = intent.getIntExtra(TASK_DRAFT_ID, DEFAULT_INT)
         Log.d(TAG, "Task Draft ID: $taskDraftId")
 
-        userViewModel.getUserId()
+        userViewModel.getUser()
 
         if (taskId != null) {
             taskViewModel.getTaskById(taskId!!)
