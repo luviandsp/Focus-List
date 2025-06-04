@@ -56,15 +56,13 @@ class DetailTaskActivity : AppCompatActivity() {
         }
 
         taskId = intent.getStringExtra(TASK_ID)
-        taskDraftId = intent.getIntExtra(TASK_DRAFT_ID, -1)
         Log.d(TAG, "Task ID: $taskId")
+
+        taskDraftId = intent.getIntExtra(TASK_DRAFT_ID, -1)
         Log.d(TAG, "Task Draft ID: $taskDraftId")
 
         initViews()
-
-        if (taskId != null) {
-            observeViewModels()
-        }
+        observeViewModels()
     }
 
     private fun initViews() {
@@ -141,89 +139,99 @@ class DetailTaskActivity : AppCompatActivity() {
             reminderOffsetMillis = 0L
         )
 
-        deleteTaskFromDraft(uploadToFirestore = true)
-        Toast.makeText(this, "Task uploaded", Toast.LENGTH_SHORT).show()
-        finish()
+        binding.progressBar.visibility = View.VISIBLE
     }
 
     private fun deleteTaskFromDraft(uploadToFirestore: Boolean = true) {
-        if (taskDraftId != -1) {
-            taskDraftViewModel.deleteTask(TaskDraft(taskId = taskDraftId!!))
+        taskDraftViewModel.deleteTask(TaskDraft(taskId = taskDraftId!!))
 
-            if (!uploadToFirestore) {
-                deleteOldTaskImage(imageUrl ?: "")
-            }
-
-            Log.d(TAG, "Task draft deleted")
+        if (!uploadToFirestore) {
+            deleteOldTaskImage(imageUrl ?: "")
         }
+
+        Log.d(TAG, "Task draft deleted")
     }
 
     private fun deleteTaskFromDB() {
-        if (taskId != null) {
-            taskViewModel.deleteTask(taskId!!)
-            Log.d(TAG, "Task deleted")
-        }
+        taskViewModel.deleteTask(taskId!!, this@DetailTaskActivity)
+        binding.progressBar.visibility = View.VISIBLE
+
+        Log.d(TAG, "Task ID Deleted: {${taskId}}")
+        Log.d(TAG, "Task deleted")
     }
 
     private fun observeViewModels() {
-        taskViewModel.apply {
-            operationDeleteResult.observe(this@DetailTaskActivity) {
-                if (it.first) {
-                    Toast.makeText(this@DetailTaskActivity, it.second, Toast.LENGTH_SHORT).show()
-                    if (!imageUrl.isNullOrEmpty()) {
-                        deleteOldTaskImage(imageUrl ?: "")
+        if (taskId != null) {
+            taskViewModel.apply {
+                operationDeleteResult.observe(this@DetailTaskActivity) {
+                    if (it.first) {
+                        Toast.makeText(this@DetailTaskActivity, it.second, Toast.LENGTH_SHORT).show()
+                        if (!imageUrl.isNullOrEmpty()) {
+                            deleteOldTaskImage(imageUrl ?: "")
+                        } else {
+                            finish()
+                        }
+                    }
+                }
+
+                taskTitle.observe(this@DetailTaskActivity) {
+                    binding.toolbar.title = it
+                }
+
+                taskBody.observe(this@DetailTaskActivity) {
+                    binding.tvDescription.text = it
+                }
+
+                taskDueTime.observe(this@DetailTaskActivity) { taskDueTime ->
+                    if (!taskDueTime.isNullOrEmpty()) {
+                        binding.tvDeadline.text = taskDueTime
                     } else {
-                        finish()
+                        binding.tvDeadline.setText(R.string.no_deadline)
+                    }
+                }
+
+                taskReminderTime.observe(this@DetailTaskActivity) { reminderTime ->
+                    if (!reminderTime.isNullOrEmpty()) {
+                        binding.tvReminderTitle.visibility = View.VISIBLE
+                        binding.tvReminder.visibility = View.VISIBLE
+                        binding.tvReminder.text = reminderTime
+                    } else {
+                        binding.tvReminderTitle.visibility = View.GONE
+                        binding.tvReminder.visibility = View.GONE
+                    }
+                }
+
+                taskPriority.observe(this@DetailTaskActivity) {
+                    when (it) {
+                        1 -> binding.tvPriority.text = TaskPriority.LOW.name
+                        2 -> binding.tvPriority.text = TaskPriority.MID.name
+                        3 -> binding.tvPriority.text = TaskPriority.HIGH.name
+                        else -> binding.tvPriority.setText(R.string.no_priority)
+                    }
+                }
+
+                taskImageUrl.observe(this@DetailTaskActivity) { imageUrl ->
+                    if (imageUrl.isNullOrEmpty()) {
+                        binding.flImageContainer.visibility = View.GONE
+                    } else {
+                        binding.flImageContainer.visibility = View.VISIBLE
+
+                        Glide.with(this@DetailTaskActivity)
+                            .load(imageUrl)
+                            .into(binding.ivTaskImage)
                     }
                 }
             }
+        }
 
-            taskTitle.observe(this@DetailTaskActivity) {
-                binding.toolbar.title = it
-            }
-
-            taskBody.observe(this@DetailTaskActivity) {
-                binding.tvDescription.text = it
-            }
-
-            taskDueTime.observe(this@DetailTaskActivity) { taskDueTime ->
-                if (!taskDueTime.isNullOrEmpty()) {
-                    binding.tvDeadline.text = taskDueTime
-                } else {
-                    binding.tvDeadline.setText(R.string.no_deadline)
-                }
-            }
-
-            taskReminderTime.observe(this@DetailTaskActivity) { reminderTime ->
-                if (!reminderTime.isNullOrEmpty()) {
-                    binding.tvReminderTitle.visibility = View.VISIBLE
-                    binding.tvReminder.visibility = View.VISIBLE
-                    binding.tvReminder.text = reminderTime
-                } else {
-                    binding.tvReminderTitle.visibility = View.GONE
-                    binding.tvReminder.visibility = View.GONE
-                }
-            }
-
-            taskPriority.observe(this@DetailTaskActivity) {
-                when (it) {
-                    1 -> binding.tvPriority.text = TaskPriority.LOW.name
-                    2 -> binding.tvPriority.text = TaskPriority.MID.name
-                    3 -> binding.tvPriority.text = TaskPriority.HIGH.name
-                    else -> binding.tvPriority.setText(R.string.no_priority)
-                }
-            }
-
-            taskImageUrl.observe(this@DetailTaskActivity) { imageUrl ->
-                if (imageUrl.isNullOrEmpty()) {
-                    binding.flImageContainer.visibility = View.GONE
-                } else {
-                    binding.flImageContainer.visibility = View.VISIBLE
-
-                    Glide.with(this@DetailTaskActivity)
-                        .load(imageUrl)
-                        .into(binding.ivTaskImage)
-                }
+        taskViewModel.operationResult.observe(this@DetailTaskActivity) {
+            if (it.first) {
+                binding.progressBar.visibility = View.GONE
+                deleteTaskFromDraft(uploadToFirestore = true)
+                Toast.makeText(this, "Task uploaded", Toast.LENGTH_SHORT).show()
+                finish()
+            } else {
+                Toast.makeText(this, it.second, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -261,7 +269,7 @@ class DetailTaskActivity : AppCompatActivity() {
 
                 binding.toolbar.title = it.taskTitle
                 binding.tvDescription.text = it.taskBody
-                binding.tvDeadline.text = if (it.taskDueDate.isNullOrEmpty()) { getString(R.string.no_deadline) } else { it.taskDueDate }
+                binding.tvDeadline.text = if (it.taskDueTime.isNullOrEmpty()) { getString(R.string.no_deadline) } else { it.taskDueTime }
                 binding.tvPriority.text = when (it.taskPriority) {
                     1 -> TaskPriority.LOW.name
                     2 -> TaskPriority.MID.name

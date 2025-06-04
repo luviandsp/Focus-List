@@ -135,14 +135,17 @@ class UserViewModel(applicationContext: Context) : ViewModel() {
         }
     }
 
-    fun registerAccountOnly(email: String, password: String) {
+    fun registerAccountOnly(email: String, password: String, username: String) {
         viewModelScope.launch {
             val result = userRepository.registerAccountOnly(email, password)
             
             _authRegister.postValue(result)
             
             if (result.first) {
-                setTempUser(email, password)
+                setTempUser(
+                    email = email,
+                    username = username
+                )
             }
         }
     }
@@ -250,12 +253,14 @@ class UserViewModel(applicationContext: Context) : ViewModel() {
 
     fun deleteAccount(
         email: String,
-        password: String
+        password: String,
+        context: Context
     ) {
         viewModelScope.launch {
             val result = userRepository.deleteAccountWithReauth(
                 email = email,
-                password = password
+                password = password,
+                context = context
             )
 
             _operationStatus.postValue(result)

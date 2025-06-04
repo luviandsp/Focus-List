@@ -300,14 +300,12 @@ class MainActivity : AppCompatActivity() {
             }
 
             userImageUrl.observe(this@MainActivity) { imageUrl ->
-                if (!imageUrl.isNullOrEmpty()) {
-                    Glide.with(this@MainActivity)
-                        .load(imageUrl)
-                        .placeholder(R.drawable.baseline_account_circle_24)
-                        .circleCrop()
-                        .into(binding.ivProfilePicture)
-                    Log.d(TAG, "User Image: $imageUrl")
-                }
+                Glide.with(this@MainActivity)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.baseline_account_circle_24)
+                    .circleCrop()
+                    .into(binding.ivProfilePicture)
+                Log.d(TAG, "User Image: $imageUrl")
             }
 
             authStatus.observe(this@MainActivity) { result ->
@@ -352,7 +350,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun readTask(task: Task) {
         Intent(this@MainActivity, DetailTaskActivity::class.java).apply {
-            putExtra(DetailTaskActivity.Companion.TASK_ID, task.taskId)
+            putExtra(DetailTaskActivity.TASK_ID, task.taskId)
             startActivity(this)
         }
     }

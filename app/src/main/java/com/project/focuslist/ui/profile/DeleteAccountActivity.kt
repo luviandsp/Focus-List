@@ -3,6 +3,7 @@ package com.project.focuslist.ui.profile
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -73,7 +74,8 @@ class DeleteAccountActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
 
-                userViewModel.deleteAccount(email, password)
+                userViewModel.deleteAccount(email, password, this@DeleteAccountActivity)
+                binding.progressBar.visibility = View.VISIBLE
             }
 
             btnCancel.setOnClickListener {
@@ -92,19 +94,22 @@ class DeleteAccountActivity : AppCompatActivity() {
 
             userImageUrl.observe(this@DeleteAccountActivity) { imageUrl ->
                 Glide.with(this@DeleteAccountActivity)
-                    .load(imageUrl.takeUnless { it.isNullOrEmpty() } ?: R.drawable.baseline_account_circle_24)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.baseline_account_circle_24)
                     .circleCrop()
                     .into(binding.ivProfileImage)
             }
 
             operationStatus.observe(this@DeleteAccountActivity) { result ->
                 if (result.first) {
+                    binding.progressBar.visibility = View.GONE
                     Toast.makeText(this@DeleteAccountActivity, "Account deleted successfully", Toast.LENGTH_SHORT).show()
 
                     userViewModel.setLoginStatus(false)
                     startActivity(Intent(this@DeleteAccountActivity, AuthActivity::class.java).apply {
                         Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     })
+
                     finish()
                 } else {
                     Toast.makeText(this@DeleteAccountActivity, "Failed to delete account: ${result.second}", Toast.LENGTH_SHORT).show()

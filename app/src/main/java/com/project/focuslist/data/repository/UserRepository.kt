@@ -2,6 +2,7 @@ package com.project.focuslist.data.repository
 
 import android.content.Context
 import android.util.Log
+import androidx.work.WorkManager
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -201,7 +202,7 @@ class UserRepository {
     }
 
     // Fungsi untuk menghapus akun
-    suspend fun deleteAccountWithReauth(email: String, password: String): Pair<Boolean, String?> {
+    suspend fun deleteAccountWithReauth(email: String, password: String, context: Context): Pair<Boolean, String?> {
         return try {
             val user = firebaseAuth.currentUser ?: return Pair(false, "User is not logged in")
 
@@ -211,11 +212,25 @@ class UserRepository {
 
             // Hapus data Firestore
             val userId = user.uid
+
             val tasksSnapshot = taskCollection.whereEqualTo("userId", userId).get().await()
+            val taskIdsToDelete = mutableListOf<String>()
+
+            for (doc in tasksSnapshot.documents) {
+                val taskId = doc.id
+                taskIdsToDelete.add(taskId)
+            }
+
             for (doc in tasksSnapshot.documents) {
                 doc.reference.delete().await()
             }
 
+            for (taskId in taskIdsToDelete) {
+                WorkManager.getInstance(context).cancelUniqueWork("reminder_$taskId")
+                Log.d("UserRepository", "Cancelled notification for task: $taskId during account deletion")
+            }
+
+            // Hapus dokumen user
             userCollection.document(userId).delete().await()
 
             // Hapus akun Auth

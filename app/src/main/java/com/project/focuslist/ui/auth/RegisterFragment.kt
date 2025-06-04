@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import com.project.focuslist.R
+import com.project.focuslist.data.utils.UserViewModelFactory
 import com.project.focuslist.data.viewmodel.UserViewModel
 import com.project.focuslist.databinding.FragmentRegisterBinding
 
@@ -20,7 +21,9 @@ class RegisterFragment : Fragment() {
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
 
-    private val userViewModel by viewModels<UserViewModel>()
+    private val userViewModel by viewModels<UserViewModel>(
+        factoryProducer = { UserViewModelFactory(requireContext()) }
+    )
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
@@ -60,7 +63,7 @@ class RegisterFragment : Fragment() {
                     return@setOnClickListener
                 }
 
-                userViewModel.registerAccountOnly(email, password)
+                userViewModel.registerAccountOnly(email, password, username)
             }
 
             tvResendVerification.setOnClickListener {

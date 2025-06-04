@@ -1,12 +1,15 @@
 package com.project.focuslist.data.model
 
+import android.os.Parcelable
 import androidx.annotation.Keep
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.IgnoreExtraProperties
 import com.google.firebase.firestore.PropertyName
+import kotlinx.parcelize.Parcelize
 
 @Keep
 @IgnoreExtraProperties
+@Parcelize
 data class Task(
     @PropertyName("taskId") val taskId: String = "",
     @PropertyName("userId") val userId: String = "",
@@ -21,4 +24,4 @@ data class Task(
     @PropertyName("isCompleted") val isCompleted: Boolean = false,
     @PropertyName("createdAt") val createdAt: Timestamp = Timestamp.now(),
     @PropertyName("updatedAt") val updatedAt: Timestamp = Timestamp.now()
-)
+) : Parcelable

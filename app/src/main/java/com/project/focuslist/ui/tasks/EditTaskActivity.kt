@@ -312,8 +312,8 @@ class EditTaskActivity : AppCompatActivity() {
 
     private fun saveTask() {
         with(binding) {
-            val activity = tietActivity.text.toString().trim().ifEmpty { "Tanpa Judul" }
-            val description = tietDescription.text.toString().trim().ifEmpty { "Tanpa Isi" }
+            val activity = tietActivity.text.toString().trim().ifEmpty { "Empty Title" }
+            val description = tietDescription.text.toString().trim().ifEmpty { "Empty Description" }
             val selectedPriority = spinnerPriority.text.toString().trim()
             val oldTaskImageUrl = taskViewModel.taskImageUrl.value ?: ""
 
@@ -380,8 +380,8 @@ class EditTaskActivity : AppCompatActivity() {
 
     private fun saveToDraft() {
         with(binding) {
-            val activity = tietActivity.text.toString().trim().ifEmpty { "Tanpa Judul" }
-            val description = tietDescription.text.toString().trim().ifEmpty { "Tanpa Isi" }
+            val activity = tietActivity.text.toString().trim().ifEmpty { "Empty Title" }
+            val description = tietDescription.text.toString().trim().ifEmpty { "Empty Description" }
             val selectedPriority = spinnerPriority.text.toString().trim()
             val oldTaskImageUrl = taskViewModel.taskImageUrl.value ?: ""
 
@@ -443,6 +443,7 @@ class EditTaskActivity : AppCompatActivity() {
             operationResult.observe(this@EditTaskActivity) { (success, message) ->
                 binding.progressBar.visibility = View.GONE
                 if (success) {
+                    showToast("Task successfully updated")
                     finish()
                 } else {
                     showToast(message ?: "Error occurred")
@@ -481,7 +482,7 @@ class EditTaskActivity : AppCompatActivity() {
         }
 
         storageViewModel.uploadStatus.observe(this@EditTaskActivity) { success ->
-            if (success) Log.d(TAG, "Berhasil mengunggah foto") else Log.d(TAG, "Gagal mengunggah foto")
+            if (success) Log.d(TAG, "Image sucsessfully uploaded") else Log.d(TAG, "Failed to upload image")
         }
     }
 

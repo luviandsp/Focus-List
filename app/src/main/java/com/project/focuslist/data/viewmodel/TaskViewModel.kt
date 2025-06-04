@@ -297,7 +297,8 @@ class TaskViewModel: ViewModel() {
     }
 
     fun deleteTask(
-        taskId: String
+        taskId: String,
+        context: Context
     ) {
         viewModelScope.launch {
             val result = taskRepository.deleteTask(
@@ -305,6 +306,10 @@ class TaskViewModel: ViewModel() {
             )
 
             _operationDeleteResult.postValue(result)
+
+            if (result.first) {
+                cancelNotification(context, taskId)
+            }
         }
     }
 
@@ -354,4 +359,8 @@ class TaskViewModel: ViewModel() {
         )
     }
 
+    private fun cancelNotification(context: Context, taskId: String) {
+        WorkManager.getInstance(context).cancelUniqueWork("reminder_$taskId")
+        Log.d(TAG, "Notification for task $taskId cancelled")
+    }
 }

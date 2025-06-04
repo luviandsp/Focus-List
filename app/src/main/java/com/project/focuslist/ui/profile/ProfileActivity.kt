@@ -98,7 +98,8 @@ class ProfileActivity : AppCompatActivity() {
             userImageUrl.observe(this@ProfileActivity) { imageUrl ->
                 Log.d(TAG, "Image URL: $imageUrl")
                 Glide.with(this@ProfileActivity)
-                    .load(imageUrl.takeUnless { it.isNullOrEmpty() } ?: R.drawable.baseline_account_circle_24)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.baseline_account_circle_24)
                     .circleCrop()
                     .into(binding.ivProfileImage)
             }
