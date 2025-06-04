@@ -96,6 +96,8 @@ class EditProfileActivity : AppCompatActivity() {
                 } else {
                     userViewModel.updateProfile(username, oldImageUrl)
                 }
+
+                binding.progressBar.visibility = View.VISIBLE
             }
 
             toolbar.setNavigationOnClickListener { finish() }
@@ -119,11 +121,11 @@ class EditProfileActivity : AppCompatActivity() {
 
                 if (success) {
                     showToast("Profile successfully updated")
-                    Log.d(TAG, "Profile berhasil diperbarui")
+                    Log.d(TAG, "Profile successfully updated")
                     finish()
                 } else {
                     showToast("Error Occured")
-                    Log.e(TAG, "Terjadi kesalahan: $message")
+                    Log.e(TAG, "Error Occured: $message")
                 }
             }
 
@@ -141,15 +143,16 @@ class EditProfileActivity : AppCompatActivity() {
         storageViewModel.apply {
             uploadStatus.observe(this@EditProfileActivity) { status ->
                 if (!status) {
-                    Log.d(TAG, "Foto profil gagal diunggah")
+                    Log.d(TAG, "Failed to upload image")
+                    showToast("Failed to upload image")
                 } else {
-                    Log.d(TAG, "Foto profil berhasil diunggah")
+                    Log.d(TAG, "Image uploaded successfully")
                 }
             }
 
             deleteStatus.observe(this@EditProfileActivity) { status ->
                 if (status) {
-                    Log.d(TAG, "Foto profil berhasil dihapus")
+                    Log.d(TAG, "Image deleted successfully")
                 }
             }
         }
