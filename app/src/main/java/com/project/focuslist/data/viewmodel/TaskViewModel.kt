@@ -77,6 +77,12 @@ class TaskViewModel: ViewModel() {
     private var currentVerticalList = mutableListOf<TaskWithUser>()
     private var currentHorizontalList = mutableListOf<TaskWithUser>()
 
+    private val _isTodayTaskLoaded = MutableLiveData<Boolean>(false)
+    private val _isAllTaskLoaded = MutableLiveData<Boolean>(false)
+    private val _isInProgressTaskLoaded = MutableLiveData<Boolean>(false)
+    private val _isCompletedTaskLoaded = MutableLiveData<Boolean>(false)
+    private val _isTaskByDateLoaded = MutableLiveData<Boolean>(false)
+
     fun hasMoreData(): Boolean {
         return !taskRepository.isLastPage()
     }
@@ -126,6 +132,12 @@ class TaskViewModel: ViewModel() {
                     reminderOffsetMillis = reminderOffsetMillis
                 )
 
+                _isTodayTaskLoaded.postValue(false)
+                _isAllTaskLoaded.postValue(false)
+                _isInProgressTaskLoaded.postValue(false)
+                _isCompletedTaskLoaded.postValue(false)
+                _isTaskByDateLoaded.postValue(false)
+
                 Log.d(TAG, "createTask: Task $taskTitle created")
             }
         }
@@ -133,79 +145,103 @@ class TaskViewModel: ViewModel() {
 
     fun getTodayTask(resetPaging: Boolean = false) {
         viewModelScope.launch {
-            val tasks = taskRepository.getUserTodayTask(resetPaging)
+            if (resetPaging || _isTodayTaskLoaded.value == false) {
+                val tasks = taskRepository.getUserTodayTask(resetPaging)
+                if (resetPaging) {
+                    currentHorizontalList.clear()
+                }
 
-            if (resetPaging) {
-                currentHorizontalList.clear()
+                currentHorizontalList.addAll(tasks)
+                _todayTask.postValue(currentHorizontalList)
+                _isTodayTaskLoaded.postValue(true)
+
+                Log.d(TAG, "getTodayTask: Current list size: ${currentHorizontalList.size}")
+            } else {
+                Log.d(TAG, "getTodayTask: Data already loaded, skipping fetch.")
             }
-
-            currentHorizontalList.addAll(tasks)
-            _todayTask.postValue(currentHorizontalList)
-
-            Log.d(TAG, "getTodayTask: Current list size: ${currentHorizontalList.size}")
         }
     }
 
     fun getUserTask(resetPaging: Boolean = false) {
         viewModelScope.launch {
-            val tasks = taskRepository.getUserTask(resetPaging)
+            if (resetPaging || _isAllTaskLoaded.value == false) {
+                val tasks = taskRepository.getUserTask(resetPaging)
 
-            if (resetPaging) {
-                currentVerticalList.clear()
+                if (resetPaging) {
+                    currentVerticalList.clear()
+                }
+
+                currentVerticalList.addAll(tasks)
+                _allTask.postValue(currentVerticalList)
+                _isAllTaskLoaded.postValue(true)
+
+                Log.d(TAG, "getUserTask: Current list size: ${currentVerticalList.size}")
+            } else {
+                Log.d(TAG, "getUserTask: Data already loaded, skipping fetch.")
             }
-
-            currentVerticalList.addAll(tasks)
-            _allTask.postValue(currentVerticalList)
-
-            Log.d(TAG, "getUserTask: Current list size: ${currentVerticalList.size}")
         }
     }
 
     fun getUserCompletedTask(resetPaging: Boolean = false) {
         viewModelScope.launch {
-            val tasks = taskRepository.getUserCompletedTask(resetPaging)
+            if (resetPaging || _isCompletedTaskLoaded.value == false) {
+                val tasks = taskRepository.getUserCompletedTask(resetPaging)
 
-            if (resetPaging) {
-                currentVerticalList.clear()
+                if (resetPaging) {
+                    currentVerticalList.clear()
+                }
+
+                currentVerticalList.addAll(tasks)
+                _taskCompleted.postValue(currentVerticalList)
+                _isCompletedTaskLoaded.postValue(true)
+
+                Log.d(TAG, "getUserCompletedTask: Current list size: ${currentVerticalList.size}")
+            } else {
+                Log.d(TAG, "getUserCompletedTask: Data already loaded, skipping fetch.")
             }
-
-            currentVerticalList.addAll(tasks)
-            _taskCompleted.postValue(currentVerticalList)
-
-            Log.d(TAG, "getUserCompletedTask: Current list size: ${currentVerticalList.size}")
         }
     }
 
     fun getUserInProgressTask(resetPaging: Boolean = false) {
         viewModelScope.launch {
-            val tasks = taskRepository.getUserInProgressTask(resetPaging)
+            if (resetPaging || _isInProgressTaskLoaded.value == false) {
+                val tasks = taskRepository.getUserInProgressTask(resetPaging)
 
-            if (resetPaging) {
-                currentVerticalList.clear()
+                if (resetPaging) {
+                    currentVerticalList.clear()
+                }
+
+                currentVerticalList.addAll(tasks)
+                _taskInProgress.postValue(currentVerticalList)
+                _isInProgressTaskLoaded.postValue(true)
+
+                Log.d(TAG, "getUserInProgressTask: Current list size: ${currentVerticalList.size}")
+            } else {
+                Log.d(TAG, "getUserInProgressTask: Data already loaded, skipping fetch.")
             }
-
-            currentVerticalList.addAll(tasks)
-            _taskInProgress.postValue(currentVerticalList)
-
-            Log.d(TAG, "getUserInProgressTask: Current list size: ${currentVerticalList.size}")
         }
     }
 
     fun getUserTaskByDate(date: String, resetPaging: Boolean = false) {
         viewModelScope.launch {
-            val tasks = taskRepository.getUserTaskByDate(
-                date = date,
-                resetPaging = resetPaging
-            )
+            if (resetPaging || _isTaskByDateLoaded.value == false) {
+                val tasks = taskRepository.getUserTaskByDate(
+                    date = date,
+                    resetPaging = resetPaging
+                )
 
-            if (resetPaging) {
-                currentVerticalList.clear()
+                if (resetPaging) {
+                    currentVerticalList.clear()
+                }
+
+                currentVerticalList.addAll(tasks)
+                _taskByDate.postValue(currentVerticalList)
+                _isTaskByDateLoaded.postValue(true)
+
+                Log.d(TAG, "getUserTaskByDate: Current list size: ${currentVerticalList.size}")
+            } else {
+                Log.d(TAG, "getUserTaskByDate: Data already loaded, skipping fetch.")
             }
-
-            currentVerticalList.addAll(tasks)
-            _taskByDate.postValue(currentVerticalList)
-
-            Log.d(TAG, "getUserTaskByDate: Current list size: ${currentVerticalList.size}")
         }
     }
 
@@ -273,6 +309,12 @@ class TaskViewModel: ViewModel() {
                     reminderOffsetMillis = reminderOffsetMillis
                 )
 
+                _isTodayTaskLoaded.postValue(false)
+                _isAllTaskLoaded.postValue(false)
+                _isInProgressTaskLoaded.postValue(false)
+                _isCompletedTaskLoaded.postValue(false)
+                _isTaskByDateLoaded.postValue(false)
+
                 Log.d(TAG, "updateTask: Task $taskTitle updated")
             }
         }
@@ -292,6 +334,11 @@ class TaskViewModel: ViewModel() {
 
             if (result.first) {
                 _isCompleted.postValue(isCompleted)
+                _isTodayTaskLoaded.postValue(false)
+                _isAllTaskLoaded.postValue(false)
+                _isInProgressTaskLoaded.postValue(false)
+                _isCompletedTaskLoaded.postValue(false)
+                _isTaskByDateLoaded.postValue(false)
             }
         }
     }
@@ -309,6 +356,11 @@ class TaskViewModel: ViewModel() {
 
             if (result.first) {
                 cancelNotification(context, taskId)
+                _isTodayTaskLoaded.postValue(false)
+                _isAllTaskLoaded.postValue(false)
+                _isInProgressTaskLoaded.postValue(false)
+                _isCompletedTaskLoaded.postValue(false)
+                _isTaskByDateLoaded.postValue(false)
             }
         }
     }
@@ -362,5 +414,13 @@ class TaskViewModel: ViewModel() {
     private fun cancelNotification(context: Context, taskId: String) {
         WorkManager.getInstance(context).cancelUniqueWork("reminder_$taskId")
         Log.d(TAG, "Notification for task $taskId cancelled")
+    }
+
+    fun resetAllTaskLoadedFlags() {
+        _isTodayTaskLoaded.value = false
+        _isAllTaskLoaded.value = false
+        _isInProgressTaskLoaded.value = false
+        _isCompletedTaskLoaded.value = false
+        _isTaskByDateLoaded.value = false
     }
 }

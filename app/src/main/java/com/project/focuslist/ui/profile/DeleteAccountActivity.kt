@@ -106,11 +106,11 @@ class DeleteAccountActivity : AppCompatActivity() {
                     Toast.makeText(this@DeleteAccountActivity, "Account deleted successfully", Toast.LENGTH_SHORT).show()
 
                     userViewModel.setLoginStatus(false)
-                    startActivity(Intent(this@DeleteAccountActivity, AuthActivity::class.java).apply {
-                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    })
-
-                    finish()
+                    Intent(this@DeleteAccountActivity, AuthActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(this)
+                        finish()
+                    }
                 } else {
                     Toast.makeText(this@DeleteAccountActivity, "Failed to delete account: ${result.second}", Toast.LENGTH_SHORT).show()
                     Log.e(TAG, "Failed to delete account: ${result.second}")

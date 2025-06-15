@@ -214,23 +214,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun showAllTask() {
         taskViewModel.getUserTask(resetPaging = true)
-
         currentReload = { taskViewModel.getUserTask(resetPaging = true) }
-        currentLoadMore = { taskViewModel.getUserTask() }
+        currentLoadMore = { taskViewModel.getUserTask(resetPaging = false) }
     }
 
     private fun showInProgressTask() {
         taskViewModel.getUserInProgressTask(resetPaging = true)
-
         currentReload = { taskViewModel.getUserInProgressTask(resetPaging = true) }
-        currentLoadMore = { taskViewModel.getUserInProgressTask() }
+        currentLoadMore = { taskViewModel.getUserInProgressTask(resetPaging = false) }
     }
 
     private fun showCompletedTask() {
         taskViewModel.getUserCompletedTask(resetPaging = true)
-
         currentReload = { taskViewModel.getUserCompletedTask(resetPaging = true) }
-        currentLoadMore = { taskViewModel.getUserCompletedTask() }
+        currentLoadMore = { taskViewModel.getUserCompletedTask(resetPaging = false) }
     }
 
     private fun setupTaskList() {
@@ -385,23 +382,23 @@ class MainActivity : AppCompatActivity() {
         userViewModel.getUser()
 
         taskViewModel.getTodayTask(resetPaging = true)
-        Log.d(TAG, "Get Today Task")
+        Log.d(TAG, "On Resume: Get Today Task")
 
         when (buttonType) {
             TaskCategory.ALL_TASK.name -> {
                 changeButtonActive(TaskCategory.ALL_TASK.name)
                 showAllTask()
-                Log.d(TAG, "Get All Task")
+                Log.d(TAG, "On Resume: Get All Task")
             }
             TaskCategory.IN_PROGRESS.name -> {
                 changeButtonActive(TaskCategory.IN_PROGRESS.name)
                 showInProgressTask()
-                Log.d(TAG, "Get In Progress Task")
+                Log.d(TAG, "On Resume: Get In Progress Task")
             }
             TaskCategory.COMPLETED.name -> {
                 changeButtonActive(TaskCategory.COMPLETED.name)
                 showCompletedTask()
-                Log.d(TAG, "Get Completed Task")
+                Log.d(TAG, "On Resume: Get Completed Task")
             }
         }
     }

@@ -181,10 +181,10 @@ class UserViewModel(applicationContext: Context) : ViewModel() {
             val cachedUpdatedAt = cachedUserWithTimestamp.updatedAt
 
             Log.d(TAG, "getUser: Cached data - $cachedUser, updatedAt - $cachedUpdatedAt")
-            Log.d(TAG, "getUser: Fetching user data from repository")
             val userData = userRepository.getUserData()
             _authStatus.postValue(Pair(true, "User logged in"))
 
+            Log.d(TAG, "getUser: User data from repository - $userData")
 
             if (userData != null) {
                 val databaseUpdatedAt = userData.updatedAt.toDate().time

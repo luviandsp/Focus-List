@@ -109,11 +109,11 @@ class ProfileActivity : AppCompatActivity() {
                     Toast.makeText(this@ProfileActivity, "Logout Success", Toast.LENGTH_SHORT).show()
 
                     userViewModel.setLoginStatus(false)
-                    startActivity(Intent(this@ProfileActivity, AuthActivity::class.java).apply {
-                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    })
-
-                    finish()
+                    Intent(this@ProfileActivity, AuthActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(this)
+                        finish()
+                    }
                 }
             }
         }
